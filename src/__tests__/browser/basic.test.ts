@@ -3,12 +3,9 @@
  */
 
 describe("dom manipulation", () => {
-  test("use jsdom in this test file", () => {
-    const element = document.createElement("div");
-    const childElement = document.createElement("span");
-    element.insertBefore(childElement, element.firstChild);
+  test("test a simple component", () => {
+    const component = div("this is a simple test");
 
-
-    expect(element).not.toBeNull();
+    expect(component).not.toBeNull();
   });
 });
