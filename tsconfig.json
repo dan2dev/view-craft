@@ -25,7 +25,7 @@
     "types": ["vitest/jsdom", "vitest", "vitest/globals"],
     "paths": {
       "@/*": ["./src/*"],
-      "@tests/*": ["./tests/*"]
+      "@tests/*": ["./src/__tests__/*"]
     },
   },
   "include": ["src", "tests"],
