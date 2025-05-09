@@ -25,7 +25,8 @@
     "types": ["vitest/jsdom", "vitest", "vitest/globals"],
     "paths": {
       "@/*": ["./src/*"],
-      "@tests/*": ["./src/__tests__/*"]
+      "@tests/*": ["./src/__tests__/*"],
+      "view-craft": ["./src/main"],
     },
   },
   "include": ["src", "tests"],

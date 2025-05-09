@@ -7,6 +7,7 @@ export default defineConfig({
     environment: "node",
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
+      "view-craft": fileURLToPath(new URL("./src/main.ts", import.meta.url)),
     },
   },
 });
