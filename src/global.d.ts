@@ -2,6 +2,26 @@ declare type ElementTagName = keyof HTMLElementTagNameMap;
 declare type SVGTagName = keyof SVGElementTagNameMap;
 declare type MathMLTagName = keyof MathMLElementTagNameMap;
 
+// declare type TagName = ElementTagName | SVGTagName | MathMLTagName;
+
+declare type ModifierFn<TTagName extends TagName = TagName> = (
+  element: IHTMLElement<TTagName>,
+  index: number,
+  parent: IHTMLElement<TagName>,
+) => void;
+
+declare global {
+  interface Window {
+    // Extend Window interface with additional properties here
+    // Example: customProperty: string;
+  }
+
+  interface GlobalThis {
+    [tag: keyof TagName ]
+    // Extend GlobalThis interface with additional properties here
+    // Example: customGlobalFunction: () => void;
+  }
+}
 
 declare type IHTMLElement<TTagName extends TagName = TagName> = {
   isSSR?: boolean;
