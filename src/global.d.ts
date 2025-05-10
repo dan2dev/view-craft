@@ -1,3 +1,8 @@
+declare type ElementTagName = keyof HTMLElementTagNameMap;
+declare type SVGTagName = keyof SVGElementTagNameMap;
+declare type MathMLTagName = keyof MathMLElementTagNameMap;
+
+
 declare type IHTMLElement<TTagName extends TagName = TagName> = {
   isSSR?: boolean;
   children: IHTMLElement[];
