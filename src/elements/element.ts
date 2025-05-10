@@ -1,16 +1,21 @@
 import { tags } from "@/utility/tags";
+import "../global";
 import {isBrowser} from "view-craft";
 
-declare type TagName = keyof HTMLElementTagNameMap;
+
 
 
 
 if (isBrowser) {
-
   for (const tag of tags) {
-    globalThis[tag] = function() {
-      return document.createElement(tag);
-    };
+    Object.defineProperty(globalThis, tag, {
+        value: (...modifiers: ModifierFn<typeof tag>[]) => () => document.createElement(tag),
+        writable: false,
+        enumerable: false,
+        configurable: true,
+    })
   }
   console.log("Hello World!");
+} else {
+
 }

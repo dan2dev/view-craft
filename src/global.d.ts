@@ -11,13 +11,14 @@ declare type ModifierFn<TTagName extends TagName = TagName> = (
 ) => void;
 
 declare global {
-  interface Window {
+  declare interface Window {
+    [tag: TagName]: (...modifiers: ModifierFn<TagName>[]) => () => HTMLDivElement;
     // Extend Window interface with additional properties here
     // Example: customProperty: string;
   }
 
   interface GlobalThis {
-    [tag: keyof TagName ]
+
     // Extend GlobalThis interface with additional properties here
     // Example: customGlobalFunction: () => void;
   }
@@ -50,7 +51,7 @@ declare type IHTMLElementProps = {
 
 
 // declare type IHTMLElementProps
-declare function div(...modifiers: ModifierFn<"div">[]): (parent: any, index: number) => HTMLDivElement | IHTMLElement<"div">;
-declare function h1(...modifiers: ModifierFn<"h1">[]): (parent: any, index: number) => HTMLHeadingElement | IHTMLElement<"h1">;
-declare function h2(...modifiers: ModifierFn<"h2">[]): (parent: any, index: number) => HTMLHeadingElement | IHTMLElement<"h2">;
-declare function span(...modifiers: ModifierFn<"span">[]): (parent: any, index: number) => HTMLSpanElement | IHTMLElement<"span">;
+// declare function div(...modifiers: ModifierFn<"div">[]): () => HTMLDivElement;
+// declare function h1(...modifiers: ModifierFn<"h1">[]): (parent: any, index: number) => HTMLHeadingElement | IHTMLElement<"h1">;
+// declare function h2(...modifiers: ModifierFn<"h2">[]): (parent: any, index: number) => HTMLHeadingElement | IHTMLElement<"h2">;
+// declare function span(...modifiers: ModifierFn<"span">[]): (parent: any, index: number) => HTMLSpanElement | IHTMLElement<"span">;

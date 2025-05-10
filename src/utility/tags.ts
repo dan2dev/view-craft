@@ -1,5 +1,8 @@
-export const tags: ElementTagName[] = [
+
+export const tags: TagName[] = [
     "div",
+    "h1",
+    "span"
 ]
 
 export const selfClosingTags= [
