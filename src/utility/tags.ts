@@ -5,7 +5,8 @@ export const tags: TagName[] = [
     "span"
 ]
 
-export const selfClosingTags= [
+
+export const selfClosingTags: SelfClosingTagName[] = [
     "area",
     "base",
     "br",
@@ -22,3 +23,12 @@ export const selfClosingTags= [
     "track",
     "wbr",
 ]
+
+export function initBrowserTags() {
+    if (typeof window === "undefined") {
+        throw new Error("window is not defined");
+    }
+    tags.forEach((tag) => {
+    });
+
+}

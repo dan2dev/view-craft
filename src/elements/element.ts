@@ -1,21 +1,30 @@
-import { tags } from "@/utility/tags";
-import "../global";
-import {isBrowser} from "view-craft";
-
-
-
+import { selfClosingTags, tags } from "@/utility/tags";
+import { isBrowser } from "view-craft";
 
 
 if (isBrowser) {
+
   for (const tag of tags) {
     Object.defineProperty(globalThis, tag, {
-        value: (...modifiers: ModifierFn<typeof tag>[]) => () => document.createElement(tag),
-        writable: false,
-        enumerable: false,
-        configurable: true,
+      value: (...modifiers: ModifierFn<typeof tag>[]) => () => document.createElement(tag),
+      writable: false,
+      enumerable: false,
+      configurable: true,
     })
   }
-  console.log("Hello World!");
+  console.log("Hello World!!!!!");
 } else {
+  for (const tag of tags) {
+    Object.defineProperty(globalThis, tag, {
+      value: (...modifiers: ModifierFn<typeof tag>[]) => () => { 
+        
+        
 
+        `<${tag}></${tag}>`
+      },
+      writable: false,
+      enumerable: false,
+      configurable: true,
+    })
+  }
 }

@@ -51,7 +51,8 @@ declare type IHTMLElementProps = {
 
 
 // declare type IHTMLElementProps
-declare function div(...modifiers: ModifierFn<"div">[]): () => HTMLDivElement;
-// declare function h1(...modifiers: ModifierFn<"h1">[]): (parent: any, index: number) => HTMLHeadingElement | IHTMLElement<"h1">;
+declare function div<TTagName extends TagName = "div">  (...modifiers: ModifierFn<TTagName>[]): () => HTMLDivElement;
+declare function h1<TTagName extends TagName = "h1">(...modifiers: ModifierFn<TTagName>[]): () => HTMLDivElement;
+declare function span<TTagName extends TagName = "span">(...modifiers: ModifierFn<TTagName>[]): () => HTMLDivElement;
 // declare function h2(...modifiers: ModifierFn<"h2">[]): (parent: any, index: number) => HTMLHeadingElement | IHTMLElement<"h2">;
 // declare function span(...modifiers: ModifierFn<"span">[]): (parent: any, index: number) => HTMLSpanElement | IHTMLElement<"span">;

@@ -11,5 +11,11 @@ export default defineConfig({
       fileName: "view-craft",
     },
   },
+  resolve: {
+    alias: {
+      "@": resolve(__dirname, "src"),
+      "view-craft": resolve(__dirname, "src/main.ts"),
+    },
+  },
   plugins: [dts({ rollupTypes: true })],
 });
