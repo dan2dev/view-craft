@@ -4,6 +4,13 @@ declare type MathMLTagName = keyof MathMLElementTagNameMap;
 
 // declare type TagName = ElementTagName | SVGTagName | MathMLTagName;
 
+declare type ChildDomType =
+  | HTMLElement
+  | SVGElement
+  | MathMLElement
+  | Text
+  | Comment;
+
 declare type ModifierFn<TTagName extends TagName = TagName> = ((
   element: IHTMLElement<TTagName>,
   index: number,

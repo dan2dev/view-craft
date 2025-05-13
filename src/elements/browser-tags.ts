@@ -1,28 +1,42 @@
-
+import { isDomChild } from "@/utility/isDomChild";
 import { tags } from "@/utility/tags";
 
-export type ChildLinkType<T> = {
-  parent: T;
-  index: number;
-} | {
-  anchor: T;
-  index: number;
-}
-function processFunctionModifier<T, TAnchor>(child: T, link: ChildLinkType<TAnchor>): any {
-  let computedChild = child;
+export type ChildLinkType<T> =
+  | {
+      parent: T;
+      index: number;
+    }
+  | {
+      anchor: T;
+      index: number;
+    };
+
+function processFunctionModifier<T, TAnchor>(
+  child: T,
+  link: ChildLinkType<TAnchor>,
+): any {
+  let computedChild: T = child;
 
   while (typeof computedChild === "function") {
-    (link.anchor as any).updateView = child;
-    computedChild = computedChild(link.anchor, {
+    if ("parent" in link) {
+      (link.parent as any).updateView = child;
+    } else if ("anchor" in link) {
+      (link.anchor as any).updateView = child;
+    }
+
+    // ------------------
+    computedChild = computedChild(computedChild, {
       index: link.index,
       parent: link.parent,
       anchor: link.anchor,
     } as ChildLinkType<TAnchor>);
   }
 
+  if (isDomChild(computedChild)) {
+  }
+
   return computedChild;
 }
-
 
 /**
  * Creates a tag builder for a specific HTML tag.
@@ -44,7 +58,9 @@ function processFunctionModifier<T, TAnchor>(child: T, link: ChildLinkType<TAnch
  * via modifier functions. It serves a similar purpose to higher-order component or function patterns in modern
  * web development.
  */
-export function createTagBuilder<TTagName extends TagName = TagName>(tag: TTagName) {
+export function createTagBuilder<TTagName extends TagName = TagName>(
+  tag: TTagName,
+) {
   return function (...modifiers: ModifierFn<typeof tag>[]) {
     // builder function
     return function (parent: any, link: ChildLinkType<TagName>) {
@@ -54,21 +70,29 @@ export function createTagBuilder<TTagName extends TagName = TagName>(tag: TTagNa
       // build all children (modifiers) until there is no more functions in the modifiers
       let childIndex = 0;
       const children = modifiers.map((modifier) => {
-        const child = processFunctionModifier(modifier, { index: childIndex, parent: parent });
-        if (child instanceof HTMLElement || child instanceof Text || child instanceof Comment) {
+        const child = processFunctionModifier(modifier, {
+          index: childIndex,
+          parent: parent,
+        });
+        if (
+          child instanceof HTMLElement ||
+          child instanceof Text ||
+          child instanceof Comment
+        ) {
           childIndex++;
         }
         return child;
       });
-
-    }
-  }
-
+    };
+  };
 }
 export function initBrowserTags() {
   tags.forEach((tag) => {
     Object.defineProperty(globalThis, tag, {
-      value: (...modifiers: ModifierFn<typeof tag>[]) => () => document.createElement(tag),
+      value:
+        (...modifiers: ModifierFn<typeof tag>[]) =>
+        () =>
+          document.createElement(tag),
       writable: false,
       enumerable: false,
       configurable: true,
