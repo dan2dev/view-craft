@@ -1,12 +1,12 @@
 import { selfClosingTags, tags } from "@/utility/tags";
 import { isBrowser } from "view-craft";
+import { createTag } from "./browser-tags";
 
 
 if (isBrowser) {
-
   for (const tag of tags) {
     Object.defineProperty(globalThis, tag, {
-      value: (...modifiers: ModifierFn<typeof tag>[]) => () => document.createElement(tag),
+      value: createTag(tag),
       writable: false,
       enumerable: false,
       configurable: true,
@@ -16,9 +16,9 @@ if (isBrowser) {
 } else {
   for (const tag of tags) {
     Object.defineProperty(globalThis, tag, {
-      value: (...modifiers: ModifierFn<typeof tag>[]) => () => { 
-        
-        
+      value: (...modifiers: ModifierFn<typeof tag>[]) => () => {
+
+
 
         `<${tag}></${tag}>`
       },

@@ -4,28 +4,28 @@ declare type MathMLTagName = keyof MathMLElementTagNameMap;
 
 // declare type TagName = ElementTagName | SVGTagName | MathMLTagName;
 
-declare type ChildDomType =
-  | HTMLElement
-  | SVGElement
-  | MathMLElement
-  | Text
-  | Comment;
 
-declare type ModifierFn<TTagName extends TagName = TagName> = ((
-  element: IHTMLElement<TTagName>,
-  index: number,
-  parent: IHTMLElement<TagName>,
-) => void) | string | number | boolean ;
+
+declare type ModifierFn<TTagName extends TagName = TagName> =
+  | ((
+      element: IHTMLElement<TTagName>,
+      index: number,
+      parent: IHTMLElement<TagName>,
+    ) => void)
+  | string
+  | number
+  | boolean;
 
 declare global {
   declare interface Window {
-    [tag: TagName]: (...modifiers: ModifierFn<TagName>[]) => () => HTMLDivElement;
+    [tag: TagName]: (
+      ...modifiers: ModifierFn<TagName>[]
+    ) => () => HTMLDivElement;
     // Extend Window interface with additional properties here
     // Example: customProperty: string;
   }
 
   interface GlobalThis {
-
     // Extend GlobalThis interface with additional properties here
     // Example: customGlobalFunction: () => void;
   }
@@ -56,11 +56,12 @@ declare type IHTMLElementProps = {
   };
 };
 
-
 // declare type IHTMLElementProps
 declare global {
   interface Window {
-    [K in TagName]: (...modifiers: ModifierFn<K>[]) => (parent: ChildLinkType<TAnchor>) => HTMLElementTagNameMap[K];
+    [K in TagName]: (
+      ...modifiers: ModifierFn<K>[]
+    ) => (parent: ChildLinkType<TAnchor>) => HTMLElementTagNameMap[K];
   }
 }
 // declare function h2(...modifiers: ModifierFn<"h2">[]): (parent: any, index: number) => HTMLHeadingElement | IHTMLElement<"h2">;
