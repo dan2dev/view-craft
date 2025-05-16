@@ -1,7 +1,7 @@
 {
   "name": "view-craft",
   "private": false,
-  "version": "0.1.3",
+  "version": "0.1.4",
   "type": "module",
   "main": "./dist/view-craft.cjs",
   "module": "./dist/view-craft.js",
