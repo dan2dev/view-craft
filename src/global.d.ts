@@ -8,10 +8,10 @@ declare type MathMLTagName = keyof MathMLElementTagNameMap;
 
 declare type ModifierFn<TTagName extends TagName = TagName> =
   | ((
-      element: IHTMLElement<TTagName>,
-      index: number,
-      parent: IHTMLElement<TagName>,
-    ) => void)
+    element: IHTMLElement<TTagName>,
+    index: number,
+    parent: IHTMLElement<TagName>,
+  ) => void)
   | string
   | number
   | boolean;
@@ -29,6 +29,9 @@ declare global {
     // Extend GlobalThis interface with additional properties here
     // Example: customGlobalFunction: () => void;
   }
+}
+declare type IHTMLElement<TTAgName extends TagName = TagName> = HTMLElement | {
+  
 }
 
 declare type IHTMLElement<TTagName extends TagName = TagName> = {

@@ -3,6 +3,20 @@
   "private": false,
   "version": "0.1.0",
   "type": "module",
+  "main": "./dist/view-craft.cjs",
+  "module": "./dist/view-craft.js",
+  "browser": "./dist/view-craft.umd.js",
+  "types": "./dist/view-craft.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/view-craft.js",
+      "require": "./dist/view-craft.cjs",
+      "types": "./dist/view-craft.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
