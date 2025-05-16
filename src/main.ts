@@ -1,4 +1,4 @@
-/// <reference path="../types/index.d.ts" />
+export * from "./utility/isBrowser";
 // import "../types/index.d.ts";
 // console.log("ok");
 

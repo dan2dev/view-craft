@@ -48,15 +48,8 @@ declare type IHTMLElementProps = {
 };
 
 // declare type IHTMLElementProps
-declare global {
 
-  // interface Window {
-  //   [K in TagName]: (
-  //     ...modifiers: ModifierFn<K>[]
-  //   ) => (parent: ChildLinkType<TAnchor>) => HTMLElementTagNameMap[K];
-  // }
-  function div(...modifiers: ModifierFn<"div">[]): (parent: any, index: number) => HTMLHeadingElement | IHTMLElement<"div">;
-}
+declare function div(...modifiers: ModifierFn<"div">[]): (parent: any, index: number) => HTMLHeadingElement | IHTMLElement<"div">;
 
 // declare function h2(...modifiers: ModifierFn<"h2">[]): (parent: any, index: number) => HTMLHeadingElement | IHTMLElement<"h2">;
 // declare function span(...modifiers: ModifierFn<"span">[]): (parent: any, index: number) => HTMLSpanElement | IHTMLElement<"span">;

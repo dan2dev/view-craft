@@ -1,7 +1,7 @@
 import { resolve } from "path";
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
-import { viteStaticCopy } from "vite-plugin-static-copy";
+// import { viteStaticCopy } from "vite-plugin-static-copy";
 
 
 export default defineConfig({
@@ -20,13 +20,13 @@ export default defineConfig({
     },
   },
   plugins: [dts({ rollupTypes: true }),
-  viteStaticCopy({
-    targets: [
-      {
-        src: "types",
-        dest: ".",
-      },
-    ],
-  }),
+  // viteStaticCopy({
+  //   targets: [
+  //     {
+  //       src: "types",
+  //       dest: ".",
+  //     },
+  //   ],
+  // }),
   ],
 });
