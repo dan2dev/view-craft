@@ -3,4 +3,6 @@
 publish:
 	@echo "Publishing with pnpm..."
 	@pnpm build
-	@pnpm publish
+	@echo "Bumping patch version..."
+	@pnpm version patch --no-git-checks
+	@pnpm publish --no-git-checks

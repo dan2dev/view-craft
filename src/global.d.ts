@@ -31,7 +31,7 @@ declare global {
   }
 }
 declare type IHTMLElement<TTAgName extends TagName = TagName> = HTMLElement | {
-  
+
 }
 
 declare type IHTMLElement<TTagName extends TagName = TagName> = {
@@ -67,5 +67,6 @@ declare global {
     ) => (parent: ChildLinkType<TAnchor>) => HTMLElementTagNameMap[K];
   }
 }
+declare function div(...modifiers: ModifierFn<"div">[]): (parent: any, index: number) => HTMLHeadingElement | IHTMLElement<"div">;
 // declare function h2(...modifiers: ModifierFn<"h2">[]): (parent: any, index: number) => HTMLHeadingElement | IHTMLElement<"h2">;
 // declare function span(...modifiers: ModifierFn<"span">[]): (parent: any, index: number) => HTMLSpanElement | IHTMLElement<"span">;
