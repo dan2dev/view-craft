@@ -1,7 +1,6 @@
 import { selfClosingTags, tags } from "@/utility/tags";
-import { isBrowser } from "view-craft";
 import { createTag } from "./browser-tags";
-
+import { isBrowser } from "@/utility/isBrowser";
 
 if (isBrowser) {
   for (const tag of tags) {
