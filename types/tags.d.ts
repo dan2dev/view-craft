@@ -1,4 +1,4 @@
-declare type TagName =  "div" | "h1" | "span";
+declare type TagName = "div" | "h1" | "span";
 declare type SelfClosingTagName = "input" | "img" | "br" | "hr" | "meta" | "link" | "base" | "col" | "area" | "embed" | "keygen" | "param" | "source" | "track" | "wbr";
 
 declare type ChildDomType =
@@ -10,10 +10,13 @@ declare type ChildDomType =
 
 declare type ChildLinkType<T> =
   | {
-      parent: T;
-      index: number;
-    }
+    parent: T;
+    index: number;
+  }
   | {
-      anchor: T;
-      index: number;
-    };
+    anchor: T;
+    index: number;
+  };
+
+
+declare function div(...modifiers: ModifierFn<"div">[]): (parent: any, index: number) => HTMLHeadingElement | IHTMLElement<"div">;

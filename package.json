@@ -21,8 +21,8 @@
     "dist"
   ],
   "scripts": {
-    "dev": "vite",
     "build": "tsc && vite build",
+    "dev": "vite build --watch",
     "preview": "vite preview",
     "test": "vitest"
   },
