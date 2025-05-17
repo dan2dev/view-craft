@@ -45,7 +45,7 @@ declare type HeadTagName =
   | "script"
   | "noscript";
 
-declare type SelfClosingTagName = 
+declare type SelfClosingTagName =
   | "area"
   | "base"
   | "br"
@@ -79,9 +79,11 @@ declare type ChildLinkType<T> =
     index: number;
   };
 
-declare type ModifierFn<TTagName extends TagName> = (
-  parent: any,
-  link: ChildLinkType<TTagName>,
-) => ChildDomType | ChildDomType[] | string | number | null | undefined;
+declare type ModifierFn<TTagName extends TagName> =
+  ((
+    parent: any,
+    link: ChildLinkType<TTagName>,
+  ) => ChildDomType | ChildDomType[] | string | number | null | undefined)
+  | string | number | null | undefined;
 
-declare function div(...modifiers: ModifierFn<"div">[]): (parent: any, index: number) => HTMLHeadingElement | IHTMLElement<"div">;
+

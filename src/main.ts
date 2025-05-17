@@ -1,16 +1,12 @@
+export * from "./utility/isBrowser";
 import { isBrowser } from "./utility/isBrowser";
 
-export * from "./utility/isBrowser";
-// import "../types/index.d.ts";
-// console.log("ok");
+const registerTags = isBrowser
+  ? () => import("./csr/index.ts").then((csr) => csr.registerTags())
+  : () => Promise.resolve();
 
-if (isBrowser) {
-  import("./csr/index.ts").then((module) => {
-    console.log(module);
-    console.log("ok");
-  }
-  );
-}
+registerTags();
+
 
 globalThis.div = function (...modifiers) {
   return function (parent, index) {
@@ -25,3 +21,6 @@ export const something = "ok2";
 // export * from "./utility/isBrowser.ts";
 // import "@/elements/element.ts";
 // import "@/utility/tags.ts";
+export {
+  isBrowser,
+}
