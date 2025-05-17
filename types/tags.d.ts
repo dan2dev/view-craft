@@ -18,5 +18,9 @@ declare type ChildLinkType<T> =
     index: number;
   };
 
+declare type ModifierFn<TTagName extends TagName> = (
+  parent: any,
+  link: ChildLinkType<TTagName>,
+) => ChildDomType | ChildDomType[] | string | number | null | undefined;
 
 declare function div(...modifiers: ModifierFn<"div">[]): (parent: any, index: number) => HTMLHeadingElement | IHTMLElement<"div">;

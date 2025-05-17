@@ -1,1 +1,2 @@
-/// <reference path="./global.d.ts" />
+import "./tags.d.ts";
+import "./IHTMLElement.d.ts";
