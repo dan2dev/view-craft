@@ -1,2 +1,2 @@
-import "./tags.d.ts";
+import "./tag-names";
 import "./IHTMLElement.d.ts";

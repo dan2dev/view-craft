@@ -4,8 +4,12 @@ export * from "./utility/isBrowser";
 // import "../types/index.d.ts";
 // console.log("ok");
 
-if(isBrowser) {
-  
+if (isBrowser) {
+  import("./csr/index.ts").then((module) => {
+    console.log(module);
+    console.log("ok");
+  }
+  );
 }
 
 globalThis.div = function (...modifiers) {

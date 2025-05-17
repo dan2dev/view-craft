@@ -1,4 +1,4 @@
-import { selfClosingTags, tags } from "@/utility/tags";
+import { selfClosingTags, tags } from "@/utility/tag-names";
 import { createTag } from "./browser-tags";
 import { isBrowser } from "@/utility/isBrowser";
 

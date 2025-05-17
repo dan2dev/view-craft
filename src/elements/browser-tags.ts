@@ -1,5 +1,5 @@
 import { isDomChild } from "@/utility/isDomChild";
-import { tags } from "@/utility/tags";
+import { tags } from "@/utility/tag-names";
 
 
 function processFunctionModifier<T, TAnchor>(
