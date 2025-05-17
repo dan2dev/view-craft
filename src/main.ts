@@ -1,7 +1,12 @@
+import { isBrowser } from "./utility/isBrowser";
+
 export * from "./utility/isBrowser";
 // import "../types/index.d.ts";
 // console.log("ok");
 
+if(isBrowser) {
+  
+}
 
 globalThis.div = function (...modifiers) {
   return function (parent, index) {
@@ -9,6 +14,7 @@ globalThis.div = function (...modifiers) {
     return element;
   }
 }
+
 export const something = "ok2";
 // import "./global.d.ts";
 // export * from "./global.d.ts";
