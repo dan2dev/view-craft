@@ -1,19 +1,22 @@
 export * from "./utility/isBrowser";
 import { isBrowser } from "./utility/isBrowser";
+import * as csr from "./csr/index.ts";
 
-const registerTags = isBrowser
-  ? () => import("./csr/index.ts").then((csr) => csr.registerTags())
-  : () => Promise.resolve();
-
-registerTags();
-
-
-globalThis.div = function (...modifiers) {
-  return function (parent, index) {
-    const element = document.createElement("div");
-    return element;
-  }
+// const registerTags = isBrowser
+//   ? () => import("./csr/index.ts").then((csr) => csr.registerTags())
+//   : () => Promise.resolve();
+if (isBrowser) {
+  csr.registerTags();
 }
+
+
+
+// globalThis.div = function (...modifiers) {
+//   return function (parent, index) {
+//     const element = document.createElement("div");
+//     return element;
+//   }
+// }
 
 export const something = "ok2";
 // import "./global.d.ts";
