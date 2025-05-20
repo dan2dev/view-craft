@@ -3,5 +3,5 @@ import * as csr from "./csr/index.ts";
 
 isBrowser && csr.registerTags();
 
-console.log("ok");
+console.log("OK!");
 export { isBrowser };
