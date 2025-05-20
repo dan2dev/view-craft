@@ -1,39 +1,36 @@
 import { tagNames } from "@/utility/tag-names";
 
-console.log("Client-side rendering!!!!");
+console.log("Client-side rendering!");
 
 declare const globalThis: {
   [key in TagName]: any;
-}
+};
+export function text() {}
+
 export function registerTags() {
   tagNames.forEach((tagName) => {
-    globalThis[tagName] = function (...modifiers: any[]) {
-      console.log("new tag");
-      const element = document.createElement(tagName);
-      modifiers.forEach((modifier) => {
-        // Check if the modifier is a function
-        if (typeof modifier === "string") {
-          element.appendChild(document.createTextNode(modifier));
-        }
-      });
+    Object.defineProperty(globalThis, tagName, {
+      value: function (...modifiers: any[]) {
+        return function (buildParams: {
+          parent: HTMLElement;
+          element: HTMLElement | Text | Comment;
+        }) {
+          // modifiers.forEach
 
-      return function (parent: any) {
-        // Apply modifiers to the element
-        // modifiers.forEach((modifier) => {
-        //   const result = modifier(parent, { parent });
-        //   if (Array.isArray(result)) {
-        //     result.forEach((child) => element.appendChild(child));
-        //   } else if (result instanceof Node) {
-        //     element.appendChild(result);
-        //   } else if (typeof result === "string" || typeof result === "number") {
-        //     element.textContent = String(result);
-        //   }
-        // });
-        return element;
-      };
-    }
+
+
+          modifiers.forEach((modifier) => {
+            if (typeof modifier === "string") {
+              buildParams.element.appendChild(document.createTextNode(modifier));
+            }
+          });
+
+          return buildParams.element;
+        }
+      },
+      writable: false,
+      enumerable: false,
+      configurable: true,
+    });
   });
 }
-
-
-

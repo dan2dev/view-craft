@@ -1,29 +1,29 @@
-import { selfClosingTags, tags } from "@/utility/tag-names";
+import { selfClosingTags } from "@/utility/tag-names";
 import { createTag } from "./browser-tags";
 import { isBrowser } from "@/utility/isBrowser";
 
-if (isBrowser) {
-  for (const tag of tags) {
-    Object.defineProperty(globalThis, tag, {
-      value: createTag(tag),
-      writable: false,
-      enumerable: false,
-      configurable: true,
-    })
-  }
-  console.log("Hello World!!!!!");
-} else {
-  for (const tag of tags) {
-    Object.defineProperty(globalThis, tag, {
-      value: (...modifiers: ModifierFn<typeof tag>[]) => () => {
+// if (isBrowser) {
+//   for (const tag of tags) {
+//     Object.defineProperty(globalThis, tag, {
+//       value: createTag(tag),
+//       writable: false,
+//       enumerable: false,
+//       configurable: true,
+//     })
+//   }
+//   console.log("Hello World!!!!!");
+// } else {
+//   for (const tag of tags) {
+//     Object.defineProperty(globalThis, tag, {
+//       value: (...modifiers: ModifierFn<typeof tag>[]) => () => {
 
 
 
-        `<${tag}></${tag}>`
-      },
-      writable: false,
-      enumerable: false,
-      configurable: true,
-    })
-  }
-}
+//         `<${tag}></${tag}>`
+//       },
+//       writable: false,
+//       enumerable: false,
+//       configurable: true,
+//     })
+//   }
+// }

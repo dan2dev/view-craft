@@ -1,5 +1,5 @@
 import { isDomChild } from "@/utility/isDomChild";
-import { tags } from "@/utility/tag-names";
+
 
 
 function processFunctionModifier<T, TAnchor>(
@@ -57,16 +57,16 @@ export function createTag<TTagName extends TagName = TagName>(
     };
   };
 }
-export function initBrowserTags() {
-  tags.forEach((tag) => {
-    Object.defineProperty(globalThis, tag, {
-      value:
-        (...modifiers: ModifierFn<typeof tag>[]) =>
-        () =>
-          document.createElement(tag),
-      writable: false,
-      enumerable: false,
-      configurable: true,
-    });
-  });
-}
+// export function initBrowserTags() {
+//   tags.forEach((tag) => {
+//     Object.defineProperty(globalThis, tag, {
+//       value:
+//         (...modifiers: ModifierFn<typeof tag>[]) =>
+//         () =>
+//           document.createElement(tag),
+//       writable: false,
+//       enumerable: false,
+//       configurable: true,
+//     });
+//   });
+// }
