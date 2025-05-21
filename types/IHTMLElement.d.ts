@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // declare function div(...modifiers: ModifierFn<"div">[]): (parent: any, index: number) => HTMLHeadingElement | IHTMLElement<"div">;
 declare const div = (...modifiers: ModifierFn<"div">[]) => <TParent>(parent: TParent, index: number) => IHTMLElement<"div">;
 declare const span = (...modifiers: ModifierFn<"span">[]) => <TParent>(parent: TParent, index: number) => IHTMLElement<"span">;

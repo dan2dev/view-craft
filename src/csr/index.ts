@@ -11,55 +11,45 @@ export function text() { }
 export function registerTags() {
   tagNames.forEach((tagName) => {
     Object.defineProperty(globalThis, tagName, {
-      value: (...modifiers: any[]) => {
-        return (parent: HTMLElement, childIndex: number = -1) => {
-          console.log(parent);
-          const children = Array.from(parent.childNodes);
-          console.log(children);
-
-          const element = document.createElement(tagName);
-
-
+      value: (...modifiers: ModifierFn<TagName>[]) => {
+        return (parent: HTMLElement, childIndex: number = 0) => {
+          console.log(parent, parent.childNodes, childIndex, tagName);
+          const element = !state.hydrationComplete ? Array.from(parent.childNodes)[childIndex] : document.createElement(tagName);
+          if (!element) {
+            return;
+          }
+          console.log("element", element);
+          const children = !state.hydrationComplete && element.hasChildNodes() ? element.childNodes : [];
           let domIndex = 0;
           for (let modIndex = 0; modIndex < modifiers.length; modIndex++) {
-            const mod = modifiers[modIndex];
-            const modType = typeof mod;
-            if(!state.hydrationComplete) {
-              
-            } else {
-
+            let mod: any = modifiers[modIndex];
+            let modType = typeof mod;
+            if (modType === "function") {
+              mod = mod(element, domIndex);
+              modType = typeof mod;
             }
-            if (modType === "string" || modType === "number") {
-              const textNode = document.createTextNode(mod.toString());
-              element.appendChild(textNode);
+            // check if is number
+            if (modType === "number") {
+              mod = mod.toString();
+              modType = "string";
             }
-            else if (modType === "function") {
-              const result = mod(element, domIndex);
-              if (result) {
-                if (Array.isArray(result)) {
-                  result.forEach((child) => {
-                    element.appendChild(child);
-                  });
-                } else if (typeof result === "string" || typeof result === "number") {
-                  const textNode = document.createTextNode(result.toString());
-                  element.appendChild(textNode);
-                } else if (result instanceof HTMLElement) {
-                  element.appendChild(result);
-                }
+            // if is string
+            if (modType === "string") {
+              mod = children[domIndex] ? children[domIndex] : document.createTextNode(mod);
+            }
+            if (mod instanceof Text) {
+              domIndex = domIndex + 2;
+              if (state.hydrationComplete) {
+                element.appendChild(mod);
+                element.appendChild(document.createComment("--"));
               }
+            } else if (mod instanceof Comment || mod instanceof HTMLElement || mod instanceof SVGElement) {
+              if (state.hydrationComplete) {
+                element.appendChild(mod);
+              }
+              domIndex = domIndex + 1;
             }
-
-
-
           }
-
-
-          modifiers.forEach((modifier) => {
-            if (typeof modifier === "string") {
-              // buildParams.element.appendChild(document.createTextNode(modifier));
-            }
-          });
-
           return element;
         }
       },
