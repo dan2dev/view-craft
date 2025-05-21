@@ -1,0 +1,1 @@
+  declare type ObjectType = "string" | "number" | "function" | "bigint" | "boolean" | "symbol" | "undefined" | "object";

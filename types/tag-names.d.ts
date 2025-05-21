@@ -79,11 +79,9 @@ declare type ChildLinkType<T> =
     index: number;
   };
 
-declare type ModifierFn<TTagName extends TagName> =
-  ((
-    parent: ChildDomType,
-    index: number,
-  ) => ChildDomType | ChildDomType[] | string | number | null | undefined)
-  | string | number | null | undefined;
+// declare type ModifierResult<TTagName extends TagName = TagName> = ChildDomType;
+declare type ModifierFn<TTagName extends TagName = TagName> = (parent: ChildDomType, index: number) => ModifierFn<TTagName> | ChildDomType | ChildDomType[] | string | number | boolean | null | undefined;
+declare type Modifier<TTagName extends TagName = TagName> = ModifierFn<TTagName> | string | number | null | undefined | ChildDomType;
+
 
 
