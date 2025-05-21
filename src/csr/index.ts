@@ -14,12 +14,6 @@ export function registerTags() {
       value: (...modifiers: ModifierFn<TagName>[]) => {
         return (parent: HTMLElement, childIndex: number = 0) => {
           const element = !state.hydrationComplete ? parent.childNodes[childIndex] : document.createElement(tagName);
-          try {
-            (element as HTMLElement).style.backgroundColor = "red";
-          } catch (error) {
-            
-          }
-          // return;
           const children = !state.hydrationComplete ? element.childNodes : [];
           let domIndex = 0;
           for (let modIndex = 0; modIndex < modifiers.length; modIndex++) {
