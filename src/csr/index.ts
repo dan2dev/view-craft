@@ -13,13 +13,14 @@ export function registerTags() {
     Object.defineProperty(globalThis, tagName, {
       value: (...modifiers: ModifierFn<TagName>[]) => {
         return (parent: HTMLElement, childIndex: number = 0) => {
-          console.log(parent, parent.childNodes, childIndex, tagName);
-          const element = !state.hydrationComplete ? Array.from(parent.childNodes)[childIndex] : document.createElement(tagName);
-          if (!element) {
-            return;
+          const element = !state.hydrationComplete ? parent.childNodes[childIndex] : document.createElement(tagName);
+          try {
+            (element as HTMLElement).style.backgroundColor = "red";
+          } catch (error) {
+            
           }
-          console.log("element", element);
-          const children = !state.hydrationComplete && element.hasChildNodes() ? element.childNodes : [];
+          // return;
+          const children = !state.hydrationComplete ? element.childNodes : [];
           let domIndex = 0;
           for (let modIndex = 0; modIndex < modifiers.length; modIndex++) {
             let mod: any = modifiers[modIndex];
