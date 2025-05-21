@@ -1,4 +1,5 @@
 import { tagNames } from "@/utility/tag-names";
+import { state } from "./state";
 
 console.log("Client-side rendering!");
 
@@ -11,7 +12,6 @@ export function registerTags() {
   tagNames.forEach((tagName) => {
     Object.defineProperty(globalThis, tagName, {
       value: (...modifiers: any[]) => {
-        console.log(modifiers)
         return (parent: HTMLElement, childIndex: number = -1) => {
           console.log(parent);
           const children = Array.from(parent.childNodes);
@@ -23,6 +23,31 @@ export function registerTags() {
           let domIndex = 0;
           for (let modIndex = 0; modIndex < modifiers.length; modIndex++) {
             const mod = modifiers[modIndex];
+            const modType = typeof mod;
+            if(!state.hydrationComplete) {
+              
+            } else {
+
+            }
+            if (modType === "string" || modType === "number") {
+              const textNode = document.createTextNode(mod.toString());
+              element.appendChild(textNode);
+            }
+            else if (modType === "function") {
+              const result = mod(element, domIndex);
+              if (result) {
+                if (Array.isArray(result)) {
+                  result.forEach((child) => {
+                    element.appendChild(child);
+                  });
+                } else if (typeof result === "string" || typeof result === "number") {
+                  const textNode = document.createTextNode(result.toString());
+                  element.appendChild(textNode);
+                } else if (result instanceof HTMLElement) {
+                  element.appendChild(result);
+                }
+              }
+            }
 
 
 

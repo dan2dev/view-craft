@@ -81,8 +81,8 @@ declare type ChildLinkType<T> =
 
 declare type ModifierFn<TTagName extends TagName> =
   ((
-    parent: any,
-    link: ChildLinkType<TTagName>,
+    parent: ChildDomType,
+    index: number,
   ) => ChildDomType | ChildDomType[] | string | number | null | undefined)
   | string | number | null | undefined;
 
