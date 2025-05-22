@@ -68,12 +68,22 @@ export const tagBuilder = <TTagName extends TagName = TagName>(tagName: TTagName
       const children = !state.hydrationComplete ? element.childNodes : [];
       let domIndex = 0;
       for (let modIndex = 0; modIndex < modifiers.length; modIndex++) {
-        let mod: ModifierFn<TagName> | ChildNode | ((element: ChildNode, domIndex: number) => HTMLElement) = modifiers[modIndex];
-        let modType: ObjectType = typeof mod;
+        let modResult: ModifierFn<TagName> | ChildNode | ((element: ChildNode, domIndex: number) => HTMLElement) = modifiers[modIndex];
+        let modType: ObjectType = typeof modResult;
+        let modFunc: ((element: ChildNode, domIndex: number) => HTMLElement) | undefined = undefined;
+        // first check if is a function
         if (modType === "function") {
-          mod = (mod as (element: ChildNode, domIndex: number) => HTMLElement)(element, domIndex);
-          modType = typeof mod;
+          modResult = (modResult as (element: ChildNode, domIndex: number) => HTMLElement)(element, domIndex);
+          modType = typeof modResult;
         }
+        // update function, second check if is a function for update
+        if (modType === "function") {
+          modFunc = modResult as (element: ChildNode, domIndex: number) => HTMLElement;
+          modResult = modFunc(element, domIndex);
+          modType = typeof modResult;
+        }
+
+
         // check if is number
         if (modType === "number") {
           mod = (mod as number).toString();
