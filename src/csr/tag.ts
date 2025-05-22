@@ -1,4 +1,7 @@
+import { isDomChild } from "@/utility/isDomChild";
 import { state } from "./state";
+import { setProp } from "@/utility/setProp";
+
 export const textBuilder = (text: string | number) => {
   return (parent: ChildNode, childIndex: number = 0): Text => {
     const r: Text = !state.hydrationComplete ? parent.childNodes[childIndex] as Text : document.createTextNode(text.toString());
@@ -6,12 +9,56 @@ export const textBuilder = (text: string | number) => {
   }
 }
 
-export const buildChildren = (parent: ChildNode, childIndex: number, mod: Modifier<TagName>): HTMLElement | Text | null | undefined | void => {
-  let modResult: ModifierFn | HTMLElement | Text | Comment | (HTMLElement | Text | Comment)[] = mod;
-  while (typeof mod === "function") {
-    modResult = (mod as (element: ChildNode, domIndex: number) => HTMLElement)(parent, childIndex);
+
+
+export const tagBuilderModifier = <TTagName extends TagName = TagName>(parent: ChildNode, childIndex: number, mod: Modifier<TTagName>):
+  ChildDomType | string | number | null | void => {
+  let modResult: unknown = mod;
+  let modType: ObjectType = typeof mod;
+  let deepIndex = 0;
+  let modFn: ((element: ChildNode, domIndex: number) => ChildDomType | string | number | null | void) | undefined;
+  while (modType === "function") {
+    modFn = modResult as (element: ChildNode, domIndex: number) => ChildDomType | string | number | null | void;
+    modResult = (modResult as (element: ChildNode, domIndex: number) => HTMLElement)(parent, childIndex);
+    modType = typeof modResult;
+    deepIndex++;
+    // if is not a dom child and it's an object. It should update the parent
+    let update: ((event: Event) => void) | undefined;
+    if (!isDomChild(modResult) && parent instanceof HTMLElement) {
+      // update the parent attributes
+      if (modType === "object") {
+        update = (event: Event) => {
+          const modResult = modFn!(parent, childIndex);
+          Object.keys(modResult as object).forEach((key) => {
+            (event.target as HTMLElement).setAttribute(key, (modResult as any)[key]);
+          });
+        }
+      } else
+        // update the text node content if it's a string or number
+        if (modType === "string" || modType === "number" || modType === "bigint") {
+          update = (event: Event) => {
+            const modResult = modFn!(parent, childIndex);
+            ((event.target as HTMLElement).childNodes[childIndex] as Text).textContent = modResult as string;
+          }
+        }
+      setProp(modResult, "parent", () => modFn!(parent, childIndex));
+    } else if (deepIndex === 2) {
+
+    }
+    update && parent.addEventListener("update", update);
   }
-  return modResult;
+
+  if (modType === "undefined") {
+    return null;
+  }
+  if (modType === "number" || modType === "bigint") {
+    modResult = (modResult as number).toString();
+    modType = "string";
+  }
+  if (modType === "string") {
+    modResult = textBuilder(modResult as string)(parent, childIndex);
+  }
+  return modResult as ChildDomType;
 }
 
 export const tagBuilder = <TTagName extends TagName = TagName>(tagName: TTagName) => {

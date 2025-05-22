@@ -1,21 +1,15 @@
-import { tagNames } from "@/utility/tag-names";
-import { state } from "./state";
+import { tagNames } from "@/utility/tagNames";
 import { tagBuilder } from "./tag";
+import { setProp } from "@/utility/setProp";
 
 console.log("Client-side rendering!");
 
-// declare const globalThis: {
-//   [key in TagName]: any;
-// };
-
-
 export function registerTags() {
   tagNames.forEach((tagName) => {
-    Object.defineProperty(globalThis, tagName, {
-      value: tagBuilder(tagName),
-      writable: false,
-      enumerable: false,
-      configurable: true,
-    });
+    setProp(
+      globalThis,
+      tagName,
+      tagBuilder(tagName)
+    );
   });
 }
