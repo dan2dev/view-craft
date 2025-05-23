@@ -2,16 +2,28 @@ import { isDomChild } from "@/utility/isDomChild";
 import { setProp } from "@/utility/setProp";
 import { state } from "./state";
 
-export const textBuilder = (text: string | number) => {
+export const textBuilder = (text: string | number | ((element: Text, domIndex: number) => string | number)) => {
+  // console.log("textBuilder", text);
   return (parent: ChildNode, childIndex: number = 0): Text => {
-    const r: Text = !state.hydrationComplete ? parent.childNodes[childIndex] as Text : document.createTextNode(text.toString());
+    // console.log("textBuilder -----", text);
+    let textContent = typeof text === "function" ? text(parent as Text, childIndex) : text;
+    if (typeof textContent === "bigint" || typeof textContent === "number") {
+      textContent = textContent.toString();
+    }
+    // console.log(" -------------");
+    // console.log(textContent); 
+
+    const r: Text = !state.hydrationComplete ? parent.childNodes[childIndex] as Text : document.createTextNode(textContent);
+
+
+
     return r;
   }
 }
 
 
 
-export const tagBuilderModifier = <TTagName extends TagName = TagName>(parent: ChildNode, childIndex: number, mod: Modifier<TTagName>):
+export const tagBuilderModifier2 = <TTagName extends TagName = TagName>(parent: ChildNode, childIndex: number, mod: Modifier<TTagName>):
   ChildDomType | string | number | null | void => {
   let modResult: unknown = mod;
   let modType: ObjectType = typeof mod;
@@ -68,31 +80,65 @@ export const tagBuilder = <TTagName extends TagName = TagName>(tagName: TTagName
       const children = !state.hydrationComplete ? element.childNodes : [];
       let domIndex = 0;
       for (let modIndex = 0; modIndex < modifiers.length; modIndex++) {
-        let modResult: ModifierFn<TagName> | ChildNode | ((element: ChildNode, domIndex: number) => HTMLElement) = modifiers[modIndex];
+        let modResult: ModifierFn<TagName> | ChildNode | string | number | ((element: ChildNode, domIndex: number) => HTMLElement) = modifiers[modIndex];
         let modType: ObjectType = typeof modResult;
-        let modFunc: ((element: ChildNode, domIndex: number) => HTMLElement) | undefined = undefined;
+        let modFunc: ((element: ChildNode | Text | HTMLElement, domIndex: number) => HTMLElement | string | number | void) | undefined = undefined;
         // first check if is a function
         if (modType === "function") {
           modFunc = modResult as (element: ChildNode, domIndex: number) => HTMLElement;
           modResult = (modResult as (element: ChildNode, domIndex: number) => HTMLElement)(element, domIndex);
           modType = typeof modResult;
           // ------------
-          console.log("function 1", modResult);
+          // console.log("------------------------------------", modResult);
+          // console.log("function 12", modResult);
+          // console.log("function 1", modResult, modType);
+          if(modResult instanceof HTMLElement) {
+            // modFunc = undefined;
+            // modType = "element";
+            // console.log("function 1", modResult);
+            // parent.appendChild(modResult);
+          }
 
         }
-        if(modFunc) {
-          
+        if (modType === "number" || modType === "bigint") {
+          modResult = modResult.toString();
+          modType = "string";
         }
+
+        // create text
+        if (modType === "string") {
+          // console.log("string");
+          modResult = textBuilder(modFunc as () => string || modResult)(element, domIndex);
+          // console.dir(modResult);
+          // console.log("string 1", modResult);
+          parent && parent.appendChild(modResult as Text);
+        }
+
+        console.log("-----", modResult, modType);
+
+
+        if (parent) {
+          element.appendChild(modResult as ChildDomType);
+        }
+
+
+        // update event into the element
+        // if (modFunc && (modType === "string" || modType === "number" || modType === "bigint" || modType === "boolean")) {
+        //   element.addEventListener("up", (e) => {
+
+        //   });
+        // }
+
 
         // update function, second check if is a function for update
-        if (modType === "function") {
-          modFunc = modResult as (element: ChildNode, domIndex: number) => HTMLElement;
-          modResult = modFunc(element, domIndex);
-          modType = typeof modResult;
-          // ------------
-          console.log("function 2", modResult);
-          
-        }
+        // if (modType === "function") {
+        //   modFunc = modResult as (element: ChildNode, domIndex: number) => HTMLElement;
+        //   modResult = modFunc(element, domIndex);
+        //   modType = typeof modResult;
+        //   // ------------
+        //   console.log("function 2", modResult);
+
+        // }
         // // check if is number
         // if (modType === "number") {
         //   mod = (mod as number).toString();

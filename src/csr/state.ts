@@ -1,4 +1,4 @@
 export const state = {
-  hydrationComplete: false,
+  hydrationComplete: TextTrackCueList,
   // hydrate: true,
 }
