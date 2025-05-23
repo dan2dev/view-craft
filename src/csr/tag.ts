@@ -1,6 +1,6 @@
 import { isDomChild } from "@/utility/isDomChild";
-import { state } from "./state";
 import { setProp } from "@/utility/setProp";
+import { state } from "./state";
 
 export const textBuilder = (text: string | number) => {
   return (parent: ChildNode, childIndex: number = 0): Text => {
@@ -73,38 +73,47 @@ export const tagBuilder = <TTagName extends TagName = TagName>(tagName: TTagName
         let modFunc: ((element: ChildNode, domIndex: number) => HTMLElement) | undefined = undefined;
         // first check if is a function
         if (modType === "function") {
+          modFunc = modResult as (element: ChildNode, domIndex: number) => HTMLElement;
           modResult = (modResult as (element: ChildNode, domIndex: number) => HTMLElement)(element, domIndex);
           modType = typeof modResult;
+          // ------------
+          console.log("function 1", modResult);
+
         }
+        if(modFunc) {
+          
+        }
+
         // update function, second check if is a function for update
         if (modType === "function") {
           modFunc = modResult as (element: ChildNode, domIndex: number) => HTMLElement;
           modResult = modFunc(element, domIndex);
           modType = typeof modResult;
+          // ------------
+          console.log("function 2", modResult);
+          
         }
-
-
-        // check if is number
-        if (modType === "number") {
-          mod = (mod as number).toString();
-          modType = "string";
-        }
-        // if is string
-        if (modType === "string") {
-          mod = children[domIndex] ? children[domIndex] : textBuilder(mod)(element, domIndex);
-        }
-        if (mod instanceof Text) {
-          domIndex = domIndex + 2;
-          if (state.hydrationComplete) {
-            element.appendChild(mod);
-            element.appendChild(document.createComment(`text-${domIndex}-${modIndex}`));
-          }
-        } else if (mod instanceof Comment || mod instanceof HTMLElement || mod instanceof SVGElement) {
-          if (state.hydrationComplete) {
-            element.appendChild(mod);
-          }
-          domIndex = domIndex + 1;
-        }
+        // // check if is number
+        // if (modType === "number") {
+        //   mod = (mod as number).toString();
+        //   modType = "string";
+        // }
+        // // if is string
+        // if (modType === "string") {
+        //   mod = children[domIndex] ? children[domIndex] : textBuilder(mod)(element, domIndex);
+        // }
+        // if (mod instanceof Text) {
+        //   domIndex = domIndex + 2;
+        //   if (state.hydrationComplete) {
+        //     element.appendChild(mod);
+        //     element.appendChild(document.createComment(`text-${domIndex}-${modIndex}`));
+        //   }
+        // } else if (mod instanceof Comment || mod instanceof HTMLElement || mod instanceof SVGElement) {
+        //   if (state.hydrationComplete) {
+        //     element.appendChild(mod);
+        //   }
+        //   domIndex = domIndex + 1;
+        // }
       }
       return element;
     }
