@@ -63,6 +63,7 @@ declare type SelfClosingTagName =
   | "wbr";
 
 declare type ChildDomType =
+  | DuoHtmlElement 
   | HTMLElement
   | SVGElement
   | MathMLElement

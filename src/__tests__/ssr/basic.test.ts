@@ -1,14 +1,15 @@
 /**
  * @vitest-environment node
  */
-import "view-craft";
+// import "view-craft";
+import "../../main";
 
 describe("dom manipulation", () => {
-  it.skip("use node in this test file", () => {
+  it("use node in this test file", () => {
+    
+    const component = div("this is a simple test")(null, 0);
 
-    // const component = div("this is a simple test")();
-
-    // expect(component).toBe("<div>this is a simple test</div>");
+    expect(component.toString()).toBe("<div>this is a simple test</div>");
     // expect(true).toBeTruthy();
   });
 });
