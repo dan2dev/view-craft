@@ -8,3 +8,8 @@ declare const h1 = (...modifiers: Modifier<"h1">[]) => <TParent>(parent: TParent
 declare const h2 = (...modifiers: Modifier<"h2">[]) => <TParent>(parent: TParent, index: number) => IHTMLElement<"h2">;
 // declare function h1(...modifiers: ModifierFn<"h1">[]): <TParent>(parent: TParent, index: number) => IHTMLElement<"h1">;
 // declare function h2(...modifiers: ModifierFn<"h2">[]): <TParent>(parent: TParent, index: number) => IHTMLElement<"h2">;
+
+
+declare type InputElement = Partial<HTMLInputElement> & {};
+declare type InputMods = (element: InputElement) => void | object | boolean;
+declare const input = (...modifiers: InputMods[]) => <TParent extends HTMLElement>(parent: TParent, index: number) => InputElement;

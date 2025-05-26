@@ -1,8 +1,8 @@
 /**
  * @vitest-environment node
  */
-// import "view-craft";
-import "../../main";
+
+import "../../main.ts";
 
 describe("dom manipulation", () => {
   it("use node in this test file", () => {
@@ -11,5 +11,12 @@ describe("dom manipulation", () => {
 
     expect(component.toString()).toBe("<div>this is a simple test</div>");
     // expect(true).toBeTruthy();
+  });
+
+  it("type check for input", () => {
+    const component = div(
+      input()
+    )(null, 0);
+    expect(component.toString()).toBe("<div><input /></div>");
   });
 });
