@@ -9,7 +9,15 @@ declare const h2 = (...modifiers: Modifier<"h2">[]) => <TParent>(parent: TParent
 // declare function h1(...modifiers: ModifierFn<"h1">[]): <TParent>(parent: TParent, index: number) => IHTMLElement<"h1">;
 // declare function h2(...modifiers: ModifierFn<"h2">[]): <TParent>(parent: TParent, index: number) => IHTMLElement<"h2">;
 
+declare type HtmlMod = <TElement, TModType>(element: TElement, index: number) => void | TModType;
 
+
+// default tags
+declare type DivElement = Partial<HTMLDivElement> & {};
+declare type DivMod = (element: DivElement, index: number) => void | object | boolean;
+declare const div = (...modifiers: DivMod[]) => <TParent extends HTMLElement>(parent: TParent, index: number) => DivElement;
+
+// self-closing tags
 declare type InputElement = Partial<HTMLInputElement> & {};
-declare type InputMods = (element: InputElement) => void | object | boolean;
-declare const input = (...modifiers: InputMods[]) => <TParent extends HTMLElement>(parent: TParent, index: number) => InputElement;
+declare type InputMod = (element: InputElement, index: number) => void | object | boolean;
+declare const input = (...modifiers: InputMod[]) => <TParent extends HTMLElement>(parent: TParent, index: number) => InputElement;
