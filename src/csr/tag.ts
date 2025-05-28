@@ -73,7 +73,7 @@ export const tagBuilderModifier2 = <TTagName extends TagName = TagName>(parent: 
   return modResult as ChildDomType;
 }
 
-export const tagBuilder = <TTagName extends TagName = TagName>(tagName: TTagName) => {
+export let tagBuilder: any = <TTagName extends TagName | SelfClosingTagName = TagName | SelfClosingTagName>(tagName: TTagName) => {
   return (...modifiers: ModifierFn<TTagName>[]) => {
     return (parent: HTMLElement, childIndex: number = 0) => {
       const element: ChildNode = !state.hydrationComplete ? parent.childNodes[childIndex] : document.createElement(tagName);
@@ -165,4 +165,25 @@ export const tagBuilder = <TTagName extends TagName = TagName>(tagName: TTagName
     }
   }
 }
-
+export const selfClosingTagBuilder = <TTagName extends SelfClosingTagName>(tagName: TTagName) => {
+  return (...modifiers: ModifierFn<TTagName>[]) => {
+    return (parent: HTMLElement, childIndex: number = 0) => {
+      const element: ChildNode = !state.hydrationComplete ? parent.childNodes[childIndex] : document.createElement(tagName);
+      let domIndex = 0;
+      for (let modIndex = 0; modIndex < modifiers.length; modIndex++) {
+        const modResult = tagBuilderModifier2(element, domIndex, modifiers[modIndex]);
+        if (modResult) {
+          element.appendChild(modResult as ChildDomType);
+        }
+        domIndex++;
+      }
+      return element;
+    }
+  }
+}
+export default {
+  tagBuilder,
+  selfClosingTagBuilder,
+  textBuilder,
+  tagBuilderModifier2
+}

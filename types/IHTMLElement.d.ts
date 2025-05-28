@@ -19,7 +19,7 @@ declare type VirtualElement<DomElement extends Node = Node, TProps extends {} = 
 
 
 // TAGS----------------------
-// the element is the type of the element 
+// div
 declare type VirtualDivElement = VirtualElement<HTMLDivElement, { tagName: "div" }>;
 declare type VirtualDivModType = void | string | number | boolean | null | undefined | VirtualElement | {
   className: string;
@@ -30,11 +30,32 @@ declare const div = (...modifiers:
     | VirtualDivModType
   )[]
 ) => ((parent: VirtualElement, index: number) => VirtualDivElement);
-
-
-
-
-// self-closing tags
-declare type InputElement = Partial<HTMLInputElement> & {};
-declare type InputMod = (element: InputElement, index: number) => void | object | boolean;
-declare const input = (...modifiers: InputMod[]) => <TParent extends HTMLElement>(parent: TParent, index: number) => InputElement;
+// -----
+// input
+declare type VirtualInputElement = VirtualElement<HTMLInputElement, { tagName: "input" }>;
+declare type VirtualInputModType = void | string | number | boolean | null | undefined | VirtualElement | Partial<{
+  className: string;
+  type: string;
+  value: string;
+  id: string;
+  placeholder: string;
+}>
+declare const input = (...modifiers:
+  (
+    | ((element: VirtualInputElement, index: number) => VirtualInputModType)
+    | VirtualInputModType
+  )[]
+) => ((parent: VirtualElement, index: number) => VirtualInputElement);
+// -----
+// label
+declare type VirtualLabelElement = VirtualElement<HTMLLabelElement, { tagName: "label" }>;
+declare type VirtualLabelModType = void | string | number | boolean | null | VirtualElement | {
+  className?: string;
+  for?: string;
+}
+declare const label = (...modifiers:
+  (
+    | ((element: VirtualLabelElement, index: number) => VirtualLabelModType)
+    | VirtualLabelModType
+  )[]
+) => ((parent: VirtualElement, index: number) => VirtualLabelElement);
