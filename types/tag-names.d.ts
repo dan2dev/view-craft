@@ -1,11 +1,5 @@
 declare type TagName = keyof HTMLElementTagNameMap;
 
-declare type HtmlElementTagMap = {
-  [K in TagName]: K extends keyof HTMLElementTagNameMap
-    ? HTMLElementTagNameMap[K]
-    : never;
-};
-
 declare type HeadTagName =
   | "title"
   | "base"

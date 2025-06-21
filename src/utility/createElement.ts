@@ -7,6 +7,7 @@ export type TVHtmlElement<TTagName extends keyof HTMLElementTagNameMap> = {
 
 export class VirtualHTMLElement<TTagName extends keyof HTMLElementTagNameMap> {
   public readonly tagName: string;
+
   constructor(tagName: TTagName) {
     this.tagName = tagName as string;
   }
