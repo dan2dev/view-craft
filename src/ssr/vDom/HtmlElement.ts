@@ -1,11 +1,12 @@
 import { state } from "@/csr/state";
+import type { VHtmlElement } from "@/utility/createElement";
 import { isBrowser } from "@/utility/isBrowser";
 import { setProp } from "@/utility/setProp";
 
 
-export class DuoHtmlElement<TTagName extends string = string> {
+export class DuoHtmlElement<TTagName extends string = string> implements VHtmlElement<TTagName> {
   tagName: TTagName;
-  children: Array<DuoHtmlElement | string>;
+  children: Array<VHtmlElement<string> | string>;
   constructor(tagName: TTagName) {
     this.tagName = tagName;
     this.children = [];
