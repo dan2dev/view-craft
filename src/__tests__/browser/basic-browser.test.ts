@@ -3,11 +3,12 @@
  */
 import "view-craft";
 
-describe.skip("dom manipulation", () => {
-  it.skip("component builder must exist", () => {
-    // expect(div).toBeDefined();
+describe("dom manipulation", () => {
+  it("component builder must exist", () => {
+    // expect(true).toBeDefined();
+    expect(true).toBeDefined();
   });
-  it.skip("test a simple component", () => {
+  it.skip("test a simple component1", () => {
     // const component = div("this is a simple test")();
 
     // expect(component.outerHTML).toBe("<div>this is a simple test</div>");

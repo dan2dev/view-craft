@@ -18,7 +18,7 @@ export function registerTags() {
     setProp(
       globalThis,
       tagName,
-      selfClosingTagBuilder(tagName)
+      tag.selfClosingTagBuilder(tagName)
     );
   });
 }
