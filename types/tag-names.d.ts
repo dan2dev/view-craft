@@ -1,40 +1,8 @@
-declare type TagName =
-  | "div"
-  | "p"
-  | "a"
-  | "em"
-  | "strong"
-  | "section"
-  | "article"
-  | "nav"
-  | "header"
-  | "footer"
-  | "main"
-  | "ul"
-  | "ol"
-  | "li"
-  | "table"
-  | "thead"
-  | "tbody"
-  | "tr"
-  | "td"
-  | "th"
-  | "form"
-  | "label"
-  | "select"
-  | "option"
-  | "textarea"
-  | "button"
-  | "blockquote"
-  | "pre"
-  | "code"
-  | "h1"
-  | "h2"
-  | "h3"
-  | "h4"
-  | "h5"
-  | "h6"
-  | "span";
+declare type TagName = keyof HTMLElementTagNameMap;
+
+declare type HtmlElementTagMap = {
+  [K in TagName]: K extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[K] : never;
+};
 
 declare type HeadTagName =
   | "title"
@@ -94,6 +62,3 @@ type DuoNode<TNode extends Partial<Node> = Partial<Node>> = Partial<TNode> & {
 declare type ModifierResult<TTagName extends TagName = TagName> = ChildDomType | string | number | boolean | null | undefined | void;
 declare type ModifierFn<TNode extends Partial<Node> = Partial<Node>, TTagName extends TagName = TagName> = (parent: ChildDomType, index: number) => ModifierFn<TTagName> | ChildDomType | ChildDomType[] | string | number | boolean | null | undefined;
 declare type Modifier<TNode extends Partial<Node> = Partial<Node>, TTagName extends TagName = TagName> = ModifierFn<TTagName> | string | number | null | undefined | ChildDomType;
-
-
-
