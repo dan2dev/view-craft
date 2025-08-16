@@ -1,56 +1,21 @@
 {
   "compilerOptions": {
-    "target": "ES2024",
-    "useDefineForClassFields": true,
+    "target": "ESNext",
     "module": "ESNext",
-    "lib": [
-      "ES2020",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "moduleResolution": "Node",
+    "strict": true,
+    "esModuleInterop": true,
     "skipLibCheck": true,
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
-    "moduleDetection": "force",
-    "noEmit": true,
-    /* Linting */
-    "strict": false,
-    "allowJs": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "allowUnreachableCode": true,
-    "noImplicitReturns": true,
-    "noImplicitAny": true,
-    "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
-    /* types and declarions */
-    "declaration": true,
-    "emitDeclarationOnly": true,
-    "types": [
-      "vitest/jsdom",
-      "vitest",
-      "vitest/globals"
+    "forceConsistentCasingInFileNames": true,
+    "typeRoots": [
+      "./types",
+      "./node_modules/@types"
     ],
-    /* types */
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@tests/*": [
-        "./src/__tests__/*"
-      ],
-      "view-craft": [
-        "./src/main"
-      ],
-    },
+  "declaration": true,
+  "outDir": "./dist",
   },
   "include": [
-    "src/**/*",
-    "types/**/*"
+    "src",
+    "types"
   ]
 }
