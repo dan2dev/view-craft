@@ -4,10 +4,16 @@
 
 // Export your main types here. Example:
 
-export interface ExampleType {
-  id: string;
-  value: number;
-}
+// Element, SelfClosingElement, Text, Comment
+export type VTagName = keyof HTMLElementTagNameMap;
+export type VElementTag<TTagName extends VTagName = VTagName> = {
+  tagName: TTagName; // tag name
+  att: Partial<HTMLElementTagNameMap[TTagName]>;
+} &
+  Omit<Partial<HTMLElementTagNameMap[TTagName]>, 'tagName'> &
+  Pick<HTMLElementTagNameMap[TTagName], 'tagName'>;
+
+export type VElementTagFn = () => VElementTag;
 
 // Add more types as needed for your API
-export {}
+export { }

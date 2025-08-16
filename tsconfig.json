@@ -11,8 +11,10 @@
       "./types",
       "./node_modules/@types"
     ],
-  "declaration": true,
-  "outDir": "./dist",
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "./dist",
+    "declarationDir": "./dist",
   },
   "include": [
     "src",
