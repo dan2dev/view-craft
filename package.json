@@ -1,7 +1,7 @@
 {
   "name": "view-craft",
   "private": false,
-  "version": "0.1.4",
+  "version": "0.1.5",
   "type": "module",
   "main": "./dist/view-craft.cjs",
   "module": "./dist/view-craft.js",
@@ -21,29 +21,16 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc && vite build",
-    "dev": "vite build --watch",
-    "preview": "vite preview",
-    "test": "vitest"
+    "build": "rollup -c && tsc --emitDeclarationOnly",
+    "build:rollup": "rollup -c",
+    "build:types": "tsc --emitDeclarationOnly",
+    "clean": "rm -rf dist *.tsbuildinfo"
   },
   "devDependencies": {
-    "@eslint/css": "^0.9.0",
-    "@eslint/js": "^9.29.0",
-    "@eslint/json": "^0.12.0",
-    "@eslint/markdown": "^6.6.0",
-    "@types/jsdom": "^21.1.7",
-    "@types/node": "^24.0.3",
-    "eslint": "^9.29.0",
-    "globals": "^16.2.0",
-    "jsdom": "^26.1.0",
-    "typescript": "~5.8.3",
-    "typescript-eslint": "^8.34.1",
-    "vite": "^6.3.5",
-    "vite-plugin-dts": "^4.5.4",
-    "vite-plugin-static-copy": "^3.0.2",
+    "@rollup/plugin-typescript": "^12.1.4",
+    "rollup": "^4.46.2",
+    "tslib": "^2.8.1",
+    "typescript": "^5.9.2",
     "vitest": "^3.2.4"
-  },
-  "packageManager": "pnpm@10.12.1",
-  "dependencies": {
   }
 }
