@@ -6,16 +6,16 @@
 
 // Element, SelfClosingElement, Text, Comment
 declare global {
-  export type VTagName = keyof HTMLElementTagNameMap;
-  export type VElementTag<TTagName extends VTagName = VTagName> = {
-    tagName: TTagName; // tag name
-    att: Partial<HTMLElementTagNameMap[TTagName]>;
-  } &
-    Omit<Partial<HTMLElementTagNameMap[TTagName]>, 'tagName'> &
-    Pick<HTMLElementTagNameMap[TTagName], 'tagName'>;
+    export type VTagName = keyof HTMLElementTagNameMap;
+    export type VElementTag<TTagName extends VTagName = VTagName> = {
+        tagName: TTagName; // tag name
+        att: Partial<HTMLElementTagNameMap[TTagName]>;
+    } &
+        Omit<Partial<HTMLElementTagNameMap[TTagName]>, 'tagName'> &
+        Pick<HTMLElementTagNameMap[TTagName], 'tagName'>;
 
-  export type VElementTagFn = () => VElementTag;
+    export type VElementTagFn = () => VElementTag;
 }
 
 // Add more types as needed for your API
-export { }
+export {}

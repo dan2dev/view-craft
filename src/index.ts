@@ -8,7 +8,6 @@ export const start = () => {
   };
   return el;
 };
-import { VElementTag } from "../types";
 
 declare type LoginModel = {
   username: string;
