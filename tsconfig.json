@@ -19,5 +19,10 @@
   "include": [
     "src",
     "types"
-  ]
+  ],
+  "typeAcquisition": {
+    "include": [
+      "types/index.ts"
+    ]
+  }
 }

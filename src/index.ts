@@ -1,13 +1,16 @@
-
+// Explicitly import the global types to ensure type checking
 export const start = () => {
   console.log("Starting...");
   // Example usage of VElementTag to trigger type checking
   const el: VElementTag = {
     tagName: "div",
     att: {},
-  };
+  } satisfies VElementTag;
   return el;
 };
+
+const some: VElementTagBuilderFn = () => 2;
+
 
 declare type LoginModel = {
   username: string;
