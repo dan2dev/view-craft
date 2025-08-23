@@ -7,9 +7,8 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "typeRoots": [
-      "./types",
-      "./node_modules/@types"
+    "types": [
+      "./types/index.d.ts"
     ],
     "declaration": true,
     "declarationMap": true,
@@ -17,12 +16,11 @@
     "declarationDir": "./dist",
   },
   "include": [
-    "src",
-    "types"
+    "src"
   ],
-  "typeAcquisition": {
-    "include": [
-      "types/index.ts"
-    ]
-  }
+  "exclude": [
+    "dist",
+    "node_modules",
+    "**/*.spec.ts"
+  ],
 }

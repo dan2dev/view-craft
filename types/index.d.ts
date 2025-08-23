@@ -2,7 +2,8 @@
 // Project: view-craft
 // Definitions by: Your Name <your.email@example.com>
 
-import {  Merge, MergeDeep, OmitDeep, PickDeep } from "type-fest";
+import { Merge } from "type-fest";
+import {   MergeDeep, OmitDeep, PickDeep } from "type-fest";
 
 // Export your main types here. Example:
 

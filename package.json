@@ -6,23 +6,21 @@
   "main": "./dist/view-craft.cjs",
   "module": "./dist/view-craft.js",
   "browser": "./dist/view-craft.umd.js",
-  "types": "./dist/index.d.ts",
+  "types": "./types/index.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/view-craft.js",
       "require": "./dist/view-craft.cjs"
-    },
-    "./types": {
-      "types": "./types/index.d.ts"
     }
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "rollup -c && tsc --emitDeclarationOnly",
-    "build:watch": "rollup -c -w & tsc --emitDeclarationOnly --watch",
+    "build": "rm -rf dist && rollup -c && tsc --emitDeclarationOnly",
+    "dev": "rm -rf dist && rollup -c -w & tsc --emitDeclarationOnly --watch",
+    "build:watch": "rm -rf dist && rollup -c -w & tsc --emitDeclarationOnly --watch",
     "build:rollup": "rollup -c",
     "build:types": "tsc --emitDeclarationOnly",
     "clean": "rm -rf dist *.tsbuildinfo",
