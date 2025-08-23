@@ -5,10 +5,10 @@
     "moduleResolution": "Node",
     "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true,
+  "skipLibCheck": false,
     "forceConsistentCasingInFileNames": true,
-    "types": [
-      "./types/index.d.ts"
+    "typeRoots": [
+      "./types"
     ],
     "declaration": true,
     "declarationMap": true,
@@ -16,7 +16,8 @@
     "declarationDir": "./dist",
   },
   "include": [
-    "src"
+    "src",
+    "types/index.d.ts"
   ],
   "exclude": [
     "dist",

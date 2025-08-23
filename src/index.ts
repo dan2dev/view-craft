@@ -12,7 +12,10 @@ export const start = () => {
   return el;
 };
 
-const some: VElementTagBuilderFn = () => 2;
+const some: VElementTagBuilderFn = () => ({
+  tagName: "div",
+  att: {}
+} satisfies VElementTag);
 
 
 declare type LoginModel = {
