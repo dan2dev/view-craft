@@ -9,16 +9,20 @@ import { MergeDeep, OmitDeep, PickDeep, Merge } from "type-fest";
 
 // Element, SelfClosingElement, Text, Comment
 declare global {
-  export type VTagName = keyof HTMLElementTagNameMap;
-  export type VElementTagAttributes<TTagName extends VTagName = VTagName> = {
+  export type ElementTagName = keyof HTMLElementTagNameMap;
+  export type ElementAttributes<TTagName extends ElementTagName = ElementTagName> = {
     [K in keyof HTMLElementTagNameMap[TTagName]]?: HTMLElementTagNameMap[TTagName][K];
   }
-  export type VElementTag<TTagName extends VTagName = VTagName> = Merge<{
+  export type VirtualElement<TTagName extends ElementTagName = ElementTagName> = Merge<{
     tagName: TTagName; // tag name
     att: Partial<HTMLElementTagNameMap[TTagName]>;
   }, Omit<Partial<HTMLElementTagNameMap[TTagName]>, "tagName">>;
 
-  export type VElementTagBuilderFn = (parent: VElementTag, index: number) => VElementTag;
+  /**
+   * A function that builds a virtual element tag.
+   */
+  export type NodeMod = (parent: VirtualElement, index: number) => VirtualElement;
+  export type NodeBuilder = (...children: NodeMod[]) => NodeMod;
 }
 
 // Add more types as needed for your API

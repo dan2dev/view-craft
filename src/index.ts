@@ -4,18 +4,18 @@ import { some1 } from "./some";
 export const start = () => {
   console.log("Starting...");
   some1();
-  // Example usage of VElementTag to trigger type checking
-  const el: VElementTag = {
+  // Example usage of VirtualElement to trigger type checking
+  const el: VirtualElement = {
     tagName: "div",
     att: {},
-  } satisfies VElementTag;
+  } satisfies VirtualElement;
   return el;
 };
 
-const some: VElementTagBuilderFn = () => ({
+const some: ChildBuilder = () => ({
+  att: {},
   tagName: "div",
-  att: {}
-} satisfies VElementTag);
+} satisfies VirtualElement<"div">);
 
 
 declare type LoginModel = {
