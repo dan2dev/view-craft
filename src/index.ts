@@ -12,11 +12,13 @@ export const start = () => {
   return el;
 };
 
-const some: ChildBuilder = () => ({
-  att: {},
-  tagName: "div",
-} satisfies VirtualElement<"div">);
-
+const some: NodeMod<"div"> = (parent, index) => {
+  return {
+    tagName: "div",
+    att: {},
+    children: []
+  } satisfies VirtualElement<"div">;
+}
 
 declare type LoginModel = {
   username: string;
