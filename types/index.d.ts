@@ -11,7 +11,7 @@ import { MergeDeep, OmitDeep, PickDeep, Merge } from "type-fest";
 declare global {
   export type ElementTagName = keyof HTMLElementTagNameMap;
   export type ElementAttributes<TTagName extends ElementTagName = ElementTagName> = {
-    [K in keyof HTMLElementTagNameMap[TTagName]]?: HTMLElementTagNameMap[TTagName][K];
+    [K in keyof HTMLElementTagNameMap[TTagName]]?: HTMLElementTagNameMap[TTagName][K] | (() => HTMLElementTagNameMap[TTagName][K]);
   }
   export type VirtualElement<TTagName extends ElementTagName = ElementTagName> = Merge<{
     tagName: TTagName; // tag name
