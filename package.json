@@ -6,12 +6,15 @@
   "main": "./dist/view-craft.cjs",
   "module": "./dist/view-craft.js",
   "browser": "./dist/view-craft.umd.js",
-  "types": "./types/index.ts",
+  "types": "./types/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/view-craft.js",
       "require": "./dist/view-craft.cjs"
+    },
+    "./types": {
+      "types": "./types/index.d.ts"
     }
   },
   "files": [

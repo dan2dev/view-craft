@@ -1,6 +1,9 @@
 // Explicitly import the global types to ensure type checking
+import { some1 } from "./some";
+
 export const start = () => {
   console.log("Starting...");
+  some1();
   // Example usage of VElementTag to trigger type checking
   const el: VElementTag = {
     tagName: "div",
