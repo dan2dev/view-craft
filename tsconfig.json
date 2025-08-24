@@ -15,12 +15,11 @@
     "outDir": "./dist",
     "declarationDir": "./dist",
     "types": [
-      "./types/index.d.ts"
     ]
   },
   "include": [
     "src",
-    "types/index.d.ts"
+    "types"
   ],
   "exclude": [
     "node_modules",
