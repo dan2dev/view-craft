@@ -8,7 +8,7 @@ export const start = () => {
   const el: VirtualElement = {
     tagName: "div",
     att: {},
-  } satisfies VirtualElement;
+  } satisfies VirtualElement<"div">;
   return el;
 };
 
@@ -16,7 +16,7 @@ const some: NodeMod<"div"> = (parent, index) => {
   return {
     tagName: "div",
     att: {},
-    children: []
+    // children: []
   } satisfies VirtualElement<"div">;
 }
 

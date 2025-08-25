@@ -15,10 +15,17 @@ declare global {
   }
   export type VirtualElement<TTagName extends ElementTagName = ElementTagName> = Merge<{
     tagName: TTagName; // tag name
-    att?: Partial<HTMLElementTagNameMap[TTagName]>;
+    att?: ElementAttributes<TTagName>;
     children?: VirtualElement[];
-  }, Omit<Partial<HTMLElementTagNameMap[TTagName]>, "tagName" | "children">>;
+  }, Omit<Partial<HTMLElementTagNameMap[TTagName]>, "tagName" | "children">> |
+    HTMLElementTagNameMap[TTagName];
 
+
+  // export type VirtualElement<TTagName extends ElementTagName = ElementTagName> = {
+  //   // tagName: TTagName | string; // tag name
+  //   // att?: Partial<HTMLElementTagNameMap[TTagName]>;
+  //   // children?: VirtualElement[];
+  // } & OmitDeep<Partial<HTMLElementTagNameMap[TTagName]>, "children">;
   /**
    * A function that builds a virtual element tag.
    */
