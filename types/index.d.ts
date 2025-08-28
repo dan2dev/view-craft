@@ -13,12 +13,17 @@ declare global {
   export type ElementAttributes<TTagName extends ElementTagName = ElementTagName> = {
     [K in keyof HTMLElementTagNameMap[TTagName]]?: HTMLElementTagNameMap[TTagName][K] | (() => HTMLElementTagNameMap[TTagName][K]);
   }
-  export type VirtualElement<TTagName extends ElementTagName = ElementTagName> = Merge<{
-    tagName: TTagName; // tag name
-    att?: ElementAttributes<TTagName>;
-    children?: VirtualElement[];
-  }, Omit<Partial<HTMLElementTagNameMap[TTagName]>, "tagName" | "children">> |
-    HTMLElementTagNameMap[TTagName];
+
+
+  export type VirtualElementBase<TTagName extends ElementTagName = ElementTagName> = {
+    virtual?: {
+      tagName: TTagName;
+      attributes: ElementAttributes<TTagName>;
+      nodes: VirtualElement[];
+    }
+  }
+  export type VirtualElement<TTagName extends ElementTagName =
+    ElementTagName> = Merge<Partial<VirtualElementBase>, Partial<HTMLElementTagNameMap[TTagName]>>
 
 
   // export type VirtualElement<TTagName extends ElementTagName = ElementTagName> = {
