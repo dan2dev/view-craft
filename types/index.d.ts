@@ -3,7 +3,7 @@
 // Definitions by: Your Name <your.email@example.com>
 
 // import { Merge } from "type-fest";
-import { MergeDeep, OmitDeep, PickDeep, Merge } from "type-fest";
+import { Merge, Or } from "type-fest";
 
 // Export your main types here. Example:
 
@@ -15,15 +15,31 @@ declare global {
   }
 
 
-  export type VirtualElementBase<TTagName extends ElementTagName = ElementTagName> = {
-    virtual?: {
-      tagName: TTagName;
-      attributes: ElementAttributes<TTagName>;
-      nodes: VirtualElement[];
-    }
+  // export type VirtualElementBase<TTagName extends ElementTagName = ElementTagName> = {
+  //   virtual?: {
+  //     tagName: TTagName;
+  //     attributes?: ElementAttributes<TTagName>;
+  //     nodes?: VirtualElement[];
+  //   };
+  // };
+  export type VirtualElementNode<TTagName extends ElementTagName = ElementTagName> = {
+    virtual: true;
+    tagName: string | TTagName;
+    attributes: ElementAttributes<TTagName>;
+    coisa: string;
   }
-  export type VirtualElement<TTagName extends ElementTagName =
-    ElementTagName> = Merge<Partial<VirtualElementBase>, Partial<HTMLElementTagNameMap[TTagName]>>
+  export type VirtualElement<TTagName extends ElementTagName = ElementTagName> =
+    (HTMLElementTagNameMap[TTagName] & Partial<VirtualElementNode<TTagName>>) |
+    (VirtualElementNode<TTagName> & {
+      virtual: true;
+    });
+
+  // Merge<{
+  //   virtual: true,
+  //   tagName: TTagName;
+  //   attributes: ElementAttributes<TTagName>;
+  //   children: VirtualElement[];
+  // }, Partial<HTMLElementTagNameMap[TTagName]>>;
 
 
   // export type VirtualElement<TTagName extends ElementTagName = ElementTagName> = {
