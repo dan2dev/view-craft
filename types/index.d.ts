@@ -9,7 +9,8 @@ declare global {
     tagName: TTagName;
     attributes: ElementAttributes<TTagName>;
     children: (VirtualElement | Primitive)[];
-    element?: HTMLElementTagNameMap[TTagName];
+    parent?: WeakRef<VirtualElement>;
+    el?: HTMLElementTagNameMap[TTagName];
   }
 
   export type NodeMod<TParentTag extends ElementTagName = ElementTagName> =
