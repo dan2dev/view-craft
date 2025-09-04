@@ -9,7 +9,7 @@ declare global {
     tagName: TTagName;
     attributes: ElementAttributes<TTagName>;
     children: (VirtualElement | Primitive)[];
-    parent?: WeakRef<VirtualElement>;
+    // parent?: WeakRef<VirtualElement>;
     el?: HTMLElementTagNameMap[TTagName];
   }
 
