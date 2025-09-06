@@ -27,6 +27,17 @@ describe("div NodeBuilder", () => {
     expect(element.childNodes[1]).toBeInstanceOf(HTMLSpanElement);
     expect(element.childNodes[2].textContent).toBe("World!");
   });
+  it("should set attributes and properties", () => {
+    const parent = document.createElement("div");
+    const nodeBuilder = div(
+      { id: "test-div", className: "my-class" },
+      "Content"
+    );
+    const element = nodeBuilder(parent, 0);
+    expect(element.id).toBe("test-div");
+    expect(element.className).toBe("my-class");
+    expect(element.textContent).toBe("Content");
+  });
 });
 
 
