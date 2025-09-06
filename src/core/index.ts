@@ -23,10 +23,19 @@ export const div: NodeBuilder<"div"> = (...mods: NodeMod<"div">[]) => {
       return mod;
     });
     parent.mods.forEach((mod) => {
-      
-    })
-
-
+      const type = typeof mod;
+      if (type === "object") {
+        if (mod instanceof HTMLElement) {
+          parent.appendChild ?? (mod as HTMLElement);
+        }
+      } else if (type !== "string") {
+        const text = document.createTextNode(String(mod));
+        parent.appendChild ?? text;
+      } else {
+        const text = document.createTextNode(mod as string);
+        parent.appendChild ?? text;
+      }
+    });
     return element;
   }) as NodeMod<"div">;
 };
