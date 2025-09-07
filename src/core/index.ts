@@ -1,12 +1,18 @@
+import { VElement } from "./virtualDom";
 
 
+const isBrowser = typeof window !== "undefined" && typeof document !== "undefined";
 
 export const createElement = <TTagName extends keyof HTMLElementTagNameMap>(
   tagName: TTagName,
 ): ExpandedElement<TTagName> => {
-  const element = document.createElement(tagName) as ExpandedElement<TTagName>;
-  element.rawMods = [];
-  element.mods = [];
+  const element = (
+    isBrowser
+      ? (document.createElement(tagName) as ExpandedElement<TTagName>)
+      : (new VElement(String(tagName)) as unknown as ExpandedElement<TTagName>)
+  );
+  // element.rawMods = [];
+  // element.mods = [];
   return element as ExpandedElement<TTagName>;
 }
 
@@ -23,7 +29,7 @@ export const div: NodeBuilder<"div"> = (...mods: NodeMod<"div">[]) => {
     element.mods.forEach((mod, index) => {
       const type = typeof mod;
       if (type === "object") {
-        if (mod instanceof HTMLElement) {
+        if (isBrowser && mod instanceof HTMLElement) {
           element.appendChild?.(mod as HTMLElement);
         } else {
           Object.entries(mod as ExpandedElement).forEach(([key, value]) => {
@@ -31,6 +37,7 @@ export const div: NodeBuilder<"div"> = (...mods: NodeMod<"div">[]) => {
               return;
             }
             if (typeof value === "function") {
+              // @ts-ignore - callable shape varies across HTMLElement methods vs NodeMods
               const v = value(element, index);
               if (v !== undefined) {
                 // @ts-ignore
@@ -43,11 +50,21 @@ export const div: NodeBuilder<"div"> = (...mods: NodeMod<"div">[]) => {
           });
         }
       } else if (type !== "string") {
-        const text = document.createTextNode(String(mod));
-        element.appendChild?.(text);
+        const content = String(mod);
+        if (isBrowser) {
+          const text = document.createTextNode(content);
+          element.appendChild?.(text);
+        } else {
+          element.appendChild?.(content as any);
+        }
       } else {
-        const text = document.createTextNode(mod as string);
-        element.appendChild?.(text);
+        const content = mod as string;
+        if (isBrowser) {
+          const text = document.createTextNode(content);
+          element.appendChild?.(text);
+        } else {
+          element.appendChild?.(content as any);
+        }
       }
     });
     return element;

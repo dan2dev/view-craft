@@ -1,6 +1,7 @@
-import type { Primitive } from "type-fest/source/primitive";
+import type { Primitive as TypeFestPrimitive } from "type-fest/source/primitive";
 
 declare global {
+  export type Primitive = TypeFestPrimitive;
   export type ElementTagName = keyof HTMLElementTagNameMap;
   export type ElementAttributes<TTagName extends ElementTagName = ElementTagName> = {
     [K in keyof HTMLElementTagNameMap[TTagName]]?:
