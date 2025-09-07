@@ -1,16 +1,5 @@
 
 
-// export const createVElement = <TTagName extends keyof HTMLElementTagNameMap>(
-//   tagName: TTagName,
-// ): VirtualElement<TTagName> => {
-//   return {
-//     tagName,
-//     attributes: {},
-//     children: [],
-//     mods: [],
-//     el: document ? document.createElement(tagName) : undefined,
-//   };
-// }
 
 export const div: NodeBuilder<"div"> = (...mods: NodeMod<"div">[]) => {
   return ((parent: ExpandedElement<"div">, index: number) => {
