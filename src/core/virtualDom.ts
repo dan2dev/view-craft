@@ -1,3 +1,13 @@
+// export class VDocument implements Partial<Document> {
+
+import isBrowser from "../utility/isBrowser";
+
+
+//   public createElement(tagName: string): ExpandedElement {
+//     return new VElement(tagName) as ExpandedElement;
+//   }
+// }
+
 export class VElement implements ExpandedElement {
   public tagName: string;
   public rawAttributes: ElementAttributes = {};
@@ -15,4 +25,15 @@ export class VElement implements ExpandedElement {
     this.vChildren.push(child);
     return child as unknown;
   }
+}
+
+export const createElement = <TTagName extends keyof HTMLElementTagNameMap>(
+  tagName: TTagName,
+): ExpandedElement<TTagName> => {
+  const element = (
+    isBrowser
+      ? (document.createElement(tagName) as ExpandedElement<TTagName>)
+      : (new VElement(String(tagName)) as unknown as ExpandedElement<TTagName>)
+  );
+  return element as ExpandedElement<TTagName>;
 }

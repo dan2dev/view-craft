@@ -1,20 +1,5 @@
-import { VElement } from "./virtualDom";
-
-
-const isBrowser = typeof window !== "undefined" && typeof document !== "undefined";
-
-export const createElement = <TTagName extends keyof HTMLElementTagNameMap>(
-  tagName: TTagName,
-): ExpandedElement<TTagName> => {
-  const element = (
-    isBrowser
-      ? (document.createElement(tagName) as ExpandedElement<TTagName>)
-      : (new VElement(String(tagName)) as unknown as ExpandedElement<TTagName>)
-  );
-  // element.rawMods = [];
-  // element.mods = [];
-  return element as ExpandedElement<TTagName>;
-}
+import isBrowser from "../utility/isBrowser";
+import { createElement, VElement } from "./virtualDom";
 
 export const div: NodeBuilder<"div"> = (...mods: NodeMod<"div">[]) => {
   return ((parent: ExpandedElement<"div">, index: number) => {
