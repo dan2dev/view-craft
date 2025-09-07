@@ -1,9 +1,18 @@
 
 
 
+export const createElement = <TTagName extends keyof HTMLElementTagNameMap>(
+  tagName: TTagName,
+): ExpandedElement<TTagName> => {
+  const element = document.createElement(tagName) as ExpandedElement<TTagName>;
+  element.rawMods = [];
+  element.mods = [];
+  return element as ExpandedElement<TTagName>;
+}
+
 export const div: NodeBuilder<"div"> = (...mods: NodeMod<"div">[]) => {
   return ((parent: ExpandedElement<"div">, index: number) => {
-    const element = document.createElement("div") as ExpandedElement<"div">;
+    const element = createElement("div") as ExpandedElement<"div">;
     element.rawMods = mods || [];
     element.mods = element.rawMods.map((mod, modIndex) => {
       if (typeof mod === "function") {
