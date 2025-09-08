@@ -13,7 +13,7 @@ declare global {
     & Pick<HTMLElementTagNameMap[TTagName], 'tagName'>
     & {
       rawMods?: NodeMod<TTagName>[];
-      mods?: (Primitive | ExpandedElement)[];
+      mods?: (Primitive | ExpandedElement | ElementAttributes<TTagName>)[];
     }
 
   export type NodeModFn<TTagName extends ElementTagName = ElementTagName> =
