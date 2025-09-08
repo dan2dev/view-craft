@@ -8,14 +8,6 @@ declare global {
     | HTMLElementTagNameMap[TTagName][K]
     | (() => HTMLElementTagNameMap[TTagName][K]);
   };
-  // export type VirtualElement<TTagName extends ElementTagName = ElementTagName> = {
-  //   tagName: TTagName;
-  //   attributes: ElementAttributes<TTagName>;
-  //   children: (VirtualElement | Primitive)[];
-  //   mods: (NodeMod<TTagName>)[];
-  //   el?: HTMLElementTagNameMap[TTagName];
-  // };
-  // export type VirtualElement<TTagName extends ElementTagName = ElementTagName> = Partial<ElementAttributes<TTagName>>;
   export type ExpandedElement<TTagName extends ElementTagName = ElementTagName> =
     & Partial<Omit<HTMLElementTagNameMap[TTagName], 'tagName'>>
     & Pick<HTMLElementTagNameMap[TTagName], 'tagName'>
@@ -25,7 +17,6 @@ declare global {
     }
 
   export type NodeMod<TTagName extends ElementTagName = ElementTagName> =
-    // | VirtualElement
     | ExpandedElement<TTagName>
     | Primitive
     | (
@@ -35,7 +26,10 @@ declare global {
     );
   export type NodeBuilder<TTagName extends ElementTagName = ElementTagName> =
     (...mods: NodeMod<TTagName>[]) => NodeMod<TTagName>;
+
+
+  // tags from tags.ts
+  const div: NodeBuilder<"div">;
 }
 
-// Add more types as neeed for your API
 export { };

@@ -1,3 +1,5 @@
+import "./utility/index";
+import "./core/index";
 import { some1 } from "./some";
 
 export const start = () => {

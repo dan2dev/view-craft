@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
-
+import "../../src/index";
 import { describe, it, expect } from "vitest";
-import { div } from "../../src/core/index";
+
 
 describe("div NodeBuilder", () => {
   it("should create a div element", () => {
