@@ -34,6 +34,7 @@ declare global {
 
   // tags from tags.ts
   const div: NodeBuilder<"div">;
+  const span: NodeBuilder<"span">;
 }
 
 export { };
