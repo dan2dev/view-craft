@@ -3,7 +3,9 @@ import type { Primitive as TypeFestPrimitive } from "type-fest/source/primitive"
 declare global {
   export type Primitive = TypeFestPrimitive;
   export type ElementTagName = keyof HTMLElementTagNameMap;
-  export type ElementAttributes<TTagName extends ElementTagName = ElementTagName> = {
+
+  // Expanded element types (with mods)
+  export type ExpandedElementAttributes<TTagName extends ElementTagName = ElementTagName> = {
     [K in keyof HTMLElementTagNameMap[TTagName]]?:
     | HTMLElementTagNameMap[TTagName][K]
     | (() => HTMLElementTagNameMap[TTagName][K]);
@@ -12,29 +14,27 @@ declare global {
     & Partial<Omit<HTMLElementTagNameMap[TTagName], 'tagName'>>
     & Pick<HTMLElementTagNameMap[TTagName], 'tagName'>
     & {
-      rawMods?: NodeMod<TTagName>[];
-      mods?: (Primitive | ExpandedElement | ElementAttributes<TTagName>)[];
+      rawMods?: (NodeMod<TTagName> | NodeModFn<TTagName>)[];
+      mods?: NodeMod<TTagName>[];
     }
 
-  export type NodeModFn<TTagName extends ElementTagName = ElementTagName> =
-    (parent: ExpandedElement<TTagName>, index: number) =>
-      | ExpandedElement<TTagName>
-      | Primitive
-      | ElementAttributes<TTagName>;
-
+  // Node modifier types
   export type NodeMod<TTagName extends ElementTagName = ElementTagName> =
-    | ExpandedElement<TTagName>
     | Primitive
-    | ElementAttributes<TTagName>
-    | NodeModFn<TTagName>;
+    | ExpandedElementAttributes<TTagName>
+    | ExpandedElement<TTagName>;
+  export type NodeModFn<TTagName extends ElementTagName = ElementTagName> =
+    (parent: ExpandedElement<TTagName>, index: number) => NodeMod<TTagName>;
 
-  export type NodeBuilder<TTagName extends ElementTagName = ElementTagName> =
-    (...mods: NodeMod<TTagName>[]) =>
-      (parent: ExpandedElement<TTagName>, index: number) => ExpandedElement<TTagName>;
+
+  // Node tags builder type
+  export type ExpandedElementBuilder<TTagName extends ElementTagName = ElementTagName> =
+    (...rawMods: (NodeMod<TTagName> | NodeModFn<TTagName>)[]) =>
+      (parent?: ExpandedElement<TTagName>, index?: number) => ExpandedElement<TTagName>;
 
   // tags from tags.ts
-  const div: NodeBuilder<"div">;
-  const span: NodeBuilder<"span">;
+  export const div: ExpandedElementBuilder<"div">;
+  export const span: ExpandedElementBuilder<"span">;
 }
 
 export { };
