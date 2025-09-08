@@ -1,71 +1,90 @@
-import isBrowser from "../utility/isBrowser";
+import { isBrowser } from "../utility/isBrowser";
 import { tags } from "./tags";
 
-// const exportTags = {} as unknown;
+/**
+ * Factory that creates strongly typed element builder functions.
+ * Usage: const el = div("text", { id: "foo" })(parent, 0)
+ */
+export const createTag = <TTagName extends ElementTagName>(tagName: TTagName) =>
+  (...mods: NodeMod<TTagName>[]): NodeModFn<TTagName> => {
+    return ((parent: ExpandedElement<TTagName>, _index: number) => {
+      const element = (document?.createElement
+        ? document.createElement(tagName)
+        : { tagName }) as ExpandedElement<TTagName>;
 
+      // Keep original (possibly unevaluated) modifiers
+      (element as ExpandedElement<TTagName>).rawMods = mods;
 
-export const createTag =
-  <TTagName extends ElementTagName = ElementTagName>(tagName: TTagName) =>
-    (...mods: NodeMod<ElementTagName>[]) => {
-      return ((parent: ExpandedElement<ElementTagName>, index: number) => {
-        const element = document.createElement(tagName) as ExpandedElement<ElementTagName>;
-        element.rawMods = mods || [];
-        element.mods = element.rawMods.map((mod, modIndex) => {
-          if (typeof mod === "function") {
-            return mod(element, modIndex);
-          }
-          return mod;
-        });
-        element.mods.forEach((mod, index) => {
-          if (mod === null || mod === undefined) {
-            return;
-          }
-          const type = typeof mod;
-          if (type === "object") {
-            if (mod instanceof HTMLElement) {
-              element.appendChild?.(mod as HTMLElement);
-            } else {
-              // here is the attributes
-              Object.entries(mod as ExpandedElement).forEach(([key, value]) => {
-                if (key === "rawMods" || key === "mods") {
-                  return;
-                }
-                let v: unknown | undefined;;
-                if (typeof value === "function") {
-                  v = value(element, index);
-                  if (v !== undefined) {
-                    // @ts-ignore
-                    element[key] = v;
-                  }
-                } else {
-                  // @ts-ignore
-                  element[key] = value;
-                }
-              });
+      // Evaluate function mods immediately so they become static for this element instance
+      const evaluatedMods: (Primitive | ExpandedElement | ElementAttributes<TTagName>)[] = mods.map(
+        (m, i) => (typeof m === "function" ? (m as NodeModFn<TTagName>)(element, i) : m),
+      );
+      (element as ExpandedElement<TTagName>).mods = evaluatedMods;
+
+      // Helpers -------------------------------------------------------------
+      const appendPrimitive = (value: Primitive) => {
+        const content = String(value);
+        if (isBrowser && typeof document !== "undefined") {
+          element.appendChild?.(document.createTextNode(content));
+        } else {
+          element.appendChild?.(content as any);
+        }
+      };
+
+      const applyAttributes = (attrs: Record<string, unknown>) => {
+        Object.entries(attrs).forEach(([key, value]) => {
+          if (key === "rawMods" || key === "mods") return; // internal bookkeeping
+          // Support attribute value functions (called lazily with element + index if they accept args)
+            // eslint-disable-next-line @typescript-eslint/ban-types
+          if (typeof value === "function") {
+            try {
+              // Attempt calling with (element) first; fallback to no-arg
+              const maybe = (value as any).length > 0 ? (value as any)(element) : (value as any)();
+              if (maybe !== undefined) {
+                // @ts-ignore dynamic assignment
+                element[key] = maybe;
+              }
+            } catch {
+              // Ignore attribute function errors silently for now (could log later)
             }
-          } else if (type !== "string") {
-            const content = String(mod);
-            if (isBrowser) {
-              const text = document.createTextNode(content);
-              element.appendChild?.(text);
-            } else {
-              element.appendChild?.(content as any);
-            }
-          } else {
-            const content = mod as string;
-            if (isBrowser) {
-              const text = document.createTextNode(content);
-              element.appendChild?.(text);
-            } else {
-              element.appendChild?.(content as any);
-            }
+          } else if (value !== undefined) {
+            // @ts-ignore dynamic assignment
+            element[key] = value;
           }
         });
-        return element;
-      }) as NodeMod<ElementTagName>;
-    };
+      };
 
+      const appendNode = (val: unknown) => {
+        if (val == null) return;
+        if (typeof val === "string" || typeof val === "number" || typeof val === "boolean") {
+          appendPrimitive(val as Primitive);
+          return;
+        }
+        if (isBrowser && val instanceof HTMLElement) {
+          element.appendChild?.(val);
+          return;
+        }
+        if (typeof val === "object") {
+          // Treat plain objects (non-HTMLElement) as attribute bags
+          applyAttributes(val as Record<string, unknown>);
+          return;
+        }
+        // Fallback: coerce to string
+        appendPrimitive(String(val));
+      };
+
+      // Process evaluated modifiers
+      evaluatedMods.forEach(appendNode);
+
+      return element;
+    }) as unknown as NodeModFn<TTagName>;
+  };
+
+// Register global tag builders (only once) ----------------------------------
 tags.forEach((tag) => {
-  // @ts-ignore
-  globalThis[tag] = createTag(tag);
+  // Avoid overwriting if already defined
+  if (!(globalThis as any)[tag]) {
+    // @ts-ignore - augmenting global scope intentionally
+    globalThis[tag] = createTag(tag);
+  }
 });
