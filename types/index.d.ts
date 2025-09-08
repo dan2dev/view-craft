@@ -29,8 +29,6 @@ declare global {
     (...mods: NodeMod<TTagName>[]) =>
       (parent: ExpandedElement<TTagName>, index: number) => ExpandedElement<TTagName>;
 
-
-
   // tags from tags.ts
   const div: NodeBuilder<"div">;
 }

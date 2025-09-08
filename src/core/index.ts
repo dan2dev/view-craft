@@ -17,6 +17,9 @@ export const createTag =
           return mod;
         });
         element.mods.forEach((mod, index) => {
+          if (mod === null || mod === undefined) {
+            return;
+          }
           const type = typeof mod;
           if (type === "object") {
             if (mod instanceof HTMLElement) {

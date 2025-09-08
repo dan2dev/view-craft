@@ -38,6 +38,19 @@ describe("div NodeBuilder", () => {
     expect(element.className).toBe("my-class");
     expect(element.textContent).toBe("Content");
   });
+  it("should handle null and undefined children gracefully", () => {
+    const parent = document.createElement("div");
+    const nodeBuilder = div(
+      null,
+      undefined,
+      "Valid Text",
+      () => null,
+      () => undefined
+    );
+    const element = nodeBuilder(parent, 0);
+    expect(element.childNodes!.length).toBe(1);
+    expect(element.childNodes![0].textContent).toBe("Valid Text");
+  });
 });
 
 
