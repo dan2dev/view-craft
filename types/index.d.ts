@@ -16,16 +16,19 @@ declare global {
       mods?: (Primitive | ExpandedElement)[];
     }
 
+  export type NodeModFn<TTagName extends ElementTagName = ElementTagName> =
+    (parent: ExpandedElement<TTagName>, index: number) => NodeMod<TTagName>;
+
   export type NodeMod<TTagName extends ElementTagName = ElementTagName> =
     | ExpandedElement<TTagName>
     | Primitive
-    | (
-      (element: ExpandedElement<TTagName>, index: number) =>
-        | ExpandedElement
-        | Primitive
-    );
+    | ElementAttributes<TTagName>
+    | NodeModFn<TTagName>;
+
   export type NodeBuilder<TTagName extends ElementTagName = ElementTagName> =
-    (...mods: NodeMod<TTagName>[]) => NodeMod<TTagName>;
+    (...mods: NodeMod<TTagName>[]) =>
+      (parent: ExpandedElement<TTagName>, index: number) => ExpandedElement<TTagName>;
+
 
 
   // tags from tags.ts

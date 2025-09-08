@@ -11,7 +11,7 @@ describe("div NodeBuilder", () => {
     const nodeBuilder = div();
     const element = nodeBuilder(parent, 0);
     expect(element).toBeInstanceOf(HTMLDivElement);
-    expect(element.tagName.toLowerCase()).toBe("div");
+    expect(element?.tagName.toLowerCase()).toBe("div");
   });
 
   it("should append children and text nodes", () => {
@@ -22,10 +22,10 @@ describe("div NodeBuilder", () => {
       () => "World!"
     );
     const element = nodeBuilder(parent, 0);
-    expect(element.childNodes.length).toBe(3);
-    expect(element.childNodes[0].textContent).toBe("Hello, ");
-    expect(element.childNodes[1]).toBeInstanceOf(HTMLSpanElement);
-    expect(element.childNodes[2].textContent).toBe("World!");
+    expect(element.childNodes!.length).toBe(3);
+    expect(element.childNodes![0].textContent).toBe("Hello, ");
+    expect(element.childNodes![1]).toBeInstanceOf(HTMLSpanElement);
+    expect(element.childNodes![2].textContent).toBe("World!");
   });
   it("should set attributes and properties", () => {
     const parent = document.createElement("div");
