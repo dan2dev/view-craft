@@ -1,4 +1,3 @@
-import { isBrowser } from "../utility/isBrowser";
 import { tags } from "./tags";
 
 const isPrimitive = (val: unknown): val is string | number | boolean => {

@@ -6,9 +6,9 @@ declare global {
 
   // Expanded element types (with mods)
   export type ExpandedElementAttributes<TTagName extends ElementTagName = ElementTagName> = {
-    [K in keyof HTMLElementTagNameMap[TTagName]]?:
-    | HTMLElementTagNameMap[TTagName][K]
-    | (() => HTMLElementTagNameMap[TTagName][K]);
+    [AttributeName in keyof HTMLElementTagNameMap[TTagName]]?:
+    | HTMLElementTagNameMap[TTagName][AttributeName]
+    | (() => HTMLElementTagNameMap[TTagName][AttributeName]);
   };
   export type ExpandedElement<TTagName extends ElementTagName = ElementTagName> =
     & Partial<Omit<HTMLElementTagNameMap[TTagName], 'tagName'>>
