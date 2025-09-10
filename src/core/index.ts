@@ -10,7 +10,21 @@ const isPrimitive = (val: unknown): val is string | number | boolean => {
 const createTagAttributes = <TTagName extends ElementTagName>(
   element: ExpandedElement<TTagName>,
   attrs: Record<string, unknown>,
-) => {};
+) => {
+  // Set properties and attributes
+  for (const key in attrs) {
+    const value = attrs[key];
+    if (value == null) continue;
+    // Prefer property when available, else set attribute
+    if (key in element) {
+      // @ts-ignore
+      element[key] = value;
+    } else if (element instanceof Element) {
+      // Attributes as strings
+      element.setAttribute?.(key, value.toString());
+    }
+  }
+};
 /**
  * Factory that creates strongly typed element builder functions.
  * Usage: const el = div("text", { id: "foo" })(parent, 0)
@@ -24,25 +38,24 @@ const createTagReturn = <TTagName extends ElementTagName>(
     const element: ElementType = document.createElement(tagName) as ElementType;
 
     for (let iMod = 0; iMod < rawMods.length; iMod++) {
-      if (rawMods[iMod] == null || rawMods[iMod] === undefined) continue;
       let mod = rawMods[iMod];
-      // if is a function evaluate it
+      if (mod == null) continue;
       if (typeof mod === "function") {
         mod = (mod as NodeModFn<TTagName>)(element, iMod);
+        if (mod == null) continue;
       }
-      // ---------------------------
-      // if is object (Element or attributes)
-      if (typeof mod === "object" && mod !== null) {
+      if (isPrimitive(mod)) {
+        element.appendChild?.(document.createTextNode(String(mod)));
+      } else if (mod instanceof Node) {
+        element.appendChild?.(mod);
+      } else if (typeof mod === "object" && mod !== null) {
         if ("tagName" in mod) {
-          // Handle virtual element
           element.appendChild?.(mod as HTMLHtmlElement);
         } else {
-          // Handle attributes
           createTagAttributes(element, mod as Record<string, unknown>);
         }
-      } else {
-        // ---------------------------
       }
+      // null and undefined already skipped
     }
     return element;
   }) as NodeModFn<TTagName>;
