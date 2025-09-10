@@ -2,7 +2,6 @@
 import "../../src/index";
 import { describe, it, expect } from "vitest";
 
-
 describe("div NodeBuilder", () => {
   it("should create a div element", () => {
     // Create a dummy parent element
@@ -16,11 +15,7 @@ describe("div NodeBuilder", () => {
 
   it("should append children and text nodes", () => {
     const parent = document.createElement("div");
-    const nodeBuilder = div(
-      "Hello, ",
-      document.createElement("span"),
-      () => "World!"
-    );
+    const nodeBuilder = div("Hello, ", document.createElement("span"), () => "World!");
     const element = nodeBuilder(parent, 0);
     expect(element.childNodes!.length).toBe(3);
     expect(element.childNodes![0].textContent).toBe("Hello, ");
@@ -29,10 +24,7 @@ describe("div NodeBuilder", () => {
   });
   it("should set attributes and properties", () => {
     const parent = document.createElement("div");
-    const nodeBuilder = div(
-      { id: "test-div", className: "my-class" },
-      "Content"
-    );
+    const nodeBuilder = div({ id: "test-div", className: "my-class" }, "Content");
     const element = nodeBuilder(parent, 0);
     expect(element.id).toBe("test-div");
     expect(element.className).toBe("my-class");
@@ -45,12 +37,18 @@ describe("div NodeBuilder", () => {
       undefined,
       "Valid Text",
       () => null,
-      () => undefined
+      () => undefined,
     );
     const element = nodeBuilder(parent, 0);
     expect(element.childNodes!.length).toBe(1);
     expect(element.childNodes![0].textContent).toBe("Valid Text");
   });
+  it("should handle nested divs", () => {
+    const parent = document.createElement("div");
+    const nodeBuilder = div(div("Nested Content"));
+    const element = nodeBuilder(parent, 0);
+    expect(element.childNodes!.length).toBe(1);
+    expect((element.childNodes![0] as any).tagName.toLowerCase()).toBe("div");
+    expect(element.childNodes![0].textContent).toBe("Nested Content");
+  });
 });
-
-

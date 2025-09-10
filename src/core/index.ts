@@ -7,20 +7,22 @@ const isPrimitive = (val: unknown): val is string | number | boolean => {
 //   return 'tagName' in val;
 // };
 
+import type { ExpandedElementAttributes } from '../../types';
+
 const createTagAttributes = <TTagName extends ElementTagName>(
   element: ExpandedElement<TTagName>,
-  attrs: Record<string, unknown>,
+  attrs: ExpandedElementAttributes<TTagName>,
 ) => {
-  // Set properties and attributes
   for (const key in attrs) {
-    const value = attrs[key];
+    let value = attrs[key];
+    if (typeof value === "function") {
+      value = (value as () => unknown)();
+    }
     if (value == null) continue;
-    // Prefer property when available, else set attribute
     if (key in element) {
       // @ts-ignore
       element[key] = value;
     } else if (element instanceof Element) {
-      // Attributes as strings
       element.setAttribute?.(key, value.toString());
     }
   }
@@ -52,7 +54,7 @@ const createTagReturn = <TTagName extends ElementTagName>(
         if ("tagName" in mod) {
           element.appendChild?.(mod as HTMLHtmlElement);
         } else {
-          createTagAttributes(element, mod as Record<string, unknown>);
+          createTagAttributes(element, mod as ExpandedElementAttributes<TTagName>);
         }
       }
       // null and undefined already skipped
