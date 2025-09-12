@@ -7,16 +7,16 @@ const isPrimitive = (val: unknown): val is string | number | boolean => {
 //   return 'tagName' in val;
 // };
 
-import type { ExpandedElementAttributes } from '../../types';
+// import type { ExpandedElementAttributes } from '../../types';
 
 const createTagAttributes = <TTagName extends ElementTagName>(
   element: ExpandedElement<TTagName>,
   attrs: ExpandedElementAttributes<TTagName>,
 ) => {
   for (const key in attrs) {
-    let value = attrs[key];
+    let value: unknown = attrs[key];
     if (typeof value === "function") {
-      value = (value as () => unknown)();
+      value = value();
     }
     if (value == null) continue;
     if (key in element) {
@@ -65,8 +65,8 @@ const createTagReturn = <TTagName extends ElementTagName>(
 
 export const createTag =
   <TTagName extends ElementTagName>(tagName: TTagName) =>
-  (...rawMods: ExpandedElement<TTagName>[]): NodeModFn<TTagName> =>
-    createTagReturn(tagName, ...rawMods);
+    (...rawMods: ExpandedElement<TTagName>[]): NodeModFn<TTagName> =>
+      createTagReturn(tagName, ...rawMods);
 
 // Register global tag builders ----------------------------------
 tags.forEach((tag) => {

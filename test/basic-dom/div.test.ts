@@ -51,4 +51,5 @@ describe("div NodeBuilder", () => {
     expect((element.childNodes![0] as any).tagName.toLowerCase()).toBe("div");
     expect(element.childNodes![0].textContent).toBe("Nested Content");
   });
+
 });
