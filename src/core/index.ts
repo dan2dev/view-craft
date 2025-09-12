@@ -3,11 +3,6 @@ import { tags } from "./tags";
 const isPrimitive = (val: unknown): val is string | number | boolean => {
   return typeof val === "string" || typeof val === "number" || typeof val === "boolean";
 };
-// const isVirtualElement = (val: object): val is { tagName: string } => {
-//   return 'tagName' in val;
-// };
-
-// import type { ExpandedElementAttributes } from '../../types';
 
 const createTagAttributes = <TTagName extends ElementTagName>(
   element: ExpandedElement<TTagName>,
