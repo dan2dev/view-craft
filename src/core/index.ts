@@ -60,8 +60,8 @@ const createTagReturn = <TTagName extends ElementTagName>(
 
 export const createTag =
   <TTagName extends ElementTagName>(tagName: TTagName) =>
-    (...rawMods: ExpandedElement<TTagName>[]): NodeModFn<TTagName> =>
-      createTagReturn(tagName, ...rawMods);
+  (...rawMods: ExpandedElement<TTagName>[]): NodeModFn<TTagName> =>
+    createTagReturn(tagName, ...rawMods);
 
 // Register global tag builders ----------------------------------
 tags.forEach((tag) => {

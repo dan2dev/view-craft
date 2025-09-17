@@ -1,4 +1,4 @@
-import type { Primitive as TypeFestPrimitive } from "type-fest/source/primitive";
+import type { Primitive as TypeFestPrimitive } from "type-fest";
 
 declare global {
   export type Primitive = TypeFestPrimitive;
