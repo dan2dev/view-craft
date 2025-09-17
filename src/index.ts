@@ -10,5 +10,3 @@ export const start = () => {
     value: 42,
   };
 };
-
-
