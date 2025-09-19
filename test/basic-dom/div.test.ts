@@ -22,6 +22,7 @@ describe("div NodeBuilder", () => {
     expect(element.childNodes![1]).toBeInstanceOf(HTMLSpanElement);
     expect(element.childNodes![2].textContent).toBe("World!");
   });
+
   it("should set attributes and properties", () => {
     const parent = document.createElement("div");
     const nodeBuilder = div({ id: "test-div", className: "my-class" }, "Content");
@@ -30,6 +31,7 @@ describe("div NodeBuilder", () => {
     expect(element.className).toBe("my-class");
     expect(element.textContent).toBe("Content");
   });
+
   it("should handle null and undefined children gracefully", () => {
     const parent = document.createElement("div");
     const nodeBuilder = div(
@@ -43,6 +45,7 @@ describe("div NodeBuilder", () => {
     expect(element.childNodes!.length).toBe(1);
     expect(element.childNodes![0].textContent).toBe("Valid Text");
   });
+
   it("should handle nested divs", () => {
     const parent = document.createElement("div");
     const nodeBuilder = div(div("Nested Content"));
@@ -51,5 +54,4 @@ describe("div NodeBuilder", () => {
     expect((element.childNodes![0] as any).tagName.toLowerCase()).toBe("div");
     expect(element.childNodes![0].textContent).toBe("Nested Content");
   });
-
 });
