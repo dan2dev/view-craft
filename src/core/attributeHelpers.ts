@@ -1,4 +1,7 @@
-export const createTagAttributes = <TTagName extends keyof HTMLElementTagNameMap>(element: any, attrs: any) => {
+export const createTagAttributes = <TTagName extends keyof HTMLElementTagNameMap>(
+  element: Partial<HTMLElementTagNameMap[TTagName]> & { [key: string]: unknown },
+  attrs: ExpandedElementAttributes<TTagName>
+) => {
   for (const key in attrs) {
     let value: unknown = attrs[key];
     if (typeof value === "function") {
