@@ -35,7 +35,7 @@ declare global {
 
   // Self-closing tag builder type
   export type SelfClosingElementBuilder<TTagName extends ElementTagName = ElementTagName> = (
-    props?: Record<string, unknown>
+      ...rawMods: (NodeModFn<TTagName>)[]
   ) => (parent?: ExpandedElement<TTagName>, index?: number) => ExpandedElement<TTagName>;
 
   // SVG node tags builder type
