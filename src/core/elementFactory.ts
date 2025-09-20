@@ -1,20 +1,21 @@
 import { handleMod } from "./modifierHandlers";
 
-export const createTagReturn = <TTagName extends keyof HTMLElementTagNameMap>(
+export function createTagReturn<TTagName extends ElementTagName>(
   tagName: TTagName,
-  ...rawMods: unknown[]
-) => {
-  return ((parent: Partial<HTMLElementTagNameMap[TTagName]> & { [key: string]: unknown }, index: number) => {
-    const element = document.createElement(tagName) as Partial<HTMLElementTagNameMap[TTagName]> & { [key: string]: unknown };
+  ...rawMods: (NodeMod<TTagName> | NodeModFn<TTagName>)[]
+): NodeModFn<TTagName> {
+  return ((parent: ExpandedElement<TTagName>, index: number) => {
+    const element = document.createElement(tagName) as ExpandedElement<TTagName>;
     for (let iMod = 0; iMod < rawMods.length; iMod++) {
       let mod = rawMods[iMod];
       handleMod(element, mod, iMod);
     }
     return element;
-  }) as unknown;
-};
+  }) as NodeModFn<TTagName>;
+}
 
-export const createTag =
-  <TTagName extends keyof HTMLElementTagNameMap>(tagName: TTagName) =>
-  (...rawMods: unknown[]): unknown =>
-    createTagReturn(tagName, ...rawMods);
+export function createTag<TTagName extends ElementTagName>(
+  tagName: TTagName
+): (...rawMods: (NodeMod<TTagName> | NodeModFn<TTagName>)[]) => NodeModFn<TTagName> {
+  return (...rawMods) => createTagReturn(tagName, ...rawMods);
+}

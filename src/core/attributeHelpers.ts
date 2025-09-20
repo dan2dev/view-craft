@@ -1,7 +1,7 @@
-export const createTagAttributes = <TTagName extends keyof HTMLElementTagNameMap>(
-  element: Partial<HTMLElementTagNameMap[TTagName]> & { [key: string]: unknown },
+export function createTagAttributes<TTagName extends ElementTagName>(
+  element: ExpandedElement<TTagName>,
   attrs: ExpandedElementAttributes<TTagName>
-) => {
+) {
   for (const key in attrs) {
     let value: unknown = attrs[key];
     if (typeof value === "function") {
@@ -9,10 +9,10 @@ export const createTagAttributes = <TTagName extends keyof HTMLElementTagNameMap
     }
     if (value == null) continue;
     if (key in element) {
-      // @ts-ignore
+      // @ts-ignore (setting property directly on HTMLElement)
       element[key] = value;
     } else if (element instanceof Element) {
       element.setAttribute?.(key, value.toString());
     }
   }
-};
+}

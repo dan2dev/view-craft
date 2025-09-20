@@ -1,14 +1,14 @@
 import { isPrimitive } from "../utility/isPrimitive";
 import { createTagAttributes } from "./attributeHelpers";
 
-export const handleMod = <TTagName extends keyof HTMLElementTagNameMap>(
-  element: Partial<HTMLElementTagNameMap[TTagName]> & { [key: string]: unknown },
-  mod: unknown,
+export function handleMod<TTagName extends ElementTagName>(
+  element: ExpandedElement<TTagName>,
+  mod: NodeMod<TTagName> | NodeModFn<TTagName>,
   iMod: number,
-) => {
+): void {
   if (mod == null) return;
   if (typeof mod === "function") {
-    mod = (mod as (el: typeof element, idx: number) => unknown)(element, iMod);
+    mod = (mod as NodeModFn<TTagName>)(element, iMod);
     if (mod == null) return;
   }
   if (isPrimitive(mod)) {
@@ -19,7 +19,7 @@ export const handleMod = <TTagName extends keyof HTMLElementTagNameMap>(
     if ("tagName" in mod) {
       element.appendChild?.(mod as HTMLElement);
     } else {
-      createTagAttributes(element, mod as any);
+      createTagAttributes(element, mod as ExpandedElementAttributes<TTagName>);
     }
   }
-};
+}
