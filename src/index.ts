@@ -1,2 +1,4 @@
 import "./utility/index";
-import "./core/index";
+import { registerGlobalTagBuilders } from "./core/index";
+
+registerGlobalTagBuilders();
