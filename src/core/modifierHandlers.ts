@@ -1,5 +1,13 @@
-import { isPrimitive } from "../utility/isPrimitive";
-import { createTagAttributes } from "./attributeHelpers";
+import {isPrimitive} from "../utility/isPrimitive";
+import {createTagAttributes} from "./attributeHelpers";
+
+export function isNode<T>(value: T): value is T & Node {
+  return value instanceof Node;
+}
+
+export function isNotNullObject<T>(value: T): value is T & object {
+  return typeof value === "object" && value !== null;
+}
 
 export function handleMod<TTagName extends ElementTagName>(
   element: ExpandedElement<TTagName>,
@@ -13,9 +21,9 @@ export function handleMod<TTagName extends ElementTagName>(
   }
   if (isPrimitive(mod)) {
     element.appendChild?.(document.createTextNode(String(mod)));
-  } else if (mod instanceof Node) {
+  } else if (isNode(mod)) {
     element.appendChild?.(mod);
-  } else if (typeof mod === "object" && mod !== null) {
+  } else if (isNotNullObject(mod)) {
     if ("tagName" in mod) {
       element.appendChild?.(mod as HTMLElement);
     } else {
