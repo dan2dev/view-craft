@@ -1,8 +1,5 @@
-import { tags } from "./tags";
-
-const isPrimitive = (val: unknown): val is string | number | boolean => {
-  return typeof val === "string" || typeof val === "number" || typeof val === "boolean";
-};
+import { isPrimitive } from "../utility/isPrimitive";
+import { tags } from "../utility/tags";
 
 const createTagAttributes = <TTagName extends ElementTagName>(
   element: ExpandedElement<TTagName>,
@@ -22,6 +19,32 @@ const createTagAttributes = <TTagName extends ElementTagName>(
     }
   }
 };
+
+const handleMod = <TTagName extends ElementTagName>(
+  element: ExpandedElement<TTagName>,
+  mod: NodeMod<TTagName> | NodeModFn<TTagName>,
+  iMod: number,
+) => {
+  if (mod == null) return;
+  if (typeof mod === "function") {
+    mod = (mod as NodeModFn<TTagName>)(element, iMod);
+    if (mod == null) return;
+  }
+  if (isPrimitive(mod)) {
+    element.appendChild?.(document.createTextNode(String(mod)));
+  } else if (mod instanceof Node) {
+    element.appendChild?.(mod);
+  } else if (typeof mod === "object" && mod !== null) {
+    if ("tagName" in mod) {
+      element.appendChild?.(mod as HTMLHtmlElement);
+    } else {
+      createTagAttributes(element, mod as ExpandedElementAttributes<TTagName>);
+    }
+  }
+  // null and undefined already skipped
+};
+
+
 /**
  * Factory that creates strongly typed element builder functions.
  * Usage: const el = div("text", { id: "foo" })(parent, 0)
@@ -36,29 +59,13 @@ const createTagReturn = <TTagName extends ElementTagName>(
 
     for (let iMod = 0; iMod < rawMods.length; iMod++) {
       let mod = rawMods[iMod];
-      if (mod == null) continue;
-      if (typeof mod === "function") {
-        mod = (mod as NodeModFn<TTagName>)(element, iMod);
-        if (mod == null) continue;
-      }
-      if (isPrimitive(mod)) {
-        element.appendChild?.(document.createTextNode(String(mod)));
-      } else if (mod instanceof Node) {
-        element.appendChild?.(mod);
-      } else if (typeof mod === "object" && mod !== null) {
-        if ("tagName" in mod) {
-          element.appendChild?.(mod as HTMLHtmlElement);
-        } else {
-          createTagAttributes(element, mod as ExpandedElementAttributes<TTagName>);
-        }
-      }
-      // null and undefined already skipped
+      handleMod(element, mod, iMod);
     }
     return element;
   }) as NodeModFn<TTagName>;
 };
 
-export const createTag =
+const createTag =
   <TTagName extends ElementTagName>(tagName: TTagName) =>
     (...rawMods: ExpandedElement<TTagName>[]): NodeModFn<TTagName> =>
       createTagReturn(tagName, ...rawMods);
