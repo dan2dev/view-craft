@@ -1,6 +1,6 @@
-import {isPrimitive} from "../utility/isPrimitive";
-import {isNode, isNotNullObject, isTag, isBoolean, isFunction} from "../utility";
-import {createTagAttributes} from "./attributeHelpers";
+import { isPrimitive } from "../utility/isPrimitive";
+import { isNode, isNotNullObject, isTag, isBoolean, isFunction } from "../utility";
+import { createTagAttributes } from "./attributeHelpers";
 
 // this holds the information of the index of the child nodes.
 // it is used to keep track of the order of the child nodes.
@@ -8,6 +8,8 @@ import {createTagAttributes} from "./attributeHelpers";
 export const childrenVirtualPrimitiveMap = new WeakMap<ExpandedElement<any>, Map<number, Primitive>>();
 export const childrenVirtualDomMap = new WeakMap<ExpandedElement<any>, Map<number, Node>>();
 export const childrenVirtualDomUpdateMap = new WeakMap<ExpandedElement<any>, Map<number, () => void>>();
+export const nodeElements = new Set<ExpandedElement<any>>();
+
 
 export function text(value: string | (() => string)): Text {
   const isFunction = typeof value === "function";
@@ -56,7 +58,7 @@ export function handleMod<TTagName extends ElementTagName>(
           const newCompiledMod = (mod as NodeModFn<TTagName>)(parent, iMod);
           parent.replaceWith?.(compiledMod, newCompiledMod as Node);
         }
-      })
+      });
       childrenVirtualDomUpdateMap.get(parent)?.get(iMod)?.();
       // if(childrenVirtualDomMap.get(parent)!.get(iMod) !== compiledMod) {
       //   childrenVirtualDomUpdateMap.get(parent)!.set(iMod, () => {
