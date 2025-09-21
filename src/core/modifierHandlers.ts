@@ -1,12 +1,13 @@
-import { isPrimitive } from "../utility/isPrimitive";
-import { isNode, isNotNullObject, isTag, isBoolean, isFunction } from "../utility";
-import { createTagAttributes } from "./attributeHelpers";
+import {isPrimitive} from "../utility/isPrimitive";
+import {isNode, isNotNullObject, isTag, isBoolean, isFunction} from "../utility";
+import {createTagAttributes} from "./attributeHelpers";
 
 // this holds the information of the index of the child nodes.
 // it is used to keep track of the order of the child nodes.
 // It is used to replace the child nodes in the DOM.
-export const childrenVirtualMap = new WeakMap<ExpandedElement<any>, Map<number, NodeMod<any>>>();
-export const childrenVirtualUpdateMap = new WeakMap<ExpandedElement<any>, Map<number, () => void>>();
+export const childrenVirtualPrimitiveMap = new WeakMap<ExpandedElement<any>, Map<number, Primitive>>();
+export const childrenVirtualDomMap = new WeakMap<ExpandedElement<any>, Map<number, Node>>();
+export const childrenVirtualDomUpdateMap = new WeakMap<ExpandedElement<any>, Map<number, () => void>>();
 
 export function text(value: string | (() => string)): Text {
   const isFunction = typeof value === "function";
@@ -34,16 +35,37 @@ export function handleMod<TTagName extends ElementTagName>(
   if (mod == null) return;
   if (isFunction(mod)) {
     const compiledMod = (mod as NodeModFn<TTagName>)(parent, iMod);
-    if (!childrenVirtualMap.get(parent)) {
-      childrenVirtualMap.set(parent, new Map());
+    if (!childrenVirtualDomMap.get(parent)) {
+      childrenVirtualDomMap.set(parent, new Map());
+      childrenVirtualPrimitiveMap.set(parent, new Map());
+      childrenVirtualDomUpdateMap.set(parent, new Map());
     }
     if (isPrimitive(compiledMod)) {
-      childrenVirtualMap.get(parent)!.set(iMod, compiledMod);
+      childrenVirtualPrimitiveMap.get(parent)!.set(iMod, compiledMod);
       const nodeText = document.createTextNode(String(compiledMod));
-      childrenVirtualMap.get(parent)!.set(iMod, nodeText);
-      childrenVirtualUpdateMap.get(parent)!.set(iMod, () => {
-        nodeText.textContent = String(compiledMod);
+      childrenVirtualDomMap.get(parent)!.set(iMod, nodeText);
+      childrenVirtualDomUpdateMap.get(parent)!.set(iMod, () => {
+        if (nodeText.textContent !== String(compiledMod)) {
+          nodeText.textContent = String(compiledMod);
+        }
       });
+    } else if (isNode(compiledMod)) {
+      parent.appendChild?.(compiledMod);
+      childrenVirtualDomUpdateMap.get(parent)!.set(iMod, () => {
+        if (childrenVirtualDomMap.get(parent)!.get(iMod) !== compiledMod) {
+          const newCompiledMod = (mod as NodeModFn<TTagName>)(parent, iMod);
+          parent.replaceWith?.(compiledMod, newCompiledMod as Node);
+        }
+      })
+      childrenVirtualDomUpdateMap.get(parent)?.get(iMod)?.();
+      // if(childrenVirtualDomMap.get(parent)!.get(iMod) !== compiledMod) {
+      //   childrenVirtualDomUpdateMap.get(parent)!.set(iMod, () => {
+      //     if (nodeText.textContent !== String(compiledMod)) {
+      //       nodeText.textContent = String(compiledMod);
+      //     }
+      //   });
+      //   childrenVirtualPrimitiveMap.get(parent)!.get(iMod);
+      // }
     }
 
     // se for diferente. Substituir
