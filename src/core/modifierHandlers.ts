@@ -5,12 +5,8 @@ import { createTagAttributes } from "./attributeHelpers";
 // this holds the information of the index of the child nodes.
 // it is used to keep track of the order of the child nodes.
 // It is used to replace the child nodes in the DOM.
-export const childrenVirtualMap = new WeakMap<
-  Node,
-  {
-    [childrenIndex: number]: Node | null;
-  }
->();
+export const childrenVirtualMap = new WeakMap<ExpandedElement<any>, Map<number, NodeMod<any>>>();
+export const childrenVirtualUpdateMap = new WeakMap<ExpandedElement<any>, Map<number, () => void>>();
 
 export function text(value: string | (() => string)): Text {
   const isFunction = typeof value === "function";
@@ -31,22 +27,36 @@ export function handleModAppend<TTagName extends ElementTagName>(parent: Node, d
 }
 
 export function handleMod<TTagName extends ElementTagName>(
-  element: ExpandedElement<TTagName>,
+  parent: ExpandedElement<TTagName>,
   mod: NodeMod<TTagName> | NodeModFn<TTagName>,
   iMod: number,
 ): void {
   if (mod == null) return;
   if (isFunction(mod)) {
-    const compiledMod = (mod as NodeModFn<TTagName>)(element, iMod);
+    const compiledMod = (mod as NodeModFn<TTagName>)(parent, iMod);
+    if (!childrenVirtualMap.get(parent)) {
+      childrenVirtualMap.set(parent, new Map());
+    }
+    if (isPrimitive(compiledMod)) {
+      childrenVirtualMap.get(parent)!.set(iMod, compiledMod);
+      const nodeText = document.createTextNode(String(compiledMod));
+      childrenVirtualMap.get(parent)!.set(iMod, nodeText);
+      childrenVirtualUpdateMap.get(parent)!.set(iMod, () => {
+        nodeText.textContent = String(compiledMod);
+      });
+    }
 
-    if (childrenVirtualMap.get(compiledMod)) if (compiledMod == null) return;
+    // se for diferente. Substituir
+    // childrenVirtualMap.get(parent)?.set(iMod, compiledMod);
+
+    // if (childrenVirtualMap.get(parent)) if (compiledMod == null) return;
   } else {
     if (isPrimitive(mod)) {
-      element.appendChild?.(document.createTextNode(String(mod)));
+      parent.appendChild?.(document.createTextNode(String(mod)));
     } else if (isNode(mod)) {
-      element.appendChild?.(mod);
+      parent.appendChild?.(mod);
     } else if (isNotNullObject(mod)) {
-      createTagAttributes(element, mod as ExpandedElementAttributes<TTagName>);
+      createTagAttributes(parent, mod as ExpandedElementAttributes<TTagName>);
     }
   }
 }
