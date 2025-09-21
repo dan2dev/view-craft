@@ -6,7 +6,7 @@ import { createTagAttributes } from "./attributeHelpers";
 // it is used to keep track of the order of the child nodes.
 // It is used to replace the child nodes in the DOM.
 export const childrenVirtualMap = new WeakMap<
-  Node,
+  ExpandedElement<any>,
   {
     [childrenIndex: number]: Node | null;
   }
@@ -38,9 +38,19 @@ export function handleMod<TTagName extends ElementTagName>(
   if (mod == null) return;
   if (isFunction(mod)) {
     const compiledMod = (mod as NodeModFn<TTagName>)(element, iMod);
+    // check exsting item
+    const siblingsMap = childrenVirtualMap.get(element);
+    if (siblingsMap) {
+      const newSiblingsMap = { ...siblingsMap };
+      childrenVirtualMap.set(element, {
+        ...(childrenVirtualMap.get(element) || {}),
+        // [iMod]: compiledMod,
+      });
+    }
 
-    if (childrenVirtualMap.get(compiledMod)) if (compiledMod == null) return;
+    // if (childrenVirtualMap.get(compiledMod)) if (compiledMod == null) return;
   } else {
+    // this is working as expected
     if (isPrimitive(mod)) {
       element.appendChild?.(document.createTextNode(String(mod)));
     } else if (isNode(mod)) {
