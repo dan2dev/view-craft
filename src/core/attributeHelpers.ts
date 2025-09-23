@@ -2,25 +2,31 @@ export function createTagAttributes<TTagName extends ElementTagName>(
   element: ExpandedElement<TTagName>,
   attrs: ExpandedElementAttributes<TTagName>,
 ) {
-  for (const key in attrs) {
+  for (const key of Object.keys(attrs) as Array<
+    keyof ExpandedElementAttributes<TTagName>
+  >) {
     let value: unknown = attrs[key];
     if (typeof value === "function") {
       console.log("----");
       console.log(value);
       const originalFunction = value as Function;
-      element.addEventListener?.("update", (e: Event) => {
+      element.addEventListener?.("update", (_e: Event) => {
         const newValue = originalFunction();
         if (key === "style") {
-          for (const [property, v] of Object.entries(newValue as Record<string, string>)) {
-            element.style[property] = v;
+          const styleObj = newValue as Record<string, string>;
+          if (element.style) {
+            for (const property in styleObj) {
+              // property is string, but element.style[property] is not type-safe
+              (element.style as any)[property] = styleObj[property];
+            }
           }
           // element.style?.setProperty("font-size", "50px");
         } else if (key in element) {
-          element[key as keyof typeof element] = newValue;
+          (element as any)[key] = newValue;
         } else if (key === "className") {
           // element.className = newValue;
         } else {
-          element.setAttribute?.(key, newValue);
+          element.setAttribute?.(key as string, newValue as string);
         }
       });
       value = originalFunction();
@@ -28,9 +34,9 @@ export function createTagAttributes<TTagName extends ElementTagName>(
     if (value == null) continue;
     if (key in element) {
       // @ts-ignore (setting property directly on HTMLElement)
-      element[key] = value;
+      (element as any)[key] = value;
     } else if (element instanceof Element) {
-      element.setAttribute?.(key, value.toString());
+      element.setAttribute?.(key as string, value.toString());
     }
   }
 }
