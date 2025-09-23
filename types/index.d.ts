@@ -5,7 +5,9 @@ declare global {
   export type ElementTagName = keyof HTMLElementTagNameMap;
 
   // Expanded element types (with mods)
-  export type ExpandedElementAttributes<TTagName extends ElementTagName = ElementTagName> = Omit<
+  export type ExpandedElementAttributes<
+    TTagName extends ElementTagName = ElementTagName,
+  > = Omit<
     {
       [K in keyof HTMLElementTagNameMap[TTagName]]?:
         | HTMLElementTagNameMap[TTagName][K]
@@ -15,9 +17,9 @@ declare global {
   > & {
     style?: Partial<CSSStyleDeclaration> | (() => Partial<CSSStyleDeclaration>);
   };
-  export type ExpandedElement<TTagName extends ElementTagName = ElementTagName> = Partial<
-    Omit<HTMLElementTagNameMap[TTagName], "tagName">
-  > &
+  export type ExpandedElement<
+    TTagName extends ElementTagName = ElementTagName,
+  > = Partial<Omit<HTMLElementTagNameMap[TTagName], "tagName">> &
     Pick<HTMLElementTagNameMap[TTagName], "tagName"> & {
       rawMods?: NodeMod<TTagName> | NodeModFn<TTagName>[];
       mods?: NodeMod<TTagName>[];
@@ -34,19 +36,34 @@ declare global {
   ) => NodeMod<TTagName> | void;
 
   // Node tags builder type
-  export type ExpandedElementBuilder<TTagName extends ElementTagName = ElementTagName> = (
+  export type ExpandedElementBuilder<
+    TTagName extends ElementTagName = ElementTagName,
+  > = (
     ...rawMods: (NodeMod<TTagName> | NodeModFn<TTagName>)[]
-  ) => (parent?: ExpandedElement<TTagName>, index?: number) => ExpandedElement<TTagName>;
+  ) => (
+    parent?: ExpandedElement<TTagName>,
+    index?: number,
+  ) => ExpandedElement<TTagName>;
 
   // Self-closing tag builder type
-  export type SelfClosingElementBuilder<TTagName extends ElementTagName = ElementTagName> = (
+  export type SelfClosingElementBuilder<
+    TTagName extends ElementTagName = ElementTagName,
+  > = (
     ...rawMods: NodeModFn<TTagName>[]
-  ) => (parent?: ExpandedElement<TTagName>, index?: number) => ExpandedElement<TTagName>;
+  ) => (
+    parent?: ExpandedElement<TTagName>,
+    index?: number,
+  ) => ExpandedElement<TTagName>;
 
   // SVG node tags builder type
-  export type ExpandedSVGElementBuilder<TTagName extends keyof SVGElementTagNameMap = keyof SVGElementTagNameMap> = (
-    ...rawMods: any[]
-  ) => (parent?: SVGElementTagNameMap[TTagName], index?: number) => SVGElementTagNameMap[TTagName];
+  export type ExpandedSVGElementBuilder<
+    TTagName extends keyof SVGElementTagNameMap = keyof SVGElementTagNameMap,
+  > = (
+    ...rawMods: any[] // TODO: don't use any
+  ) => (
+    parent?: SVGElementTagNameMap[TTagName],
+    index?: number,
+  ) => SVGElementTagNameMap[TTagName];
 
   // tags from tags.ts
   export const a: ExpandedElementBuilder<"a">;

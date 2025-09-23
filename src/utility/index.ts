@@ -9,13 +9,15 @@ export function isNotNullObject<T>(value: T): value is T & object {
 }
 
 export function isTag<T>(value: T): value is T & { tagName?: string } {
-  return (typeof value === "object" && value !== null && "tagName" in value) satisfies boolean;
+  return (typeof value === "object" &&
+    value !== null &&
+    "tagName" in value) satisfies boolean;
 }
 
-export function isBoolean(value: any): value is boolean {
+export function isBoolean<T>(value: T): value is boolean & any {
   return typeof value === "boolean";
 }
 
-export function isFunction(value: any): value is Function {
+export function isFunction<T>(value: T): value is Function & any {
   return typeof value === "function";
 }
