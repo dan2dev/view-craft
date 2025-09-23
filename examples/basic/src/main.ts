@@ -24,13 +24,21 @@ const app1 = div(
     // }),
     // id("myButton"),
     { id: "myButton", className: () => data.color },
+    {
+      style: {
+        color: "white",
+        backgroundColor: data.color,
+        padding: "10px",
+        borderRadius: "5px",
+      },
+    },
     "Click me",
     (e) => {
       e.addEventListener?.("click", (e) => {
         data.color = data.color === "red" ? "blue" : "red";
         // console.log("Button clicked!");
         // document.body.dispatchEvent(new Event("update", { bubbles: true }));
-        e.currentTarget?.dispatchEvent(new Event("update", { bubbles: false }));
+        e.currentTarget?.dispatchEvent(new Event("update", { bubbles: true }));
       });
       // console.log("--", e);
     },

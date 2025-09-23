@@ -5,16 +5,21 @@ declare global {
   export type ElementTagName = keyof HTMLElementTagNameMap;
 
   // Expanded element types (with mods)
-  export type ExpandedElementAttributes<TTagName extends ElementTagName = ElementTagName> = {
-    [K in keyof HTMLElementTagNameMap[TTagName]]?:
-      | HTMLElementTagNameMap[TTagName][K]
-      | (() => HTMLElementTagNameMap[TTagName][K]);
+  export type ExpandedElementAttributes<TTagName extends ElementTagName = ElementTagName> = Omit<
+    {
+      [K in keyof HTMLElementTagNameMap[TTagName]]?:
+        | HTMLElementTagNameMap[TTagName][K]
+        | (() => HTMLElementTagNameMap[TTagName][K]);
+    },
+    "style"
+  > & {
+    style?: Partial<CSSStyleDeclaration> | (() => Partial<CSSStyleDeclaration>);
   };
   export type ExpandedElement<TTagName extends ElementTagName = ElementTagName> = Partial<
     Omit<HTMLElementTagNameMap[TTagName], "tagName">
   > &
     Pick<HTMLElementTagNameMap[TTagName], "tagName"> & {
-      rawMods?: (NodeMod<TTagName> | NodeModFn<TTagName>[]);
+      rawMods?: NodeMod<TTagName> | NodeModFn<TTagName>[];
       mods?: NodeMod<TTagName>[];
     };
 
@@ -35,7 +40,7 @@ declare global {
 
   // Self-closing tag builder type
   export type SelfClosingElementBuilder<TTagName extends ElementTagName = ElementTagName> = (
-      ...rawMods: (NodeModFn<TTagName>)[]
+    ...rawMods: NodeModFn<TTagName>[]
   ) => (parent?: ExpandedElement<TTagName>, index?: number) => ExpandedElement<TTagName>;
 
   // SVG node tags builder type
