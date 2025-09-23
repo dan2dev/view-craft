@@ -8,7 +8,10 @@ export function createTagReturn<TTagName extends ElementTagName>(
     const element = document.createElement(tagName) as ExpandedElement<TTagName>;
     for (let iMod = 0; iMod < rawMods.length; iMod++) {
       let mod = rawMods[iMod];
-      handleMod(element, mod, iMod);
+      const compiledMod = handleMod(element, mod, iMod);
+      if (compiledMod) {
+        element.appendChild?.(compiledMod)
+      }
     }
     return element;
   }) as NodeModFn<TTagName>;

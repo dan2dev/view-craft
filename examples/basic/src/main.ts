@@ -1,15 +1,15 @@
-import './style.css'
+import "./style.css";
 import "view-craft";
-
 
 let someMessage = "Hello, world!";
 
-(() => {
-  // id("app-title").onClick;
-})();
-
+// (() => {
+//   console.log("ok1");
+//   // id("app-title").onClick;
+// })();
 
 // const cn = ()
+let color: "red" | "blue" = "red";
 
 const app1 = div(
   someMessage,
@@ -21,8 +21,11 @@ const app1 = div(
     //   "small": true
     // }),
     // id("myButton"),
-    { id: "myButton", className: "btn" },
+    { id: "myButton", className: () => color },
     "Click me",
+    (e) => {
+      console.log("--", e);
+    },
     // () => {
     //   someMessage = "Button Clicked!";
     //   alert(someMessage);
@@ -32,5 +35,3 @@ const app1 = div(
 document.body.appendChild(app1 as Node);
 
 // div("Hello, world!", { id: "main", virtual: true });
-
-

@@ -26,7 +26,7 @@ declare global {
   export type NodeModFn<TTagName extends ElementTagName = ElementTagName> = (
     parent: ExpandedElement<TTagName>,
     index: number,
-  ) => NodeMod<TTagName>;
+  ) => NodeMod<TTagName> | void;
 
   // Node tags builder type
   export type ExpandedElementBuilder<TTagName extends ElementTagName = ElementTagName> = (

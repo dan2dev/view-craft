@@ -1,6 +1,6 @@
 export function createTagAttributes<TTagName extends ElementTagName>(
   element: ExpandedElement<TTagName>,
-  attrs: ExpandedElementAttributes<TTagName>
+  attrs: ExpandedElementAttributes<TTagName>,
 ) {
   for (const key in attrs) {
     let value: unknown = attrs[key];
