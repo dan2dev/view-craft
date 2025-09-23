@@ -25,12 +25,13 @@ const app1 = div(
     // id("myButton"),
     { id: "myButton", className: () => data.color },
     {
-      style: {
+      style: () => ({
         color: "white",
+        fontSize: data.color === "red" ? "16px" : "20px",
         backgroundColor: data.color,
         padding: "10px",
         borderRadius: "5px",
-      },
+      }),
     },
     "Click me",
     (e) => {

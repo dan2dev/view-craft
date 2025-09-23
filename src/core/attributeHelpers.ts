@@ -10,12 +10,15 @@ export function createTagAttributes<TTagName extends ElementTagName>(
       const originalFunction = value as Function;
       element.addEventListener?.("update", (e: Event) => {
         const newValue = originalFunction();
-        if (key in element) {
+        if (key === "style") {
+          for (const [property, v] of Object.entries(newValue as Record<string, string>)) {
+            element.style[property] = v;
+          }
+          // element.style?.setProperty("font-size", "50px");
+        } else if (key in element) {
           element[key as keyof typeof element] = newValue;
         } else if (key === "className") {
           // element.className = newValue;
-        } else if (key === "style") {
-          // element.style.cssText = newValue;
         } else {
           element.setAttribute?.(key, newValue);
         }
