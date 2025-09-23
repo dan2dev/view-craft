@@ -28,11 +28,11 @@ const app1 = div(
     (e) => {
       e.addEventListener?.("click", (e) => {
         data.color = data.color === "red" ? "blue" : "red";
-        console.log("Button clicked!");
-        document.body.dispatchEvent(new Event("update", { bubbles: true }));
-        e.currentTarget?.dispatchEvent(new Event("update", { bubbles: true }));
+        // console.log("Button clicked!");
+        // document.body.dispatchEvent(new Event("update", { bubbles: true }));
+        e.currentTarget?.dispatchEvent(new Event("update", { bubbles: false }));
       });
-      console.log("--", e);
+      // console.log("--", e);
     },
     // () => {
     //   someMessage = "Button Clicked!";
@@ -42,7 +42,7 @@ const app1 = div(
 )(document.body, 0);
 document.body.appendChild(app1 as Node);
 document.body.addEventListener("update", () => {
-  console.log("update!!");
+  console.log("update!!!!!!");
 });
 
 // div("Hello, world!", { id: "main", virtual: true });
