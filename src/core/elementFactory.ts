@@ -6,11 +6,13 @@ export function createTagReturn<TTagName extends ElementTagName>(
 ): NodeModFn<TTagName> {
   return ((parent: ExpandedElement<TTagName>, index: number) => {
     const element = document.createElement(tagName) as ExpandedElement<TTagName>;
+    let elementIndex = index;
     for (let iMod = 0; iMod < rawMods.length; iMod++) {
       let mod = rawMods[iMod];
-      const compiledMod = handleMod(element, mod, iMod);
+      const compiledMod = handleMod(element, mod, elementIndex);
       if (compiledMod) {
-        element.appendChild?.(compiledMod)
+        element.appendChild?.(compiledMod);
+        elementIndex++;
       }
     }
     return element;
@@ -18,7 +20,7 @@ export function createTagReturn<TTagName extends ElementTagName>(
 }
 
 export function createTag<TTagName extends ElementTagName>(
-  tagName: TTagName
+  tagName: TTagName,
 ): (...rawMods: (NodeMod<TTagName> | NodeModFn<TTagName>)[]) => NodeModFn<TTagName> {
   return (...rawMods) => createTagReturn(tagName, ...rawMods);
 }
