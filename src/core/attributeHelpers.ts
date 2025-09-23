@@ -5,6 +5,12 @@ export function createTagAttributes<TTagName extends ElementTagName>(
   for (const key in attrs) {
     let value: unknown = attrs[key];
     if (typeof value === "function") {
+      console.log('----');
+      console.log(value);
+      element.addEventListener?.("update", (e: Event) => {
+        const newValue = (value as Function)();
+        element.setAttribute?.(key, newValue);
+      });
       value = value();
     }
     if (value == null) continue;

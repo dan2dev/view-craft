@@ -9,14 +9,14 @@ importers:
   .:
     dependencies:
       view-craft:
-        specifier: link:../../
+        specifier: link:../..
         version: link:../..
     devDependencies:
       typescript:
         specifier: ~5.9.2
         version: 5.9.2
       vite:
-        specifier: ^7.1.6
+        specifier: ^7.1.7
         version: 7.1.7
 
 packages:

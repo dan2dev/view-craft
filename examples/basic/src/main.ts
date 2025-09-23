@@ -9,7 +9,9 @@ let someMessage = "Hello, world!";
 // })();
 
 // const cn = ()
-let color: "red" | "blue" = "red";
+let data: {
+  color: "red" | "blue";
+} = { color: "red" };
 
 const app1 = div(
   someMessage,
@@ -21,9 +23,15 @@ const app1 = div(
     //   "small": true
     // }),
     // id("myButton"),
-    { id: "myButton", className: () => color },
+    { id: "myButton", className: () => data.color },
     "Click me",
     (e) => {
+      e.addEventListener?.("click", (e) => {
+        data.color = data.color === "red" ? "blue" : "red";
+        console.log("Button clicked!");
+        document.body.dispatchEvent(new Event("update", { bubbles: true }));
+        e.currentTarget?.dispatchEvent(new Event("update", { bubbles: true }));
+      });
       console.log("--", e);
     },
     // () => {
@@ -33,5 +41,8 @@ const app1 = div(
   ),
 )(document.body, 0);
 document.body.appendChild(app1 as Node);
+document.body.addEventListener("update", () => {
+  console.log("update!!");
+});
 
 // div("Hello, world!", { id: "main", virtual: true });
