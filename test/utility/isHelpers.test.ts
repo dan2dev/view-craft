@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { isNode, isNotNullObject, isTag, isBoolean, isFunction } from "../../src/utility";
+import { isNode, isNotNullObject, isTag, isBoolean, isFunction } from "../../src/utils";
 import { describe, it, expect } from "vitest";
 
 describe("utility is helpers", () => {

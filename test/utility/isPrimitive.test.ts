@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isPrimitive } from "../../src/utility/isPrimitive";
+import { isPrimitive } from "../../src/utils";
 
 describe("isPrimitive", () => {
   it("returns true for string", () => {

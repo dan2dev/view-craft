@@ -1,62 +1,62 @@
 import { describe, it, expect } from 'vitest';
-import { tags, svgTags, selfClosingTags } from '../../src/utility/tags.js';
+import { htmlTags, svgTags, selfClosingTags } from '../../src/tags.js';
 
 describe('tags arrays', () => {
-  describe('tags', () => {
+  describe('htmlTags', () => {
     it('should be an array of valid HTML tag names', () => {
-      expect(Array.isArray(tags)).toBe(true);
-      expect(tags.length).toBeGreaterThan(0);
+      expect(Array.isArray(htmlTags)).toBe(true);
+      expect(htmlTags.length).toBeGreaterThan(0);
     });
 
     it('should contain common HTML elements', () => {
       const commonTags = ['div', 'span', 'p', 'a', 'img', 'input', 'button', 'form'];
       commonTags.forEach(tag => {
-        expect(tags).toContain(tag);
+        expect(htmlTags).toContain(tag);
       });
     });
 
     it('should contain HTML5 semantic elements', () => {
       const semanticTags = ['header', 'footer', 'nav', 'article', 'section', 'aside', 'main'];
       semanticTags.forEach(tag => {
-        expect(tags).toContain(tag);
+        expect(htmlTags).toContain(tag);
       });
     });
 
     it('should contain form elements', () => {
       const formTags = ['form', 'input', 'button', 'select', 'textarea', 'label', 'fieldset', 'legend'];
       formTags.forEach(tag => {
-        expect(tags).toContain(tag);
+        expect(htmlTags).toContain(tag);
       });
     });
 
     it('should contain table elements', () => {
       const tableTags = ['table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th', 'caption', 'colgroup', 'col'];
       tableTags.forEach(tag => {
-        expect(tags).toContain(tag);
+        expect(htmlTags).toContain(tag);
       });
     });
 
     it('should contain media elements', () => {
       const mediaTags = ['audio', 'video', 'source', 'track', 'canvas', 'picture'];
       mediaTags.forEach(tag => {
-        expect(tags).toContain(tag);
+        expect(htmlTags).toContain(tag);
       });
     });
 
     it('should contain all heading elements', () => {
       const headings = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
       headings.forEach(tag => {
-        expect(tags).toContain(tag);
+        expect(htmlTags).toContain(tag);
       });
     });
 
     it('should not contain duplicates', () => {
-      const uniqueTags = [...new Set(tags)];
-      expect(tags).toHaveLength(uniqueTags.length);
+      const uniqueTags = [...new Set(htmlTags)];
+      expect(htmlTags).toHaveLength(uniqueTags.length);
     });
 
     it('should contain only lowercase strings', () => {
-      tags.forEach(tag => {
+      htmlTags.forEach(tag => {
         expect(typeof tag).toBe('string');
         expect(tag).toBe(tag.toLowerCase());
       });
@@ -115,24 +115,24 @@ describe('tags arrays', () => {
         expect(tag.length).toBeGreaterThan(0);
       });
 
-      // SVG tags can have camelCase (unlike HTML tags)
+      // SVG htmlTags can have camelCase (unlike HTML htmlTags)
       const camelCaseTags = ['animateMotion', 'animateTransform', 'feColorMatrix', 'feGaussianBlur'];
       camelCaseTags.forEach(tag => {
         expect(svgTags).toContain(tag);
       });
     });
 
-    it('should have some overlap with HTML tags but be distinct', () => {
+    it('should have some overlap with HTML htmlTags but be distinct', () => {
       // SVG and HTML share some tag names like 'a', 'script', 'style', 'title'
-      const sharedTags = svgTags.filter(tag => tags.includes(tag as typeof tags[number]));
+      const sharedTags = svgTags.filter(tag => htmlTags.includes(tag as typeof htmlTags[number]));
       expect(sharedTags.length).toBeGreaterThan(0);
       expect(sharedTags).toContain('a');
       expect(sharedTags).toContain('script');
       expect(sharedTags).toContain('style');
       expect(sharedTags).toContain('title');
 
-      // But SVG should have many unique tags
-      const uniqueSvgTags = svgTags.filter(tag => !tags.includes(tag as typeof tags[number]));
+      // But SVG should have many unique htmlTags
+      const uniqueSvgTags = svgTags.filter(tag => !htmlTags.includes(tag as typeof htmlTags[number]));
       expect(uniqueSvgTags.length).toBeGreaterThan(0);
       expect(uniqueSvgTags).toContain('svg');
       expect(uniqueSvgTags).toContain('circle');
@@ -153,9 +153,9 @@ describe('tags arrays', () => {
       });
     });
 
-    it('should be a subset of HTML tags', () => {
+    it('should be a subset of HTML htmlTags', () => {
       selfClosingTags.forEach(tag => {
-        expect(tags).toContain(tag);
+        expect(htmlTags).toContain(tag);
       });
     });
 
@@ -178,27 +178,27 @@ describe('tags arrays', () => {
       });
     });
 
-    it('should be much smaller than the full tags array', () => {
-      expect(selfClosingTags.length).toBeLessThan(tags.length / 2);
+    it('should be much smaller than the full htmlTags array', () => {
+      expect(selfClosingTags.length).toBeLessThan(htmlTags.length / 2);
     });
   });
 
   describe('array relationships', () => {
-    it('should have no overlap between selfClosingTags and non-self-closing tags', () => {
-      const nonSelfClosingTags = tags.filter(tag => !selfClosingTags.includes(tag));
+    it('should have no overlap between selfClosingTags and non-self-closing htmlTags', () => {
+      const nonSelfClosingTags = htmlTags.filter(tag => !selfClosingTags.includes(tag));
       const overlap = selfClosingTags.filter(tag => nonSelfClosingTags.includes(tag));
       expect(overlap).toHaveLength(0);
     });
 
-    it('should have selfClosingTags + non-self-closing tags equal total HTML tags', () => {
-      const nonSelfClosingTags = tags.filter(tag => !selfClosingTags.includes(tag));
-      expect(selfClosingTags.length + nonSelfClosingTags.length).toBe(tags.length);
+    it('should have selfClosingTags + non-self-closing htmlTags equal total HTML htmlTags', () => {
+      const nonSelfClosingTags = htmlTags.filter(tag => !selfClosingTags.includes(tag));
+      expect(selfClosingTags.length + nonSelfClosingTags.length).toBe(htmlTags.length);
     });
   });
 
   describe('tag validation', () => {
     it('should not contain any empty strings', () => {
-      [...tags, ...svgTags, ...selfClosingTags].forEach(tag => {
+      [...htmlTags, ...svgTags, ...selfClosingTags].forEach(tag => {
         expect(tag.trim()).toBe(tag);
         expect(tag.length).toBeGreaterThan(0);
       });
@@ -208,7 +208,7 @@ describe('tags arrays', () => {
       const validHtmlTagPattern = /^[a-z][a-z0-9]*$/;
       const validSvgTagPattern = /^[a-zA-Z][a-zA-Z0-9]*$/; // SVG allows camelCase
 
-      tags.forEach(tag => {
+      htmlTags.forEach(tag => {
         expect(validHtmlTagPattern.test(tag)).toBe(true);
       });
 

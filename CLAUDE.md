@@ -28,10 +28,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Core Architecture
 
-**Element Creation System (`src/core/`):**
-- `virtualDom.ts` — Virtual DOM implementation with `VElement` class for server-side rendering
-- `index.ts` — Core element creation logic with `createTag` and `createTagReturn` factories
-- `tags.ts` — Comprehensive list of HTML and SVG tag names
+**Element Creation System (`src/element-builder.ts`):**
+- `buildElement` — Creates element builder functions that return modifier functions
+- `createElementBuilder` — Factory for creating tag builder functions
 
 **Type System (`types/index.d.ts`):**
 - Global type declarations for all HTML tags as strongly-typed builder functions
@@ -41,7 +40,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Key Design Patterns:**
 1. **Global Tag Builders:** All HTML tags (div, span, etc.) are registered as global functions
 2. **Modifier System:** Elements accept text, attributes, child elements, or functions as "modifiers"
-3. **Universal Compatibility:** Works in browser (real DOM) and Node.js (virtual DOM)
+3. **Simplified Architecture:** All related functionality organized in focused, single-purpose files
 4. **Type Safety:** Full TypeScript support with element-specific attribute types
 
 ### Core Concepts
@@ -53,28 +52,25 @@ div("Hello", { id: "container" })(parent, index) // Returns HTMLDivElement
 
 **Modifiers:** Flexible parameter system accepting:
 - Primitives (string, number, boolean) → text content
-- Objects → attributes 
+- Objects → attributes
 - Elements → child elements
 - Functions → dynamic modifiers
 
-**Dual Environment:** 
-- Browser: Creates real DOM elements
-- Server: Creates virtual elements for SSR
+**Browser Environment:**
+- Creates real DOM elements using `document.createElement`
+- Supports reactive attributes with event listeners
 
 ### Project Structure
 
 ```
 src/
-├── index.ts          # Main entry point, exports start()
-├── some.ts           # Utility functions
-├── core/
-│   ├── index.ts      # Element creation system
-│   ├── virtualDom.ts # Virtual DOM for SSR
-│   └── tags.ts       # HTML/SVG tag definitions
-└── utility/
-    ├── index.ts      # Utility exports
-    ├── isBrowser.ts  # Environment detection
-    └── tags.ts       # Re-exports core tags
+├── index.ts          # Main entry point with exports
+├── start.ts          # Initialization logic
+├── element-builder.ts # Core element creation functions
+├── modifiers.ts      # Modifier processing logic
+├── attributes.ts     # Attribute handling and reactive updates
+├── tags.ts           # HTML/SVG tag definitions and registration
+└── utils.ts          # Utility functions and type guards
 
 types/
 └── index.d.ts        # Global type declarations

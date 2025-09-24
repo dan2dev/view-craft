@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { Dom } from '../../src/utility/dom.js';
+import { Dom } from '../../src/utils.js';
 
 describe('Dom.push', () => {
   let parent: HTMLElement;
