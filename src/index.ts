@@ -8,7 +8,7 @@ export {
 export { createElementFactory, createTagBuilder } from "./core/elementFactory";
 export { applyNodeModifier } from "./core/modifierProcessor";
 export {
-  createDynamicListRenderer,
+  list,
 } from "./list";
 export { update } from "./core/updateController";
 export { applyAttributes } from "./core/attributeManager";

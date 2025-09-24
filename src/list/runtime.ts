@@ -1,42 +1,44 @@
 import { isFunction, isTagLike } from "../utility/typeGuards";
-import type { ListRenderer, ListRuntime, ListItemRecord } from "./types";
+import type { ListRenderer, ListRuntime, ListItemRecord, ListItemsProvider } from "./types";
 
 function arraysEqual<T>(a: T[], b: T[]): boolean {
+  // Quick reference check first
+  if (a === b) return true;
   if (a.length !== b.length) return false;
   return a.every((item, index) => item === b[index]);
 }
 
 const activeListRuntimes = new Set<ListRuntime<any>>();
 
-function renderListItem<TItem>(
+function renderItem<TItem>(
   runtime: ListRuntime<TItem>,
   item: TItem,
   index: number,
 ): ExpandedElement<any> | null {
-  const candidate = runtime.renderItem(item, index);
+  const result = runtime.renderItem(item, index);
 
-  if (isFunction(candidate)) {
-    const evaluated = (candidate as NodeModFn<any>)(runtime.host, index);
-    if (evaluated && isTagLike(evaluated)) {
-      return evaluated as ExpandedElement<any>;
+  if (isFunction(result)) {
+    const element = (result as NodeModFn<any>)(runtime.host, index);
+    if (element && isTagLike(element)) {
+      return element as ExpandedElement<any>;
     }
     return null;
   }
 
-  if (candidate && isTagLike(candidate)) {
-    return candidate as ExpandedElement<any>;
+  if (result && isTagLike(result)) {
+    return result as ExpandedElement<any>;
   }
 
   return null;
 }
 
-function buildRecordPool<TItem>(records: ListItemRecord<TItem>[]): Map<TItem, ListItemRecord<TItem>[]> {
+function buildPool<TItem>(records: ListItemRecord<TItem>[]): Map<TItem, ListItemRecord<TItem>[]> {
   const pool = new Map<TItem, ListItemRecord<TItem>[]>();
 
   records.forEach((record) => {
-    const bucket = pool.get(record.item);
-    if (bucket) {
-      bucket.push(record);
+    const items = pool.get(record.item);
+    if (items) {
+      items.push(record);
     } else {
       pool.set(record.item, [record]);
     }
@@ -45,45 +47,46 @@ function buildRecordPool<TItem>(records: ListItemRecord<TItem>[]): Map<TItem, Li
   return pool;
 }
 
-function takeRecordFromPool<TItem>(
+function takeFromPool<TItem>(
   pool: Map<TItem, ListItemRecord<TItem>[]>,
   item: TItem,
 ): ListItemRecord<TItem> | null {
-  const bucket = pool.get(item);
-  if (!bucket || bucket.length === 0) {
+  const items = pool.get(item);
+  if (!items || items.length === 0) {
     return null;
   }
 
-  const record = bucket.shift()!;
-  if (bucket.length === 0) {
+  const record = items.shift()!;
+  if (items.length === 0) {
     pool.delete(item);
   }
 
   return record;
 }
 
-function removeRecord(record: ListItemRecord<unknown>): void {
+function remove(record: ListItemRecord<unknown>): void {
   const node = record.element as unknown as Node;
   node.parentNode?.removeChild(node);
 }
 
-export function synchronizeRuntime<TItem>(runtime: ListRuntime<TItem>): void {
+export function sync<TItem>(runtime: ListRuntime<TItem>): void {
   const { host, startMarker, endMarker } = runtime;
-  const parentNode = (startMarker.parentNode ?? (host as unknown as Node & ParentNode)) as Node & ParentNode;
+  const parent = (startMarker.parentNode ?? (host as unknown as Node & ParentNode)) as Node & ParentNode;
 
-  // Early exit if no changes are needed
-  if (arraysEqual(runtime.lastSyncedItems, runtime.items)) {
+  const currentItems = runtime.itemsProvider();
+
+  if (arraysEqual(runtime.lastSyncedItems, currentItems)) {
     return;
   }
 
-  const recordPool = buildRecordPool(runtime.records);
-  const nextRecords: Array<ListItemRecord<TItem>> = [];
+  const pool = buildPool(runtime.records);
+  const newRecords: Array<ListItemRecord<TItem>> = [];
 
-  runtime.items.forEach((item, index) => {
-    let record = takeRecordFromPool(recordPool, item);
+  currentItems.forEach((item, index) => {
+    let record = takeFromPool(pool, item);
 
     if (!record) {
-      const element = renderListItem(runtime, item, index);
+      const element = renderItem(runtime, item, index);
       if (!element) {
         return;
       }
@@ -92,18 +95,18 @@ export function synchronizeRuntime<TItem>(runtime: ListRuntime<TItem>): void {
       record.item = item;
     }
 
-    nextRecords.push(record);
-    parentNode.insertBefore(record.element as unknown as Node, endMarker);
+    newRecords.push(record);
+    parent.insertBefore(record.element as unknown as Node, endMarker);
   });
 
-  recordPool.forEach((records) => records.forEach(removeRecord));
+  pool.forEach((records) => records.forEach(remove));
 
-  runtime.records = nextRecords;
-  runtime.lastSyncedItems = [...runtime.items];
+  runtime.records = newRecords;
+  runtime.lastSyncedItems = [...currentItems];
 }
 
 export function createListRuntime<TItem>(
-  items: TItem[],
+  itemsProvider: ListItemsProvider<TItem>,
   renderItem: ListRenderer<TItem>,
   host: ExpandedElement<any>,
 ): ListRuntime<TItem> {
@@ -111,7 +114,7 @@ export function createListRuntime<TItem>(
   const endMarker = document.createComment("list-end");
 
   const runtime: ListRuntime<TItem> = {
-    items,
+    itemsProvider,
     renderItem,
     startMarker,
     endMarker,
@@ -125,7 +128,7 @@ export function createListRuntime<TItem>(
   parentNode.appendChild(endMarker);
 
   activeListRuntimes.add(runtime);
-  synchronizeRuntime(runtime);
+  sync(runtime);
 
   return runtime;
 }
@@ -137,6 +140,6 @@ export function updateListRuntimes(): void {
       return;
     }
 
-    synchronizeRuntime(runtime);
+    sync(runtime);
   });
 }

@@ -1,5 +1,5 @@
 import { registerGlobalTagBuilders } from "./tagRegistry";
-import { createDynamicListRenderer } from "../list";
+import { list } from "../list";
 import { update } from "./updateController";
 
 /**
@@ -10,7 +10,7 @@ export function initializeRuntime(): void {
 
   if (typeof globalThis !== "undefined") {
     const registry = globalThis as Record<string, unknown>;
-    registry.createDynamicListRenderer = createDynamicListRenderer;
+    registry.list = list;
     registry.update = update;
   }
 }

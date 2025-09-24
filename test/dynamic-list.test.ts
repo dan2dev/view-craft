@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createDynamicListRenderer } from '../src/list/index.js';
+import { list } from '../src/list/index.js';
 import { update } from '../src/core/updateController.js';
 
 describe('Dynamic List - Comment Markers', () => {
@@ -20,7 +20,7 @@ describe('Dynamic List - Comment Markers', () => {
 
   describe('list function - comment markers', () => {
     it('should create comment markers and render items inline', () => {
-      const listFn = createDynamicListRenderer(testItems, (item) => {
+      const listFn = list(() => testItems, (item) => {
         const div = document.createElement('div');
         div.textContent = item.name;
         div.setAttribute('data-item-id', item.id.toString());
@@ -55,7 +55,7 @@ describe('Dynamic List - Comment Markers', () => {
       before.textContent = 'Before list';
       container.appendChild(before);
 
-      const listFn = createDynamicListRenderer(testItems, (item) => {
+      const listFn = list(() => testItems, (item) => {
         const span = document.createElement('span');
         span.textContent = item.name;
         return span as any;
@@ -77,7 +77,7 @@ describe('Dynamic List - Comment Markers', () => {
 
     it('should handle empty arrays', () => {
       const emptyItems: any[] = [];
-      const listFn = createDynamicListRenderer(emptyItems, (item) => {
+      const listFn = list(() => emptyItems, (item) => {
         const div = document.createElement('div');
         div.textContent = item.name;
         return div as any;
@@ -96,7 +96,7 @@ describe('Dynamic List - Comment Markers', () => {
     let listElements: Element[];
 
     beforeEach(() => {
-      const listFn = createDynamicListRenderer(testItems, (item) => {
+      const listFn = list(() => testItems, (item) => {
         const div = document.createElement('div');
         div.textContent = item.name;
         div.setAttribute('data-item-id', item.id.toString());
@@ -224,7 +224,7 @@ describe('Dynamic List - Comment Markers', () => {
       const other = { id: 2, name: 'Other' };
       const itemsWithDuplicates = [shared, other, shared];
 
-      const listFn = createDynamicListRenderer(itemsWithDuplicates, (item, index) => {
+      const listFn = list(() => itemsWithDuplicates, (item, index) => {
         const div = document.createElement('div');
         div.textContent = `${item.name} - ${index}`;
         div.setAttribute('data-item-id', item.id.toString());
@@ -259,7 +259,7 @@ describe('Dynamic List - Comment Markers', () => {
       const items1 = [{ id: 1, name: 'List1-Item1' }, { id: 2, name: 'List1-Item2' }];
       const items2 = [{ id: 1, name: 'List2-Item1' }, { id: 2, name: 'List2-Item2' }];
 
-      const list1Fn = createDynamicListRenderer(items1, (item) => {
+      const list1Fn = list(() => items1, (item) => {
         const div = document.createElement('div');
         div.textContent = item.name;
         div.className = 'list1';
@@ -269,7 +269,7 @@ describe('Dynamic List - Comment Markers', () => {
       const separator = document.createElement('hr');
       container.appendChild(separator);
 
-      const list2Fn = createDynamicListRenderer(items2, (item) => {
+      const list2Fn = list(() => items2, (item) => {
         const div = document.createElement('div');
         div.textContent = item.name;
         div.className = 'list2';
@@ -304,7 +304,7 @@ describe('Dynamic List - Comment Markers', () => {
 
   describe('render function types', () => {
     it('should handle render functions that return NodeModFn', () => {
-      const listFn = createDynamicListRenderer(testItems, (item) => {
+      const listFn = list(() => testItems, (item) => {
         return (parent: any, index: number) => {
           const div = document.createElement('div');
           div.textContent = `${item.name} at ${index}`;
@@ -325,7 +325,7 @@ describe('Dynamic List - Comment Markers', () => {
       const item = { id: 1, name: 'Test Item', count: 0 };
       const items = [item];
 
-      const listFn = createDynamicListRenderer(items, (item) => {
+      const listFn = list(() => items, (item) => {
         const div = document.createElement('div');
         div.textContent = `${item.name} - ${item.count}`;
         div.setAttribute('data-item-id', item.id.toString());
@@ -358,7 +358,7 @@ describe('Dynamic List - Comment Markers', () => {
       };
 
       try {
-        const listFn = createDynamicListRenderer(testItems, (item) => {
+        const listFn = list(() => testItems, (item) => {
           const div = document.createElement('div');
           div.textContent = item.name;
           div.setAttribute('data-item-id', item.id.toString());
@@ -403,7 +403,7 @@ describe('Dynamic List - Comment Markers', () => {
       };
 
       try {
-        const listFn = createDynamicListRenderer(testItems, (item) => {
+        const listFn = list(() => testItems, (item) => {
           const div = document.createElement('div');
           div.textContent = item.name;
           return div as any;

@@ -1,1 +1,1 @@
-export { createDynamicListRenderer } from "./renderer";
+export { list } from "./renderer";

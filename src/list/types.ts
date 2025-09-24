@@ -3,13 +3,15 @@ export type ListRenderer<TItem> = (
   index: number,
 ) => ExpandedElement<any> | NodeModFn<any>;
 
+export type ListItemsProvider<TItem> = () => TItem[];
+
 export interface ListItemRecord<TItem> {
   item: TItem;
   element: ExpandedElement<any>;
 }
 
 export interface ListRuntime<TItem> {
-  items: TItem[];
+  itemsProvider: ListItemsProvider<TItem>;
   renderItem: ListRenderer<TItem>;
   startMarker: Comment;
   endMarker: Comment;

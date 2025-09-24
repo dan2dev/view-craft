@@ -248,7 +248,8 @@ declare global {
 
   // Dynamic list functions
   export type ListRenderFunction<T> = (item: T, index: number) => ExpandedElement<any> | NodeModFn<any>;
-  export function createDynamicListRenderer<T>(items: T[], renderFn: ListRenderFunction<T>): NodeModFn<any>;
+  export type ListItemsProvider<T> = () => T[];
+  export function list<T>(itemsProvider: ListItemsProvider<T>, render: ListRenderFunction<T>): NodeModFn<any>;
   export function update(): void;
 }
 

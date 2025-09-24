@@ -1,15 +1,15 @@
 import { createListRuntime } from "./runtime";
-import type { ListRenderer } from "./types";
+import type { ListRenderer, ListItemsProvider } from "./types";
 
 /**
- * Creates a comment-delimited list renderer that keeps DOM nodes in sync with the provided items.
+ * Maps items to DOM elements, keeping them in sync with changes.
  */
-export function createDynamicListRenderer<TItem>(
-  items: TItem[],
-  renderItem: ListRenderer<TItem>,
+export function list<TItem>(
+  itemsProvider: ListItemsProvider<TItem>,
+  render: ListRenderer<TItem>,
 ): NodeModFn<any> {
   return (host: ExpandedElement<any>) => {
-    const runtime = createListRuntime(items, renderItem, host);
+    const runtime = createListRuntime(itemsProvider, render, host);
     return runtime.startMarker;
   };
 }

@@ -17,7 +17,7 @@ describe('Example Integration', () => {
 
     // Test that global functions are available
     expect(typeof div).toBe('function');
-    expect(typeof createDynamicListRenderer).toBe('function');
+    expect(typeof list).toBe('function');
     expect(typeof update).toBe('function');
     expect(typeof button).toBe('function');
     expect(typeof h1).toBe('function');
@@ -34,7 +34,7 @@ describe('Example Integration', () => {
           update();
         });
       }),
-      createDynamicListRenderer(items, (item) => div(item.name)),
+      list(() => items, (item) => div(item.name)),
     )(document.body, 0);
 
     document.body.appendChild(app as Node);
