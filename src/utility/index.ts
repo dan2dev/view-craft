@@ -1,4 +1,5 @@
 export * from "./isBrowser";
+export * from "./attributeUtils";
 
 export function isNode<T>(value: T): value is T & Node {
   return value instanceof Node;
