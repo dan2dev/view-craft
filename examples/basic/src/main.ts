@@ -10,8 +10,8 @@ let someMessage = "Hello, world!";
 
 // const cn = ()
 let data: {
-  color: "red" | "blue";
-} = { color: "red" };
+  color: "green" | "blue";
+} = { color: "green" };
 
 const app1 = div(
   someMessage,
@@ -23,20 +23,23 @@ const app1 = div(
     //   "small": true
     // }),
     // id("myButton"),
-    { id: "myButton", className: () => data.color },
+    {
+      id: "myButton",
+      className: () => data.color,
+    },
     {
       style: () => ({
-        color: "white",
-        fontSize: data.color === "red" ? "16px" : "20px",
+        color: "green",
+        fontSize: data.color === "blue" ? "20px" : "40px",
         backgroundColor: data.color,
-        padding: "10px",
+        padding: "10px 20px",
         borderRadius: "5px",
       }),
     },
     "Click me",
     (e) => {
       e.addEventListener?.("click", (e) => {
-        data.color = data.color === "red" ? "blue" : "red";
+        data.color = data.color === "green" ? "blue" : "green";
         // console.log("Button clicked!");
         // document.body.dispatchEvent(new Event("update", { bubbles: true }));
         e.currentTarget?.dispatchEvent(new Event("update", { bubbles: true }));
