@@ -1,12 +1,7 @@
 import { isFunction, isTagLike } from "../utility/typeGuards";
+import { createMarkerPair, safeRemoveNode, getContainerParent } from "../utility/domMarkers";
+import { arraysEqual, createMultiMap, addToMultiMap, takeFromMultiMap } from "../utility/arrayUtils";
 import type { ListRenderer, ListRuntime, ListItemRecord, ListItemsProvider } from "./types";
-
-function arraysEqual<T>(a: T[], b: T[]): boolean {
-  // Quick reference check first
-  if (a === b) return true;
-  if (a.length !== b.length) return false;
-  return a.every((item, index) => item === b[index]);
-}
 
 const activeListRuntimes = new Set<ListRuntime<any>>();
 
@@ -32,9 +27,9 @@ function renderItem<TItem>(
   return null;
 }
 
-function buildPool<TItem>(records: ListItemRecord<TItem>[]): Map<TItem, ListItemRecord<TItem>[]> {
+function buildRecordsPool<TItem>(records: ListItemRecord<TItem>[]): Map<TItem, ListItemRecord<TItem>[]> {
   const pool = new Map<TItem, ListItemRecord<TItem>[]>();
-
+  
   records.forEach((record) => {
     const items = pool.get(record.item);
     if (items) {
@@ -43,30 +38,13 @@ function buildPool<TItem>(records: ListItemRecord<TItem>[]): Map<TItem, ListItem
       pool.set(record.item, [record]);
     }
   });
-
+  
   return pool;
-}
-
-function takeFromPool<TItem>(
-  pool: Map<TItem, ListItemRecord<TItem>[]>,
-  item: TItem,
-): ListItemRecord<TItem> | null {
-  const items = pool.get(item);
-  if (!items || items.length === 0) {
-    return null;
-  }
-
-  const record = items.shift()!;
-  if (items.length === 0) {
-    pool.delete(item);
-  }
-
-  return record;
 }
 
 function remove(record: ListItemRecord<unknown>): void {
   const node = record.element as unknown as Node;
-  node.parentNode?.removeChild(node);
+  safeRemoveNode(node);
 }
 
 export function sync<TItem>(runtime: ListRuntime<TItem>): void {
@@ -81,13 +59,7 @@ export function sync<TItem>(runtime: ListRuntime<TItem>): void {
 
   // Build map of existing records by item reference for O(1) lookup
   // For duplicates, maintain order to preserve DOM element associations
-  const existingRecordsMap = new Map<TItem, ListItemRecord<TItem>[]>();
-  runtime.records.forEach(record => {
-    if (!existingRecordsMap.has(record.item)) {
-      existingRecordsMap.set(record.item, []);
-    }
-    existingRecordsMap.get(record.item)!.push(record);
-  });
+  const existingRecordsMap = buildRecordsPool(runtime.records);
 
   const newRecords: Array<ListItemRecord<TItem>> = [];
   const elementsToRemove = new Set<ListItemRecord<TItem>>(runtime.records);
@@ -143,8 +115,7 @@ export function createListRuntime<TItem>(
   renderItem: ListRenderer<TItem>,
   host: ExpandedElement<any>,
 ): ListRuntime<TItem> {
-  const startMarker = document.createComment(`list-start-${Math.random().toString(36).slice(2)}`);
-  const endMarker = document.createComment("list-end");
+  const { start: startMarker, end: endMarker } = createMarkerPair("list");
 
   const runtime: ListRuntime<TItem> = {
     itemsProvider,

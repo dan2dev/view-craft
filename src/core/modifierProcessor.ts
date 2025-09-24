@@ -1,4 +1,5 @@
-import { applyAttributes, createReactiveTextNode } from "./attributeManager";
+import { applyAttributes } from "./attributeManager";
+import { createReactiveTextNode } from "./reactive";
 import { isFunction, isNode, isObject, isPrimitive } from "../utility/typeGuards";
 
 /**

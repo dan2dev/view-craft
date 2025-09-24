@@ -1,35 +1,29 @@
 import { isBrowser } from "../utility/environment";
 import { applyNodeModifier } from "../core/modifierProcessor";
+import { createMarkerPair, clearBetweenMarkers, insertNodesBefore } from "../utility/domMarkers";
 
 type WhenCondition = boolean | (() => boolean);
+type WhenContent<TTagName extends ElementTagName = ElementTagName> = 
+  NodeMod<TTagName> | NodeModFn<TTagName>;
 
-interface WhenGroup {
+interface WhenGroup<TTagName extends ElementTagName = ElementTagName> {
   condition: WhenCondition;
-  content: any[];
+  content: WhenContent<TTagName>[];
 }
 
-interface WhenRuntime {
+interface WhenRuntime<TTagName extends ElementTagName = ElementTagName> {
   startMarker: Comment;
   endMarker: Comment;
-  host: ExpandedElement<any>;
+  host: ExpandedElement<TTagName>;
   index: number;
-  groups: WhenGroup[];
-  elseContent: any[];
+  groups: WhenGroup<TTagName>[];
+  elseContent: WhenContent<TTagName>[];
   update(): void;
 }
 
-const activeWhenRuntimes = new Set<WhenRuntime>();
+const activeWhenRuntimes = new Set<WhenRuntime<any>>();
 
-function clearBetweenMarkers(startMarker: Comment, endMarker: Comment): void {
-  let current = startMarker.nextSibling;
-  while (current && current !== endMarker) {
-    const next = current.nextSibling;
-    current.parentNode?.removeChild(current);
-    current = next;
-  }
-}
-
-function renderWhenContent(runtime: WhenRuntime): void {
+function renderWhenContent<TTagName extends ElementTagName>(runtime: WhenRuntime<TTagName>): void {
   clearBetweenMarkers(runtime.startMarker, runtime.endMarker);
   
   let foundMatch = false;
@@ -61,41 +55,35 @@ function renderWhenContent(runtime: WhenRuntime): void {
     }
   }
 
-  const parent = runtime.startMarker.parentNode;
-  if (parent) {
-    nodesToInsert.forEach(node => {
-      parent.insertBefore(node, runtime.endMarker);
-    });
-  }
+  insertNodesBefore(nodesToInsert, runtime.endMarker);
 }
 
-class WhenBuilder {
-  private groups: WhenGroup[] = [];
-  private elseContent: any[] = [];
+class WhenBuilder<TTagName extends ElementTagName = ElementTagName> {
+  private groups: WhenGroup<TTagName>[] = [];
+  private elseContent: WhenContent<TTagName>[] = [];
 
-  constructor(initialCondition: WhenCondition, ...content: any[]) {
+  constructor(initialCondition: WhenCondition, ...content: WhenContent<TTagName>[]) {
     this.groups.push({ condition: initialCondition, content });
   }
 
-  when(condition: WhenCondition, ...content: any[]): WhenBuilder {
+  when(condition: WhenCondition, ...content: WhenContent<TTagName>[]): WhenBuilder<TTagName> {
     this.groups.push({ condition, content });
     return this;
   }
 
-  else(...content: any[]): WhenBuilder {
+  else(...content: WhenContent<TTagName>[]): WhenBuilder<TTagName> {
     this.elseContent = content;
     return this;
   }
 
-  render(host: ExpandedElement<any>, index: number): Node | null {
+  render(host: ExpandedElement<TTagName>, index: number): Node | null {
     if (!isBrowser) {
       return document.createComment("when-ssr");
     }
 
-    const startMarker = document.createComment("when-start");
-    const endMarker = document.createComment("when-end");
+    const { start: startMarker, end: endMarker } = createMarkerPair("when");
     
-    const runtime: WhenRuntime = {
+    const runtime: WhenRuntime<TTagName> = {
       startMarker,
       endMarker,
       host,
@@ -117,23 +105,26 @@ class WhenBuilder {
   }
 }
 
-type WhenBuilderFunction = WhenBuilder & NodeModFn<any>;
+type WhenBuilderFunction<TTagName extends ElementTagName = ElementTagName> = 
+  WhenBuilder<TTagName> & NodeModFn<TTagName>;
 
-function createWhenBuilderFunction(builder: WhenBuilder): WhenBuilderFunction {
-  const nodeModFn = (host: ExpandedElement<any>, index: number): Node | null => {
+function createWhenBuilderFunction<TTagName extends ElementTagName>(
+  builder: WhenBuilder<TTagName>
+): WhenBuilderFunction<TTagName> {
+  const nodeModFn = (host: ExpandedElement<TTagName>, index: number): Node | null => {
     return builder.render(host, index);
   };
 
   return Object.assign(nodeModFn, {
-    when: (condition: WhenCondition, ...content: any[]): WhenBuilderFunction => {
+    when: (condition: WhenCondition, ...content: WhenContent<TTagName>[]): WhenBuilderFunction<TTagName> => {
       builder.when(condition, ...content);
       return createWhenBuilderFunction(builder);
     },
-    else: (...content: any[]): WhenBuilderFunction => {
+    else: (...content: WhenContent<TTagName>[]): WhenBuilderFunction<TTagName> => {
       builder.else(...content);
       return createWhenBuilderFunction(builder);
     },
-  }) as any;
+  }) as unknown as WhenBuilderFunction<TTagName>;
 }
 
 export function updateWhenRuntimes(): void {
@@ -142,7 +133,10 @@ export function updateWhenRuntimes(): void {
   });
 }
 
-export function when(condition: WhenCondition, ...content: any[]): WhenBuilderFunction {
-  const builder = new WhenBuilder(condition, ...content);
+export function when<TTagName extends ElementTagName = ElementTagName>(
+  condition: WhenCondition, 
+  ...content: WhenContent<TTagName>[]
+): WhenBuilderFunction<TTagName> {
+  const builder = new WhenBuilder<TTagName>(condition, ...content);
   return createWhenBuilderFunction(builder);
 }

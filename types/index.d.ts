@@ -60,11 +60,22 @@ declare global {
   export type ExpandedSVGElementBuilder<
     TTagName extends keyof SVGElementTagNameMap = keyof SVGElementTagNameMap,
   > = (
-    ...rawMods: any[] // TODO: don't use any
+    ...rawMods: Array<SVGElementModifier<TTagName> | SVGElementModifierFn<TTagName>>
   ) => (
     parent?: SVGElementTagNameMap[TTagName],
     index?: number,
   ) => SVGElementTagNameMap[TTagName];
+
+  // SVG modifier types
+  export type SVGElementModifier<TTagName extends keyof SVGElementTagNameMap = keyof SVGElementTagNameMap> =
+    | Primitive
+    | (() => Primitive)
+    | Partial<SVGElementTagNameMap[TTagName]>
+    | SVGElementTagNameMap[TTagName];
+  export type SVGElementModifierFn<TTagName extends keyof SVGElementTagNameMap = keyof SVGElementTagNameMap> = (
+    parent: SVGElementTagNameMap[TTagName],
+    index: number,
+  ) => SVGElementModifier<TTagName> | void;
 
   // tags from tags.ts
   export const a: ExpandedElementBuilder<"a">;
@@ -254,11 +265,16 @@ declare global {
 
   // When/conditional rendering
   export type WhenCondition = boolean | (() => boolean);
-  export interface WhenBuilder {
-    when(condition: WhenCondition, ...content: any[]): WhenBuilder & NodeModFn<any>;
-    else(...content: any[]): WhenBuilder & NodeModFn<any>;
+  export type WhenContent<TTagName extends ElementTagName = ElementTagName> = 
+    NodeMod<TTagName> | NodeModFn<TTagName>;
+  export interface WhenBuilder<TTagName extends ElementTagName = ElementTagName> {
+    when(condition: WhenCondition, ...content: WhenContent<TTagName>[]): WhenBuilder<TTagName> & NodeModFn<TTagName>;
+    else(...content: WhenContent<TTagName>[]): WhenBuilder<TTagName> & NodeModFn<TTagName>;
   }
-  export function when(condition: WhenCondition, ...content: any[]): WhenBuilder & NodeModFn<any>;
+  export function when<TTagName extends ElementTagName = ElementTagName>(
+    condition: WhenCondition, 
+    ...content: WhenContent<TTagName>[]
+  ): WhenBuilder<TTagName> & NodeModFn<TTagName>;
 }
 
 export {};
