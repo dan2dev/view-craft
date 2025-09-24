@@ -346,4 +346,90 @@ describe('Dynamic List - Comment Markers', () => {
       expect(updatedElement).toBe(originalElement);
     });
   });
+
+  describe('performance optimizations', () => {
+    it('should not trigger DOM operations when list is unchanged', () => {
+      // Track DOM insertions by spying on insertBefore
+      const originalInsertBefore = Node.prototype.insertBefore;
+      let insertCallCount = 0;
+      Node.prototype.insertBefore = function<T extends Node>(this: T, child: Node, reference: Node | null): T {
+        insertCallCount++;
+        return originalInsertBefore.call(this, child, reference) as T;
+      };
+
+      try {
+        const listFn = createDynamicListRenderer(testItems, (item) => {
+          const div = document.createElement('div');
+          div.textContent = item.name;
+          div.setAttribute('data-item-id', item.id.toString());
+          return div as any;
+        });
+
+        listFn(container as any, 0);
+        
+        // Reset counter after initial render
+        insertCallCount = 0;
+
+        // Call update() without changing the items array
+        update();
+
+        // Should not have triggered any DOM insertions
+        expect(insertCallCount).toBe(0);
+
+        // Call update() multiple times - still no changes
+        update();
+        update();
+        expect(insertCallCount).toBe(0);
+
+        // Verify elements are still there and in correct order
+        const elements = Array.from(container.querySelectorAll('[data-item-id]'));
+        expect(elements).toHaveLength(3);
+        expect(elements[0].textContent).toBe('Item 1');
+        expect(elements[1].textContent).toBe('Item 2');
+        expect(elements[2].textContent).toBe('Item 3');
+
+      } finally {
+        // Restore original method
+        Node.prototype.insertBefore = originalInsertBefore;
+      }
+    });
+
+    it('should only trigger DOM operations when list actually changes', () => {
+      const originalInsertBefore = Node.prototype.insertBefore;
+      let insertCallCount = 0;
+      Node.prototype.insertBefore = function<T extends Node>(this: T, child: Node, reference: Node | null): T {
+        insertCallCount++;
+        return originalInsertBefore.call(this, child, reference) as T;
+      };
+
+      try {
+        const listFn = createDynamicListRenderer(testItems, (item) => {
+          const div = document.createElement('div');
+          div.textContent = item.name;
+          return div as any;
+        });
+
+        listFn(container as any, 0);
+        insertCallCount = 0;
+
+        // No change - should not trigger DOM operations
+        update();
+        expect(insertCallCount).toBe(0);
+
+        // Make a change - should trigger DOM operations
+        testItems.reverse();
+        update();
+        expect(insertCallCount).toBeGreaterThan(0);
+
+        // Reset and verify no operations when unchanged again
+        insertCallCount = 0;
+        update();
+        expect(insertCallCount).toBe(0);
+
+      } finally {
+        Node.prototype.insertBefore = originalInsertBefore;
+      }
+    });
+  });
+
 });

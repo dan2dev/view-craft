@@ -1,6 +1,11 @@
 import { isFunction, isTagLike } from "../utility/typeGuards";
 import type { ListRenderer, ListRuntime, ListItemRecord } from "./types";
 
+function arraysEqual<T>(a: T[], b: T[]): boolean {
+  if (a.length !== b.length) return false;
+  return a.every((item, index) => item === b[index]);
+}
+
 const activeListRuntimes = new Set<ListRuntime<any>>();
 
 function renderListItem<TItem>(
@@ -66,6 +71,11 @@ export function synchronizeRuntime<TItem>(runtime: ListRuntime<TItem>): void {
   const { host, startMarker, endMarker } = runtime;
   const parentNode = (startMarker.parentNode ?? (host as unknown as Node & ParentNode)) as Node & ParentNode;
 
+  // Early exit if no changes are needed
+  if (arraysEqual(runtime.lastSyncedItems, runtime.items)) {
+    return;
+  }
+
   const recordPool = buildRecordPool(runtime.records);
   const nextRecords: Array<ListItemRecord<TItem>> = [];
 
@@ -89,6 +99,7 @@ export function synchronizeRuntime<TItem>(runtime: ListRuntime<TItem>): void {
   recordPool.forEach((records) => records.forEach(removeRecord));
 
   runtime.records = nextRecords;
+  runtime.lastSyncedItems = [...runtime.items];
 }
 
 export function createListRuntime<TItem>(
@@ -106,6 +117,7 @@ export function createListRuntime<TItem>(
     endMarker,
     records: [],
     host,
+    lastSyncedItems: [],
   };
 
   const parentNode = host as unknown as Node & ParentNode;

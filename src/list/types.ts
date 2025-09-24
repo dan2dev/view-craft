@@ -15,4 +15,5 @@ export interface ListRuntime<TItem> {
   endMarker: Comment;
   records: ListItemRecord<TItem>[];
   host: ExpandedElement<any>;
+  lastSyncedItems: TItem[];
 }

@@ -63,7 +63,7 @@ const app1 = div(
     // console.log("--", e);
   }),
   createDynamicListRenderer(items, (item) =>
-    div(item.name, "---", item.price, input()),
+    div(item.name, "---", item.price, input(), () => data.color),
   ),
   button(
     // class({
