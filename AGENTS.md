@@ -1,19 +1,24 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-Source lives in `src/`, split into `core/` for rendering primitives, `utility/` for shared helpers, and `index.ts` that registers tags for consumers. Generated bundles and type declarations land in `dist/`; never edit them directly. Shared `.d.ts` shims reside in `types/`. Tests mirror the source under `test/`, with folders such as `test/basic-dom/` and `test/utility/` covering DOM behaviour and helper logic. Use `examples/basic/` as a sandbox when verifying interactive flows.
+Source lives in `src/`, with `core/` covering renderer primitives and `utility/` hosting shared helpers; `index.ts` exposes the public tag registry. Generated bundles and `.d.ts` output land in `dist/`—treat it as read-only. Shared shims sit in `types/`. Tests mirror the runtime tree under `test/` (for example `test/basic-dom/` and `test/utility/`). Use `examples/basic/` as the interactive playground and keep its dependencies installed separately.
 
 ## Build, Test, and Development Commands
-Use `pnpm build` to clean and rebuild Rollup bundles plus declaration files. Run `pnpm dev` for watch mode on the library, or `pnpm dev:all` to pair the library watcher with the basic example app (requires `npm install` inside `examples/basic`). `pnpm clean` removes `dist/` and TypeScript build info. When debugging bundling alone, `pnpm build:rollup` and `pnpm build:types` run each stage independently.
+- `pnpm build`: runs the full Rollup + types pipeline and refreshes `dist/`.
+- `pnpm build:rollup` / `pnpm build:types`: run bundling or declarations independently while isolating failures.
+- `pnpm dev`: watches the library for TypeScript and Rollup rebuilds.
+- `pnpm dev:all`: pairs the library watcher with the example app (install inside `examples/basic/` first).
+- `pnpm clean`: removes build artefacts.
+- `pnpm test`, `pnpm test:watch`: execute or watch Vitest in a JSDOM environment.
 
 ## Coding Style & Naming Conventions
-Code is TypeScript-first with `strict` compiler settings; respect existing generic signatures and favour explicit return types for exported APIs. Indent with two spaces, keep imports sorted by path depth, and prefer named exports over defaults. File names stay camelCase within feature folders (`elementFactory.ts`, `modifierHandlers.ts`). Keep side-effect imports (`import "./utility/index";`) limited to entry points. No lint script is defined today; rely on TypeScript and Vitest failures to catch regressions.
+Write TypeScript with `strict` types and explicit return signatures on exported APIs. Indent with two spaces and keep import groups sorted by path depth. Favor named exports and camelCased filenames within feature folders (`elementFactory.ts`, `modifierHandlers.ts`). Reserve side-effect imports (`import "./utility/index";`) for entry points only.
 
 ## Testing Guidelines
-Vitest with the JSDOM environment backs the suite; run `pnpm test` for coverage or `pnpm test:watch` while iterating. Place new specs beside peers in `test/`, naming files `*.test.ts`. Mirror the runtime module tree so contributors can spot gaps quickly. Include DOM snapshots or helper-focused unit tests as appropriate, and update fixtures in `test/basic-dom/` when changing render output.
+Vitest drives coverage; structure new specs beside the module they guard and follow the `*.test.ts` naming scheme. Prefer deterministic DOM assertions, updating fixtures in `test/basic-dom/` whenever output shifts. Run `pnpm test` before sending patches; add focused suites when debugging (`pnpm test -- run utility/formatters`).
 
 ## Commit & Pull Request Guidelines
-Follow the existing history: short, imperative commit subjects, optionally prefixed with a scope (`chore: bump Rollup`). Squash noisy commits before opening a PR. Every PR should describe the change, link to any issue, and call out UI or DOM diffs with before/after notes or screenshots. Confirm `pnpm build` and `pnpm test` pass locally before requesting review.
+Keep commits short, imperative, and optionally scoped (`fix: adjust signal lifetimes`). Squash noisy spikes before opening a PR. Provide context in the description, link any issue, and include DOM before/after notes or screenshots when user-visible output changes. Confirm `pnpm build` and `pnpm test` locally prior to review.
 
-## Release & Publishing
-Publishing is automated through `make publish`, which triggers `pnpm build`, bumps the patch version, and publishes with `pnpm publish --no-git-checks`. Coordinate releases with maintainers and run the command only from a clean `main` branch.
+## Security & Configuration Tips
+Rely on the checked-in `tsconfig.json` and Rollup config; avoid storing secrets in the repo. Audit new dependencies before adding them to `package.json`, and prefer local `.env` files ignored by git for temporary tokens.

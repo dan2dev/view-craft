@@ -213,6 +213,44 @@ describe('Dynamic List - Comment Markers', () => {
       expect(listElements[1].textContent).toBe('Item 2');
       expect(listElements[2].textContent).toBe('Item 1');
     });
+
+    it('should keep duplicate object references in sync with the array order', () => {
+      document.body.removeChild(container);
+      container = document.createElement('div');
+      document.body.appendChild(container);
+
+      const shared = { id: 1, name: 'Shared' };
+      const other = { id: 2, name: 'Other' };
+      const itemsWithDuplicates = [shared, other, shared];
+
+      const listFn = list(itemsWithDuplicates, (item, index) => {
+        const div = document.createElement('div');
+        div.textContent = `${item.name} - ${index}`;
+        div.setAttribute('data-item-id', item.id.toString());
+        return div as any;
+      });
+
+      listFn(container as any, 0);
+
+      const initialElements = Array.from(container.querySelectorAll('[data-item-id]'));
+      expect(initialElements).toHaveLength(3);
+      expect(initialElements.map(el => el.getAttribute('data-item-id'))).toEqual(['1', '2', '1']);
+
+      const duplicateNodes = Array.from(container.querySelectorAll('[data-item-id="1"]'));
+      expect(duplicateNodes).toHaveLength(2);
+
+      itemsWithDuplicates.sort((a, b) => a.id - b.id);
+      update();
+
+      const sortedElements = Array.from(container.querySelectorAll('[data-item-id]'));
+      expect(sortedElements).toHaveLength(3);
+      expect(sortedElements.map(el => el.getAttribute('data-item-id'))).toEqual(['1', '1', '2']);
+
+      const updatedDuplicates = Array.from(container.querySelectorAll('[data-item-id="1"]'));
+      expect(updatedDuplicates).toHaveLength(2);
+      expect(updatedDuplicates[0]).toBe(duplicateNodes[0]);
+      expect(updatedDuplicates[1]).toBe(duplicateNodes[1]);
+    });
   });
 
   describe('multiple lists in same container', () => {

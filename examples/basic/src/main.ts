@@ -33,19 +33,19 @@ const app1 = div(
   }),
   button("push",(e) => {
     e.addEventListener?.("click", (e) => {
-      items.push({ id: items.length + 1, name: `Item ${items.length + 1}`, price: 10 });
+      items.push({ id: items.length + 1, name: `Item ${items.length + 1}`, price: items.length * 10 });
       update();
     });
     // console.log("--", e);
   }),
   button("insert in the beginning",(e) => {
     e.addEventListener?.("click", (e) => {
-      items.unshift({ id: items.length + 1, name: `Item ${items.length + 1}`, price: 10 });
+      items.unshift({ id: items.length + 1, name: `Item ${items.length + 1}`, price: items.length * 10 });
       update();
     });
     // console.log("--", e);
   }),
-  list(items, (item) => div(item.name, item.price, input())),
+  list(items, (item) => div(item.name, "---", item.price, input())),
   button(
     // class({
     //   "small": true

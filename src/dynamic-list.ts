@@ -1,12 +1,16 @@
 type ListRenderFunction<T> = (item: T, index: number) => ExpandedElement<any> | NodeModFn<any>;
 
-// Data structures for tracking lists using comment markers
+interface ListItemRecord<T> {
+  item: T;
+  element: ExpandedElement<any>;
+}
+
 interface ListInfo<T> {
   items: T[];
   renderFn: ListRenderFunction<T>;
   startMarker: Comment;
   endMarker: Comment;
-  renderedElements: Map<T, ExpandedElement<any>>; // Maps items to their DOM elements
+  records: ListItemRecord<T>[];
   parent: ExpandedElement<any>;
 }
 
@@ -26,43 +30,26 @@ export function list<T>(
   renderFn: ListRenderFunction<T>
 ): NodeModFn<any> {
   return (parent: ExpandedElement<any>, index: number) => {
-    // Create comment markers to define list boundaries
     const startMarker = document.createComment(`list-start-${Math.random().toString(36).substr(2, 9)}`);
-    const endMarker = document.createComment('list-end');
+    const endMarker = document.createComment("list-end");
 
-    // Create list info object
     const listInfo: ListInfo<T> = {
       items,
       renderFn,
       startMarker,
       endMarker,
-      renderedElements: new Map(),
+      records: [],
       parent
     };
 
-    // Store in tracking maps
     listInfoMap.set(items, listInfo);
     activeLists.add(listInfo);
 
-    // Insert start marker
     parent.appendChild(startMarker);
-
-    // Insert end marker
     parent.appendChild(endMarker);
 
-    // Render initial items (this will insert them between the markers)
-    renderListItems(listInfo);
+    syncListWithItems(listInfo);
 
-    // Insert the initial elements between markers
-    listInfo.items.forEach((item) => {
-      const element = listInfo.renderedElements.get(item);
-      if (element && element.tagName) {
-        // Always insert before the end marker to maintain order
-        parent.insertBefore(element as unknown as Node, endMarker);
-      }
-    });
-
-    // Return the start marker (for positioning reference)
     return startMarker;
   };
 }
@@ -71,91 +58,100 @@ export function list<T>(
  * Updates all dynamic lists that reference arrays that have been modified
  */
 export function update(): void {
-  // Update all active lists
   activeLists.forEach(listInfo => {
     if (listInfo.startMarker.isConnected && listInfo.endMarker.isConnected) {
-      updateList(listInfo);
+      syncListWithItems(listInfo);
     } else {
-      // Clean up disconnected lists
       activeLists.delete(listInfo);
+      listInfoMap.delete(listInfo.items);
     }
   });
 }
 
-/**
- * Renders or updates the items for a specific list
- */
-function renderListItems<T>(listInfo: ListInfo<T>): void {
-  const { items, renderFn, startMarker, endMarker, parent } = listInfo;
-  const newRenderedElements = new Map<T, ExpandedElement<any>>();
+function syncListWithItems<T>(listInfo: ListInfo<T>): void {
+  const parentNode = listInfo.startMarker.parentNode;
+  if (!parentNode) return;
 
-  items.forEach((item, index) => {
-    let element: ExpandedElement<any>;
+  const recordPool = buildRecordPool(listInfo.records);
+  const nextRecords: ListItemRecord<T>[] = [];
 
-    // Check if we already have a rendered element for this item
-    if (listInfo.renderedElements.has(item)) {
-      element = listInfo.renderedElements.get(item)!;
+  listInfo.items.forEach((item, index) => {
+    let record = takeRecordFromPool(recordPool, item);
+
+    if (!record) {
+      const element = createElementForItem(listInfo, item, index);
+      if (!element) {
+        return;
+      }
+      record = { item, element };
     } else {
-      // Create new element
-      const renderedElement = renderFn(item, index);
-
-      if (typeof renderedElement === 'function') {
-        const result = (renderedElement as NodeModFn<any>)(parent, index);
-        if (result && typeof result === 'object' && 'tagName' in result) {
-          element = result as ExpandedElement<any>;
-        } else {
-          return; // Skip invalid elements
-        }
-      } else {
-        element = renderedElement;
-      }
+      record.item = item;
     }
 
-    if (element && element.tagName) {
-      newRenderedElements.set(item, element);
-    }
+    nextRecords.push(record);
+    parentNode.insertBefore(record.element as unknown as Node, listInfo.endMarker);
   });
 
-  listInfo.renderedElements = newRenderedElements;
+  recordPool.forEach((records) => {
+    records.forEach(removeRecord);
+  });
+
+  listInfo.records = nextRecords;
 }
 
-/**
- * Updates a specific list by reordering/adding/removing DOM elements
- */
-function updateList<T>(listInfo: ListInfo<T>): void {
-  const { items, startMarker, endMarker } = listInfo;
+function createElementForItem<T>(listInfo: ListInfo<T>, item: T, index: number): ExpandedElement<any> | null {
+  const renderedElement = listInfo.renderFn(item, index);
 
-  // First, clean up any elements that are no longer in the items array
-  const itemsSet = new Set(items);
-  listInfo.renderedElements.forEach((element, item) => {
-    if (!itemsSet.has(item)) {
-      // Remove from DOM if it's still there
-      if (element.parentNode) {
-        element.parentNode.removeChild(element as unknown as Node);
-      }
-      // Remove from our tracking
-      listInfo.renderedElements.delete(item);
+  if (typeof renderedElement === "function") {
+    const result = (renderedElement as NodeModFn<any>)(listInfo.parent, index);
+    if (result && typeof result === "object" && "tagName" in result) {
+      return result as ExpandedElement<any>;
+    }
+    return null;
+  }
+
+  if (renderedElement && typeof renderedElement === "object" && "tagName" in renderedElement) {
+    return renderedElement;
+  }
+
+  return null;
+}
+
+function buildRecordPool<T>(records: ListItemRecord<T>[]): Map<T, ListItemRecord<T>[]> {
+  const pool = new Map<T, ListItemRecord<T>[]>();
+
+  records.forEach((record) => {
+    const bucket = pool.get(record.item);
+    if (bucket) {
+      bucket.push(record);
+    } else {
+      pool.set(record.item, [record]);
     }
   });
 
-  // Re-render to ensure we have all elements for current items
-  renderListItems(listInfo);
+  return pool;
+}
 
-  // Remove only our list elements from DOM (preserve other siblings)
-  listInfo.renderedElements.forEach((element) => {
-    if (element.parentNode) {
-      element.parentNode.removeChild(element as unknown as Node);
-    }
-  });
+function takeRecordFromPool<T>(
+  pool: Map<T, ListItemRecord<T>[]>,
+  item: T
+): ListItemRecord<T> | undefined {
+  const bucket = pool.get(item);
+  if (!bucket || bucket.length === 0) {
+    return undefined;
+  }
 
-  // Insert elements in the new order between markers
-  const parent = startMarker.parentNode!;
+  const record = bucket.shift()!;
+  if (bucket.length === 0) {
+    pool.delete(item);
+  }
 
-  items.forEach((item) => {
-    const element = listInfo.renderedElements.get(item);
-    if (element && element.tagName) {
-      // Always insert before the end marker to maintain order and preserve siblings
-      parent.insertBefore(element as unknown as Node, endMarker);
-    }
-  });
+  return record;
+}
+
+function removeRecord<T>(record: ListItemRecord<T>): void {
+  const node = record.element as unknown as Node;
+  if (node.parentNode) {
+    node.parentNode.removeChild(node);
+  }
 }
