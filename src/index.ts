@@ -10,8 +10,6 @@ export { applyNodeModifier } from "./core/modifierProcessor";
 export {
   createDynamicListRenderer,
   refreshDynamicLists,
-  list,
-  update,
 } from "./list";
 export { applyAttributes } from "./core/attributeManager";
 export { appendChildren } from "./utility/dom";

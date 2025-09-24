@@ -15,17 +15,3 @@ export function createDynamicListRenderer<TItem>(
 }
 
 export { refreshListsInternal as refreshDynamicLists };
-
-/**
- * @deprecated Use {@link createDynamicListRenderer} instead.
- */
-export function list<TItem>(items: TItem[], renderItem: ListRenderer<TItem>): NodeModFn<any> {
-  return createDynamicListRenderer(items, renderItem);
-}
-
-/**
- * @deprecated Use {@link refreshDynamicLists} instead.
- */
-export function update(): void {
-  refreshListsInternal();
-}

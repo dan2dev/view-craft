@@ -27,25 +27,25 @@ const app1 = div(
   button("sort",(e) => {
     e.addEventListener?.("click", (_e) => {
       items.sort((a, b) => a.price - b.price);
-      update();
+      refreshDynamicLists();
     });
     // console.log("--", e);
   }),
   button("push",(e) => {
     e.addEventListener?.("click", (_e) => {
       items.push({ id: items.length + 1, name: `Item ${items.length + 1}`, price: items.length * 10 });
-      update();
+      refreshDynamicLists();
     });
     // console.log("--", e);
   }),
   button("insert in the beginning",(e) => {
     e.addEventListener?.("click", (_e) => {
       items.unshift({ id: items.length + 1, name: `Item ${items.length + 1}`, price: items.length * 10 });
-      update();
+      refreshDynamicLists();
     });
     // console.log("--", e);
   }),
-  list(items, (item) => div(item.name, "---", item.price, input())),
+  createDynamicListRenderer(items, (item) => div(item.name, "---", item.price, input())),
   button(
     // class({
     //   "small": true

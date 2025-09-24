@@ -11,8 +11,6 @@ export function initializeRuntime(): void {
     const registry = globalThis as Record<string, unknown>;
     registry.createDynamicListRenderer = createDynamicListRenderer;
     registry.refreshDynamicLists = refreshDynamicLists;
-    registry.list = createDynamicListRenderer;
-    registry.update = refreshDynamicLists;
   }
 }
 
