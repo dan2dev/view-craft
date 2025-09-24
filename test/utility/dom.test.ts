@@ -1,7 +1,33 @@
 // @vitest-environment jsdom
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { appendChildren } from '../../src/utility/dom.js';
+import { appendChildren, camelToKebab } from "../../src/utility/dom";
+
+describe('camelToKebab', () => {
+  it('should convert camelCase CSS properties to kebab-case', () => {
+    expect(camelToKebab('fontSize')).toBe('font-size');
+    expect(camelToKebab('backgroundColor')).toBe('background-color');
+    expect(camelToKebab('borderRadius')).toBe('border-radius');
+    expect(camelToKebab('marginTop')).toBe('margin-top');
+    expect(camelToKebab('zIndex')).toBe('z-index');
+  });
+
+  it('should handle already kebab-case properties', () => {
+    expect(camelToKebab('font-size')).toBe('font-size');
+    expect(camelToKebab('background-color')).toBe('background-color');
+  });
+
+  it('should handle single word properties', () => {
+    expect(camelToKebab('color')).toBe('color');
+    expect(camelToKebab('padding')).toBe('padding');
+    expect(camelToKebab('margin')).toBe('margin');
+  });
+
+  it('should handle multiple uppercase letters', () => {
+    expect(camelToKebab('WebkitTransform')).toBe('-webkit-transform');
+    expect(camelToKebab('MozAppearance')).toBe('-moz-appearance');
+  });
+});
 
 describe('appendChildren', () => {
   let parent: HTMLElement;

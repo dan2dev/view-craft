@@ -1,4 +1,5 @@
 import { isFunction } from "../utility/typeGuards";
+import { camelToKebab } from "../utility/dom";
 
 type AttributeKey<TTagName extends ElementTagName> = keyof ExpandedElementAttributes<TTagName>;
 type AttributeCandidate<TTagName extends ElementTagName> =
@@ -35,9 +36,9 @@ function assignInlineStyles<TTagName extends ElementTagName>(
 
   Object.entries(styles).forEach(([property, propertyValue]) => {
     if (propertyValue == null) {
-      style.removeProperty(property);
+      style.removeProperty(camelToKebab(property));
     } else {
-      style.setProperty(property, String(propertyValue));
+      style.setProperty(camelToKebab(property), String(propertyValue));
     }
   });
 }

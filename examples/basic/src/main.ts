@@ -88,11 +88,12 @@ const app1 = div(
     {
       id: "myButton",
       style: () => ({
-        color: "green",
-        "background-color": data.color,
+        // color: "green",
+        backgroundColor: data.color, // camelCase CSS properties now work!
         padding: "10px 20px",
-        "font-size": data.color === "blue" ? "40px" : "40px",
-        "border-radius": "5px",
+        fontSize: data.color === "green" ? "40px" : "50px", // camelCase
+        // "font-size": data.color === "blue" ? "40px" : "40px", // kebab-case also works
+        borderRadius: "5px", // camelCase instead of "border-radius"
       }),
     },
     {},
