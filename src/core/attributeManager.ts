@@ -8,8 +8,10 @@ type StyleAssignment = Partial<CSSStyleDeclaration>;
 type AttributeValue = string | number | boolean | StyleAssignment;
 type AttributeResolver = () => AttributeValue | null | undefined;
 type StyleResolver = () => StyleAssignment | null | undefined;
+type TextResolver = () => Primitive;
 
 const reactiveElements = new Set<Element>();
+const reactiveTextNodes = new Map<Text, TextResolver>();
 
 function isZeroArgFunction(value: unknown): value is () => unknown {
   return isFunction(value) && value.length === 0;
@@ -158,6 +160,49 @@ export function applyAttributes<TTagName extends ElementTagName>(
 
     applyAttributeCandidate(element, typedKey, candidate as AttributeCandidate<TTagName>);
   }
+}
+
+/**
+ * Creates a reactive text node that updates its content when update() is called.
+ */
+export function createReactiveTextNode(resolver: TextResolver): Text {
+  const textNode = document.createTextNode("");
+  reactiveTextNodes.set(textNode, resolver);
+  
+  // Initialize with the current value
+  try {
+    const value = resolver();
+    textNode.textContent = value == null ? String(value) : String(value);
+  } catch (error) {
+    console.error("Error initializing reactive text node:", error);
+    textNode.textContent = "";
+  }
+  
+  return textNode;
+}
+
+/**
+ * Updates all reactive text nodes with their latest values.
+ */
+export function notifyReactiveTextNodes(): void {
+  const staleTextNodes: Text[] = [];
+
+  reactiveTextNodes.forEach((resolver, textNode) => {
+    if (!textNode.isConnected) {
+      staleTextNodes.push(textNode);
+      return;
+    }
+
+    try {
+      const value = resolver();
+      const newContent = value == null ? String(value) : String(value);
+      textNode.textContent = newContent;
+    } catch (error) {
+      console.error("Error updating reactive text node:", error);
+    }
+  });
+
+  staleTextNodes.forEach((textNode) => reactiveTextNodes.delete(textNode));
 }
 
 /**

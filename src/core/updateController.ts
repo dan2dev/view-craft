@@ -1,5 +1,5 @@
 import { updateListRuntimes } from "../list/runtime";
-import { notifyReactiveElements } from "./attributeManager";
+import { notifyReactiveElements, notifyReactiveTextNodes } from "./attributeManager";
 
 function dispatchGlobalUpdateEvent(): void {
   if (typeof document === "undefined") {
@@ -27,5 +27,6 @@ function dispatchGlobalUpdateEvent(): void {
 export function update(): void {
   updateListRuntimes();
   notifyReactiveElements();
+  notifyReactiveTextNodes();
   dispatchGlobalUpdateEvent();
 }

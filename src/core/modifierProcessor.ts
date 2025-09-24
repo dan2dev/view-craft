@@ -1,4 +1,4 @@
-import { applyAttributes } from "./attributeManager";
+import { applyAttributes, createReactiveTextNode } from "./attributeManager";
 import { isFunction, isNode, isObject, isPrimitive } from "../utility/typeGuards";
 
 /**
@@ -9,8 +9,25 @@ export function applyNodeModifier<TTagName extends ElementTagName>(
   modifier: NodeMod<TTagName> | NodeModFn<TTagName>,
   index: number,
 ): Node | null {
+
   if (modifier == null) {
     return null;
+  }
+
+  // Check if this is a zero-argument function (reactive text) before treating as NodeModFn
+  if (isFunction(modifier) && modifier.length === 0) {
+    try {
+      const testValue = (modifier as () => unknown)();
+      if (isPrimitive(testValue) && testValue != null) {
+        return createReactiveTextNode(modifier as () => Primitive);
+      }
+      // If the function returns null/undefined, ignore it completely
+      return null;
+    } catch (error) {
+      console.error("Error evaluating reactive text function:", error);
+      // Return a text node with empty content if the function throws
+      return createReactiveTextNode(() => "");
+    }
   }
 
   const candidate = isFunction(modifier)
