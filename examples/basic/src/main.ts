@@ -25,21 +25,21 @@ const app1 = div(
   h1("View Craft Basic Example"),
   div("This is a simple example of using View Craft to create DOM elements."),
   button("sort",(e) => {
-    e.addEventListener?.("click", (e) => {
+    e.addEventListener?.("click", (_e) => {
       items.sort((a, b) => a.price - b.price);
       update();
     });
     // console.log("--", e);
   }),
   button("push",(e) => {
-    e.addEventListener?.("click", (e) => {
+    e.addEventListener?.("click", (_e) => {
       items.push({ id: items.length + 1, name: `Item ${items.length + 1}`, price: items.length * 10 });
       update();
     });
     // console.log("--", e);
   }),
   button("insert in the beginning",(e) => {
-    e.addEventListener?.("click", (e) => {
+    e.addEventListener?.("click", (_e) => {
       items.unshift({ id: items.length + 1, name: `Item ${items.length + 1}`, price: items.length * 10 });
       update();
     });

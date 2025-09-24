@@ -79,7 +79,9 @@ src/
 │   └── tagRegistry.ts        # HTML/SVG tag definitions and registration
 ├── list/
 │   ├── index.ts              # Dynamic list public surface
-│   └── renderer.ts           # Dynamic list functionality with update tracking
+│   ├── renderer.ts           # Entry point for list builder functions
+│   ├── runtime.ts            # List runtime management and synchronization
+│   └── types.ts              # Shared list-specific types
 ├── utility/
 │   ├── dom.ts                # DOM helper utilities
 │   ├── environment.ts        # Runtime environment detection

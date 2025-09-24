@@ -14,7 +14,11 @@ export function createElementFactory<TTagName extends ElementTagName>(
     modifiers.forEach((modifier) => {
       const renderedNode = applyNodeModifier(element, modifier, localIndex);
       if (renderedNode) {
-        (element as unknown as Node & ParentNode).appendChild(renderedNode);
+        const node = renderedNode as Node;
+        const parentNode = element as unknown as Node & ParentNode;
+        if (node.parentNode !== parentNode) {
+          parentNode.appendChild(node);
+        }
         localIndex += 1;
       }
     });
