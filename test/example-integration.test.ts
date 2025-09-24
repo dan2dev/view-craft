@@ -43,26 +43,37 @@ describe('Example Integration', () => {
     expect(document.body.children).toHaveLength(1);
     const mainDiv = document.body.children[0];
 
-    // Find the list container (should have data-dynamic-list="true")
-    const listContainer = mainDiv.querySelector('[data-dynamic-list="true"]');
-    expect(listContainer).toBeTruthy();
-    expect(listContainer!.children).toHaveLength(3);
-    expect(listContainer!.children[0].textContent).toBe('Item 1');
-    expect(listContainer!.children[1].textContent).toBe('Item 2');
-    expect(listContainer!.children[2].textContent).toBe('Item 3');
+    // Find the list items (they should be div elements with item names)
+    const listItems = Array.from(mainDiv.querySelectorAll('div')).filter(el =>
+      el.textContent && el.textContent.startsWith('Item ')
+    );
+    expect(listItems).toHaveLength(3);
+    expect(listItems[0].textContent).toBe('Item 1');
+    expect(listItems[1].textContent).toBe('Item 2');
+    expect(listItems[2].textContent).toBe('Item 3');
 
     // Test adding item and updating
     items.push({ id: 4, name: 'Item 4', price: 40 });
     update();
 
-    expect(listContainer!.children).toHaveLength(4);
-    expect(listContainer!.children[3].textContent).toBe('Item 4');
+    const updatedListItems = Array.from(mainDiv.querySelectorAll('div')).filter(el =>
+      el.textContent && el.textContent.startsWith('Item ')
+    );
+    expect(updatedListItems).toHaveLength(4);
+    expect(updatedListItems[3].textContent).toBe('Item 4');
 
     // Test removing item and updating
-    items.pop();
+    items.pop(); // This should remove Item 4
     update();
 
-    expect(listContainer!.children).toHaveLength(3);
+    const finalListItems = Array.from(mainDiv.querySelectorAll('div')).filter(el =>
+      el.textContent && el.textContent.startsWith('Item ')
+    );
+
+    expect(finalListItems).toHaveLength(3);
+    expect(finalListItems[0].textContent).toBe('Item 1');
+    expect(finalListItems[1].textContent).toBe('Item 2');
+    expect(finalListItems[2].textContent).toBe('Item 3');
   });
 
   it('should handle button clicks and style updates', () => {

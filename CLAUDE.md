@@ -61,8 +61,10 @@ div("Hello", { id: "container" })(parent, index) // Returns HTMLDivElement
 - Supports reactive attributes with event listeners
 
 **Dynamic Lists:**
-- `list(items, renderFn)` creates dynamic lists that automatically update
+- `list(items, renderFn)` creates inline dynamic lists using DOM comment markers
 - `update()` refreshes all dynamic lists when underlying arrays change
+- Preserves existing DOM elements when reordering (no recreation)
+- Maintains siblings and doesn't require wrapper containers
 - Uses WeakMap for efficient tracking without memory leaks
 
 ### Project Structure

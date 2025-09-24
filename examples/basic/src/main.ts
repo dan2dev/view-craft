@@ -65,6 +65,7 @@ const app1 = div(
     //   alert(someMessage);
     // }
   ),
+  "this is a test",
 )(document.body, 0);
 document.body.appendChild(app1 as Node);
 document.body.addEventListener("update", () => {

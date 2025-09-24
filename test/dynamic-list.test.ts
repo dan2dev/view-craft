@@ -3,7 +3,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { list, update } from '../src/dynamic-list.js';
 
-describe('Dynamic List', () => {
+describe('Dynamic List - Comment Markers', () => {
   let testItems: Array<{ id: number; name: string; }>;
   let container: HTMLElement;
 
@@ -17,18 +17,8 @@ describe('Dynamic List', () => {
     document.body.appendChild(container);
   });
 
-  describe('list function', () => {
-    it('should create a list container function', () => {
-      const listFn = list(testItems, (item) => {
-        const div = document.createElement('div');
-        div.textContent = item.name;
-        return div as any;
-      });
-
-      expect(typeof listFn).toBe('function');
-    });
-
-    it('should render initial items', () => {
+  describe('list function - comment markers', () => {
+    it('should create comment markers and render items inline', () => {
       const listFn = list(testItems, (item) => {
         const div = document.createElement('div');
         div.textContent = item.name;
@@ -36,43 +26,52 @@ describe('Dynamic List', () => {
         return div as any;
       });
 
-      const listContainer = listFn(container as any, 0) as HTMLElement;
+      const marker = listFn(container as any, 0) as Comment;
 
-      expect(listContainer).toBeDefined();
-      expect(listContainer.children).toHaveLength(3);
-      expect(listContainer.children[0].textContent).toBe('Item 1');
-      expect(listContainer.children[1].textContent).toBe('Item 2');
-      expect(listContainer.children[2].textContent).toBe('Item 3');
+      // Should return a comment marker
+      expect(marker.nodeType).toBe(Node.COMMENT_NODE);
+      expect(marker.textContent).toMatch(/list-start-/);
+
+      // Container should have: start-comment, 3 items, end-comment = 5 children
+      expect(container.childNodes).toHaveLength(5);
+
+      // Check structure: comment, item1, item2, item3, comment
+      expect(container.childNodes[0].nodeType).toBe(Node.COMMENT_NODE);
+      expect(container.childNodes[1].nodeType).toBe(Node.ELEMENT_NODE);
+      expect(container.childNodes[2].nodeType).toBe(Node.ELEMENT_NODE);
+      expect(container.childNodes[3].nodeType).toBe(Node.ELEMENT_NODE);
+      expect(container.childNodes[4].nodeType).toBe(Node.COMMENT_NODE);
+
+      // Check content
+      expect((container.childNodes[1] as Element).textContent).toBe('Item 1');
+      expect((container.childNodes[2] as Element).textContent).toBe('Item 2');
+      expect((container.childNodes[3] as Element).textContent).toBe('Item 3');
     });
 
-    it('should pass correct item and index to render function', () => {
-      const renderCalls: Array<{ item: any; index: number }> = [];
+    it('should preserve siblings when rendering list', () => {
+      // Add some siblings first
+      const before = document.createElement('p');
+      before.textContent = 'Before list';
+      container.appendChild(before);
 
-      const listFn = list(testItems, (item, index) => {
-        renderCalls.push({ item, index });
-        const div = document.createElement('div');
-        div.textContent = `${item.name} - ${index}`;
-        return div as any;
-      });
-
-      listFn(container as any, 0) as HTMLElement;
-
-      expect(renderCalls).toHaveLength(3);
-      expect(renderCalls[0]).toEqual({ item: testItems[0], index: 0 });
-      expect(renderCalls[1]).toEqual({ item: testItems[1], index: 1 });
-      expect(renderCalls[2]).toEqual({ item: testItems[2], index: 2 });
-    });
-
-    it('should create a container with data-dynamic-list attribute', () => {
       const listFn = list(testItems, (item) => {
-        const div = document.createElement('div');
-        div.textContent = item.name;
-        return div as any;
+        const span = document.createElement('span');
+        span.textContent = item.name;
+        return span as any;
       });
 
-      const listContainer = listFn(container as any, 0) as HTMLElement;
+      listFn(container as any, 0);
 
-      expect(listContainer.getAttribute('data-dynamic-list')).toBe('true');
+      const after = document.createElement('p');
+      after.textContent = 'After list';
+      container.appendChild(after);
+
+      // Should have: before, start-comment, 3 items, end-comment, after = 7 children
+      expect(container.childNodes).toHaveLength(7);
+      expect((container.childNodes[0] as Element).textContent).toBe('Before list');
+      expect(container.childNodes[1].nodeType).toBe(Node.COMMENT_NODE);
+      expect((container.childNodes[2] as Element).textContent).toBe('Item 1');
+      expect((container.childNodes[6] as Element).textContent).toBe('After list');
     });
 
     it('should handle empty arrays', () => {
@@ -83,129 +82,184 @@ describe('Dynamic List', () => {
         return div as any;
       });
 
-      const listContainer = listFn(container as any, 0) as HTMLElement;
+      listFn(container as any, 0);
 
-      expect(listContainer.children).toHaveLength(0);
+      // Should only have start and end comments
+      expect(container.childNodes).toHaveLength(2);
+      expect(container.childNodes[0].nodeType).toBe(Node.COMMENT_NODE);
+      expect(container.childNodes[1].nodeType).toBe(Node.COMMENT_NODE);
     });
   });
 
-  describe('update function', () => {
-    it('should update list when items are added', () => {
+  describe('update function - reordering and preservation', () => {
+    let listElements: Element[];
+
+    beforeEach(() => {
       const listFn = list(testItems, (item) => {
         const div = document.createElement('div');
         div.textContent = item.name;
+        div.setAttribute('data-item-id', item.id.toString());
         return div as any;
       });
 
-      const listContainer = listFn(container as any, 0) as HTMLElement;
-      container.appendChild(listContainer);
+      listFn(container as any, 0);
 
-      expect(listContainer.children).toHaveLength(3);
+      // Store references to original elements
+      listElements = Array.from(container.querySelectorAll('[data-item-id]'));
+    });
 
-      // Add item to array
+    it('should preserve DOM elements when reordering', () => {
+      // Reverse the array
+      testItems.reverse();
+      update();
+
+      // Elements should be reordered but same instances
+      const newElements = Array.from(container.querySelectorAll('[data-item-id]'));
+      expect(newElements).toHaveLength(3);
+
+      // Check order is reversed
+      expect(newElements[0].textContent).toBe('Item 3');
+      expect(newElements[1].textContent).toBe('Item 2');
+      expect(newElements[2].textContent).toBe('Item 1');
+
+      // Original elements should be reused (same object references)
+      expect(newElements[0]).toBe(listElements[2]); // Item 3 element
+      expect(newElements[1]).toBe(listElements[1]); // Item 2 element
+      expect(newElements[2]).toBe(listElements[0]); // Item 1 element
+    });
+
+    it('should add new items without recreating existing ones', () => {
+      const originalElement1 = container.querySelector('[data-item-id="1"]');
+
       testItems.push({ id: 4, name: 'Item 4' });
       update();
 
-      expect(listContainer.children).toHaveLength(4);
-      expect(listContainer.children[3].textContent).toBe('Item 4');
+      const newElements = Array.from(container.querySelectorAll('[data-item-id]'));
+      expect(newElements).toHaveLength(4);
+      expect(newElements[3].textContent).toBe('Item 4');
+
+      // Original elements should still be the same instances
+      expect(container.querySelector('[data-item-id="1"]')).toBe(originalElement1);
     });
 
-    it('should update list when items are removed', () => {
-      const listFn = list(testItems, (item) => {
-        const div = document.createElement('div');
-        div.textContent = item.name;
-        return div as any;
-      });
+    it('should remove items while preserving others', () => {
+      const originalElement1 = container.querySelector('[data-item-id="1"]');
+      const originalElement3 = container.querySelector('[data-item-id="3"]');
 
-      const listContainer = listFn(container as any, 0) as HTMLElement;
-      container.appendChild(listContainer);
-
-      expect(listContainer.children).toHaveLength(3);
-
-      // Remove item from array
-      testItems.pop();
+      // Remove middle item
+      testItems.splice(1, 1); // Remove Item 2
       update();
 
-      expect(listContainer.children).toHaveLength(2);
-      expect(listContainer.children[0].textContent).toBe('Item 1');
-      expect(listContainer.children[1].textContent).toBe('Item 2');
+      const newElements = Array.from(container.querySelectorAll('[data-item-id]'));
+      expect(newElements).toHaveLength(2);
+      expect(newElements[0].textContent).toBe('Item 1');
+      expect(newElements[1].textContent).toBe('Item 3');
+
+      // Remaining elements should be the same instances
+      expect(newElements[0]).toBe(originalElement1);
+      expect(newElements[1]).toBe(originalElement3);
     });
 
-    it('should update list when items are modified', () => {
-      const listFn = list(testItems, (item) => {
-        const div = document.createElement('div');
-        div.textContent = item.name;
-        return div as any;
-      });
+    it('should handle complex reordering with additions and removals', () => {
+      const originalElement1 = container.querySelector('[data-item-id="1"]');
+      const originalElement3 = container.querySelector('[data-item-id="3"]');
+      const originalItem1 = testItems[0]; // Keep reference to original object
+      const originalItem3 = testItems[2]; // Keep reference to original object
 
-      const listContainer = listFn(container as any, 0) as HTMLElement;
-      container.appendChild(listContainer);
-
-      expect(listContainer.children[0].textContent).toBe('Item 1');
-
-      // Modify item in array
-      testItems[0].name = 'Modified Item 1';
+      // Complex change: remove item 2, add item 4, reorder using original object references
+      testItems.splice(0, testItems.length); // Clear array
+      testItems.push(
+        { id: 4, name: 'Item 4' }, // new
+        originalItem3,             // preserved reference
+        originalItem1              // preserved reference
+        // originalItem2 removed
+      );
       update();
 
-      expect(listContainer.children[0].textContent).toBe('Modified Item 1');
+      const newElements = Array.from(container.querySelectorAll('[data-item-id]'));
+      expect(newElements).toHaveLength(3);
+      expect(newElements[0].textContent).toBe('Item 4'); // new
+      expect(newElements[1].textContent).toBe('Item 3'); // preserved
+      expect(newElements[2].textContent).toBe('Item 1'); // preserved
+
+      // Check that preserved elements are same instances
+      expect(newElements[1]).toBe(originalElement3);
+      expect(newElements[2]).toBe(originalElement1);
     });
 
-    it('should handle multiple lists independently', () => {
-      const items1 = [{ id: 1, name: 'List1 Item1' }];
-      const items2 = [{ id: 1, name: 'List2 Item1' }];
+    it('should preserve siblings during updates', () => {
+      // Add siblings
+      const before = document.createElement('h1');
+      before.textContent = 'Title';
+      container.insertBefore(before, container.firstChild);
+
+      const after = document.createElement('footer');
+      after.textContent = 'Footer';
+      container.appendChild(after);
+
+      // Modify list
+      testItems.reverse();
+      update();
+
+      // Check that siblings are preserved in correct positions
+      expect(container.firstChild).toBe(before);
+      expect(container.lastChild).toBe(after);
+      expect(container.firstChild!.textContent).toBe('Title');
+      expect(container.lastChild!.textContent).toBe('Footer');
+
+      // List should be reordered between siblings
+      const listElements = Array.from(container.querySelectorAll('[data-item-id]'));
+      expect(listElements[0].textContent).toBe('Item 3');
+      expect(listElements[1].textContent).toBe('Item 2');
+      expect(listElements[2].textContent).toBe('Item 1');
+    });
+  });
+
+  describe('multiple lists in same container', () => {
+    it('should handle multiple independent lists', () => {
+      const items1 = [{ id: 1, name: 'List1-Item1' }, { id: 2, name: 'List1-Item2' }];
+      const items2 = [{ id: 1, name: 'List2-Item1' }, { id: 2, name: 'List2-Item2' }];
 
       const list1Fn = list(items1, (item) => {
         const div = document.createElement('div');
         div.textContent = item.name;
+        div.className = 'list1';
         return div as any;
       });
+
+      const separator = document.createElement('hr');
+      container.appendChild(separator);
 
       const list2Fn = list(items2, (item) => {
         const div = document.createElement('div');
         div.textContent = item.name;
+        div.className = 'list2';
         return div as any;
       });
 
-      const container1 = list1Fn(container as any, 0) as HTMLElement;
-      const container2 = list2Fn(container as any, 0) as HTMLElement;
+      list1Fn(container as any, 0);
+      list2Fn(container as any, 0);
 
-      container.appendChild(container1);
-      container.appendChild(container2);
-
-      expect(container1.children).toHaveLength(1);
-      expect(container2.children).toHaveLength(1);
+      // Should have: separator, comment, 2 items, comment, comment, 2 items, comment = 9 children
+      expect(container.childNodes).toHaveLength(9);
 
       // Modify only first list
-      items1.push({ id: 2, name: 'List1 Item2' });
+      items1.reverse();
       update();
 
-      expect(container1.children).toHaveLength(2);
-      expect(container2.children).toHaveLength(1);
-      expect(container1.children[1].textContent).toBe('List1 Item2');
-    });
+      const list1Elements = container.querySelectorAll('.list1');
+      const list2Elements = container.querySelectorAll('.list2');
 
-    it('should not throw when updating without any lists', () => {
-      expect(() => update()).not.toThrow();
-    });
+      expect(list1Elements).toHaveLength(2);
+      expect(list2Elements).toHaveLength(2);
 
-    it('should clean up disconnected containers', () => {
-      const listFn = list(testItems, (item) => {
-        const div = document.createElement('div');
-        div.textContent = item.name;
-        return div as any;
-      });
+      // First list should be reversed
+      expect(list1Elements[0].textContent).toBe('List1-Item2');
+      expect(list1Elements[1].textContent).toBe('List1-Item1');
 
-      const listContainer = listFn(container as any, 0) as HTMLElement;
-      container.appendChild(listContainer);
-
-      expect(listContainer.children).toHaveLength(3);
-
-      // Remove container from DOM
-      container.removeChild(listContainer);
-
-      // Should not throw and should handle cleanup
-      testItems.push({ id: 4, name: 'Item 4' });
-      expect(() => update()).not.toThrow();
+      // Second list should be unchanged
+      expect(list2Elements[0].textContent).toBe('List2-Item1');
+      expect(list2Elements[1].textContent).toBe('List2-Item2');
     });
   });
 
@@ -219,39 +273,38 @@ describe('Dynamic List', () => {
         };
       });
 
-      const listContainer = listFn(container as any, 0) as HTMLElement;
+      listFn(container as any, 0);
 
-      expect(listContainer.children).toHaveLength(3);
-      expect(listContainer.children[0].textContent).toBe('Item 1 at 0');
+      const elements = Array.from(container.querySelectorAll('div'));
+      expect(elements).toHaveLength(3);
+      expect(elements[0].textContent).toBe('Item 1 at 0');
+      expect(elements[1].textContent).toBe('Item 2 at 1');
+      expect(elements[2].textContent).toBe('Item 3 at 2');
     });
 
-    it('should handle complex render functions', () => {
-      const complexItems = [
-        { id: 1, name: 'Task 1', completed: false },
-        { id: 2, name: 'Task 2', completed: true }
-      ];
+    it('should preserve element instances across different render patterns', () => {
+      const item = { id: 1, name: 'Test Item', count: 0 };
+      const items = [item];
 
-      const listFn = list(complexItems, (item, index) => {
+      const listFn = list(items, (item) => {
         const div = document.createElement('div');
-        div.className = item.completed ? 'completed' : 'pending';
-
-        const nameSpan = document.createElement('span');
-        nameSpan.textContent = item.name;
-
-        const statusSpan = document.createElement('span');
-        statusSpan.textContent = item.completed ? ' ✓' : ' ○';
-
-        div.appendChild(nameSpan);
-        div.appendChild(statusSpan);
-
+        div.textContent = `${item.name} - ${item.count}`;
+        div.setAttribute('data-item-id', item.id.toString());
         return div as any;
       });
 
-      const listContainer = listFn(container as any, 0) as HTMLElement;
+      listFn(container as any, 0);
 
-      expect(listContainer.children).toHaveLength(2);
-      expect(listContainer.children[0].className).toBe('pending');
-      expect(listContainer.children[1].className).toBe('completed');
+      const originalElement = container.querySelector('[data-item-id="1"]');
+      expect(originalElement!.textContent).toBe('Test Item - 0');
+
+      // Modify item and update
+      item.count = 1;
+      update();
+
+      const updatedElement = container.querySelector('[data-item-id="1"]');
+      // Element should be the same instance (because we preserve based on item reference)
+      expect(updatedElement).toBe(originalElement);
     });
   });
 });
