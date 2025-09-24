@@ -13,11 +13,25 @@ let data: {
   color: "green" | "blue";
 } = { color: "green" };
 
+const items = [
+  { id: 1, name: "Item 1", price: 10 },
+  { id: 2, name: "Item 2", price: 20 },
+  { id: 3, name: "Item 3", price: 30 },
+];
+
 const app1 = div(
   someMessage,
   "this is another string",
   h1("View Craft Basic Example"),
   div("This is a simple example of using View Craft to create DOM elements."),
+  button((e) => {
+    e.addEventListener?.("click", (e) => {
+      items.push({ id: items.length + 1, name: `Item ${items.length + 1}`, price: 10 });
+      update();
+    });
+    // console.log("--", e);
+  }),
+  list(items, (item) => div(item.name)),
   button(
     // class({
     //   "small": true

@@ -60,6 +60,11 @@ div("Hello", { id: "container" })(parent, index) // Returns HTMLDivElement
 - Creates real DOM elements using `document.createElement`
 - Supports reactive attributes with event listeners
 
+**Dynamic Lists:**
+- `list(items, renderFn)` creates dynamic lists that automatically update
+- `update()` refreshes all dynamic lists when underlying arrays change
+- Uses WeakMap for efficient tracking without memory leaks
+
 ### Project Structure
 
 ```
@@ -70,6 +75,7 @@ src/
 ├── modifiers.ts      # Modifier processing logic
 ├── attributes.ts     # Attribute handling and reactive updates
 ├── tags.ts           # HTML/SVG tag definitions and registration
+├── dynamic-list.ts   # Dynamic list functionality with update tracking
 └── utils.ts          # Utility functions and type guards
 
 types/

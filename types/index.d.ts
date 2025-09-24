@@ -244,6 +244,11 @@ declare global {
   export const tspan: ExpandedSVGElementBuilder<"tspan">;
   export const use: ExpandedSVGElementBuilder<"use">;
   export const view: ExpandedSVGElementBuilder<"view">;
+
+  // Dynamic list functions
+  export type ListRenderFunction<T> = (item: T, index: number) => ExpandedElement<any> | NodeModFn<any>;
+  export function list<T>(items: T[], renderFn: ListRenderFunction<T>): NodeModFn<any>;
+  export function update(): void;
 }
 
 export {};
