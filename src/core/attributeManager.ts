@@ -1,5 +1,4 @@
 import { isFunction } from "../utility/typeGuards";
-import { camelToKebab } from "../utility/dom";
 
 type AttributeKey<TTagName extends ElementTagName> = keyof ExpandedElementAttributes<TTagName>;
 type AttributeCandidate<TTagName extends ElementTagName> =
@@ -36,9 +35,21 @@ function assignInlineStyles<TTagName extends ElementTagName>(
 
   Object.entries(styles).forEach(([property, propertyValue]) => {
     if (propertyValue == null) {
-      style.removeProperty(camelToKebab(property));
+      // For removal, we need to handle both camelCase and kebab-case
+      if (property in style) {
+        (style as any)[property] = '';
+      } else {
+        // Try kebab-case version for properties that might be kebab-case
+        style.removeProperty(property);
+      }
     } else {
-      style.setProperty(camelToKebab(property), String(propertyValue));
+      // Direct assignment works for both camelCase and kebab-case
+      if (property in style) {
+        (style as any)[property] = String(propertyValue);
+      } else {
+        // Fallback to setProperty for kebab-case properties
+        style.setProperty(property, String(propertyValue));
+      }
     }
   });
 }

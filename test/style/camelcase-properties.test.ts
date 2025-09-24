@@ -141,4 +141,27 @@ describe('CamelCase CSS Properties', () => {
     expect(element.style.backgroundColor).toBe('');
     expect(element.style.borderRadius).toBe('');
   });
+
+  it('should demonstrate direct style property assignment (no regex needed)', () => {
+    // This test shows that we directly assign to style properties
+    // instead of converting camelCase to kebab-case with regex
+    
+    const element = (globalThis as any).div(
+      "Direct Assignment Test",
+      {
+        style: {
+          fontSize: "32px",           // Directly assigned to element.style.fontSize
+          backgroundColor: "yellow",  // Directly assigned to element.style.backgroundColor
+          marginTop: "25px",          // Directly assigned to element.style.marginTop
+          "border-style": "solid"     // Uses setProperty for kebab-case
+        }
+      }
+    )(parent, 0);
+
+    // Verify that the properties were set correctly
+    expect(element.style.fontSize).toBe('32px');
+    expect(element.style.backgroundColor).toBe('yellow');
+    expect(element.style.marginTop).toBe('25px');
+    expect(element.style.borderStyle).toBe('solid');
+  });
 });
