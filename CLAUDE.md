@@ -10,7 +10,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm build:watch` — Watch mode for both Rollup and TypeScript
 
 **Testing:**
-- `pnpm test` — Run all tests with Vitest
+- `pnpm test` — Run all tests with Vitest and coverage
+- `pnpm test:watch` — Run tests in watch mode
 - `pnpm test -- src/path/to/file.test.ts` — Run specific test file
 - `pnpm test -t "test name"` — Run specific test by name
 
@@ -19,6 +20,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Publishing:**
 - `make publish` — Build, version bump (patch), and publish to npm
+- `pnpm clean` — Remove build artifacts and cache files
 
 ## Architecture Overview
 

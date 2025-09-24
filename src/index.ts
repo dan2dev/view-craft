@@ -1,4 +1,9 @@
-import "./utility/index";
-import { registerGlobalTagBuilders } from "./core/index";
+export { start } from "./start";
+export * from "./utils";
+export * from "./attributes";
+export * from "./modifiers";
+export * from "./element-builder";
+export * from "./tags";
 
-registerGlobalTagBuilders();
+// Auto-initialize
+import "./start";
