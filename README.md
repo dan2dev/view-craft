@@ -34,7 +34,7 @@ initializeRuntime();
 All HTML tag builders become globals once initialized and you can also import helpers directly:
 
 ```ts
-import { createDynamicListRenderer, refreshDynamicLists } from 'view-craft';
+import { createDynamicListRenderer, update } from 'view-craft';
 
 const items = [1, 2, 3];
 const renderItems = createDynamicListRenderer(items, (value) => div(value));
@@ -42,5 +42,7 @@ const renderItems = createDynamicListRenderer(items, (value) => div(value));
 renderItems(document.body, 0);
 
 items.push(4);
-refreshDynamicLists();
+update();
+
+// Whenever your underlying data changes, call update() to refresh lists and reactive attributes.
 ```

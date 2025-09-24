@@ -62,7 +62,7 @@ div("Hello", { id: "container" })(parent, index) // Returns HTMLDivElement
 
 **Dynamic Lists (`src/list/renderer.ts`):**
 - `createDynamicListRenderer(items, renderFn)` creates inline dynamic lists using DOM comment markers
-- `refreshDynamicLists()` refreshes all dynamic lists when underlying arrays change
+- `update()` synchronizes dynamic lists and dispatches reactive update events
 - Preserves existing DOM elements when reordering (no recreation)
 - Maintains siblings and doesn't require wrapper containers
 - Uses WeakMap for efficient tracking without memory leaks
@@ -76,6 +76,7 @@ src/
 │   ├── elementFactory.ts     # Core element creation functions
 │   ├── modifierProcessor.ts  # Modifier processing pipeline
 │   ├── runtimeBootstrap.ts   # Global initialization logic
+│   ├── updateController.ts   # Global update orchestration
 │   └── tagRegistry.ts        # HTML/SVG tag definitions and registration
 ├── list/
 │   ├── index.ts              # Dynamic list public surface

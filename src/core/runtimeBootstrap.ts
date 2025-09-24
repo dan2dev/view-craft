@@ -1,5 +1,6 @@
 import { registerGlobalTagBuilders } from "./tagRegistry";
-import { createDynamicListRenderer, refreshDynamicLists } from "../list";
+import { createDynamicListRenderer } from "../list";
+import { update } from "./updateController";
 
 /**
  * Initializes the View Craft runtime by exposing tag builders and list utilities.
@@ -10,7 +11,7 @@ export function initializeRuntime(): void {
   if (typeof globalThis !== "undefined") {
     const registry = globalThis as Record<string, unknown>;
     registry.createDynamicListRenderer = createDynamicListRenderer;
-    registry.refreshDynamicLists = refreshDynamicLists;
+    registry.update = update;
   }
 }
 

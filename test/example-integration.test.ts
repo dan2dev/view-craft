@@ -18,7 +18,7 @@ describe('Example Integration', () => {
     // Test that global functions are available
     expect(typeof div).toBe('function');
     expect(typeof createDynamicListRenderer).toBe('function');
-    expect(typeof refreshDynamicLists).toBe('function');
+    expect(typeof update).toBe('function');
     expect(typeof button).toBe('function');
     expect(typeof h1).toBe('function');
 
@@ -31,7 +31,7 @@ describe('Example Integration', () => {
       button((e) => {
         e.addEventListener?.("click", () => {
           items.push({ id: items.length + 1, name: `Item ${items.length + 1}`, price: 10 });
-          refreshDynamicLists();
+          update();
         });
       }),
       createDynamicListRenderer(items, (item) => div(item.name)),
@@ -54,7 +54,7 @@ describe('Example Integration', () => {
 
     // Test adding item and updating
     items.push({ id: 4, name: 'Item 4', price: 40 });
-    refreshDynamicLists();
+    update();
 
     const updatedListItems = Array.from(mainDiv.querySelectorAll('div')).filter(el =>
       el.textContent && el.textContent.startsWith('Item ')
@@ -64,7 +64,7 @@ describe('Example Integration', () => {
 
     // Test removing item and updating
     items.pop(); // This should remove Item 4
-    refreshDynamicLists();
+    update();
 
     const finalListItems = Array.from(mainDiv.querySelectorAll('div')).filter(el =>
       el.textContent && el.textContent.startsWith('Item ')

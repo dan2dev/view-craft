@@ -1,4 +1,4 @@
-import { createListRuntime, refreshDynamicLists as refreshListsInternal } from "./runtime";
+import { createListRuntime } from "./runtime";
 import type { ListRenderer } from "./types";
 
 /**
@@ -13,5 +13,3 @@ export function createDynamicListRenderer<TItem>(
     return runtime.startMarker;
   };
 }
-
-export { refreshListsInternal as refreshDynamicLists };

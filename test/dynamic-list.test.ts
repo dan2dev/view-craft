@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createDynamicListRenderer, refreshDynamicLists } from '../src/list/index.js';
+import { createDynamicListRenderer } from '../src/list/index.js';
+import { update } from '../src/core/updateController.js';
 
 describe('Dynamic List - Comment Markers', () => {
   let testItems: Array<{ id: number; name: string; }>;
@@ -111,7 +112,7 @@ describe('Dynamic List - Comment Markers', () => {
     it('should preserve DOM elements when reordering', () => {
       // Reverse the array
       testItems.reverse();
-      refreshDynamicLists();
+      update();
 
       // Elements should be reordered but same instances
       const newElements = Array.from(container.querySelectorAll('[data-item-id]'));
@@ -132,7 +133,7 @@ describe('Dynamic List - Comment Markers', () => {
       const originalElement1 = container.querySelector('[data-item-id="1"]');
 
       testItems.push({ id: 4, name: 'Item 4' });
-      refreshDynamicLists();
+      update();
 
       const newElements = Array.from(container.querySelectorAll('[data-item-id]'));
       expect(newElements).toHaveLength(4);
@@ -148,7 +149,7 @@ describe('Dynamic List - Comment Markers', () => {
 
       // Remove middle item
       testItems.splice(1, 1); // Remove Item 2
-      refreshDynamicLists();
+      update();
 
       const newElements = Array.from(container.querySelectorAll('[data-item-id]'));
       expect(newElements).toHaveLength(2);
@@ -174,7 +175,7 @@ describe('Dynamic List - Comment Markers', () => {
         originalItem1              // preserved reference
         // originalItem2 removed
       );
-      refreshDynamicLists();
+      update();
 
       const newElements = Array.from(container.querySelectorAll('[data-item-id]'));
       expect(newElements).toHaveLength(3);
@@ -199,7 +200,7 @@ describe('Dynamic List - Comment Markers', () => {
 
       // Modify list
       testItems.reverse();
-      refreshDynamicLists();
+      update();
 
       // Check that siblings are preserved in correct positions
       expect(container.firstChild).toBe(before);
@@ -240,7 +241,7 @@ describe('Dynamic List - Comment Markers', () => {
       expect(duplicateNodes).toHaveLength(2);
 
       itemsWithDuplicates.sort((a, b) => a.id - b.id);
-      refreshDynamicLists();
+      update();
 
       const sortedElements = Array.from(container.querySelectorAll('[data-item-id]'));
       expect(sortedElements).toHaveLength(3);
@@ -283,7 +284,7 @@ describe('Dynamic List - Comment Markers', () => {
 
       // Modify only first list
       items1.reverse();
-      refreshDynamicLists();
+      update();
 
       const list1Elements = container.querySelectorAll('.list1');
       const list2Elements = container.querySelectorAll('.list2');
@@ -338,7 +339,7 @@ describe('Dynamic List - Comment Markers', () => {
 
       // Modify item and update
       item.count = 1;
-      refreshDynamicLists();
+      update();
 
       const updatedElement = container.querySelector('[data-item-id="1"]');
       // Element should be the same instance (because we preserve based on item reference)

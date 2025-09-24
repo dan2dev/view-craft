@@ -118,7 +118,7 @@ export function createListRuntime<TItem>(
   return runtime;
 }
 
-export function refreshDynamicLists(): void {
+export function updateListRuntimes(): void {
   activeListRuntimes.forEach((runtime) => {
     if (!runtime.startMarker.isConnected || !runtime.endMarker.isConnected) {
       activeListRuntimes.delete(runtime);

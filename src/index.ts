@@ -9,8 +9,8 @@ export { createElementFactory, createTagBuilder } from "./core/elementFactory";
 export { applyNodeModifier } from "./core/modifierProcessor";
 export {
   createDynamicListRenderer,
-  refreshDynamicLists,
 } from "./list";
+export { update } from "./core/updateController";
 export { applyAttributes } from "./core/attributeManager";
 export { appendChildren } from "./utility/dom";
 export {

@@ -9,8 +9,16 @@ type AttributeValue = string | number | boolean | StyleAssignment;
 type AttributeResolver = () => AttributeValue | null | undefined;
 type StyleResolver = () => StyleAssignment | null | undefined;
 
+const reactiveElements = new Set<Element>();
+
 function isZeroArgFunction(value: unknown): value is () => unknown {
   return isFunction(value) && value.length === 0;
+}
+
+function trackReactiveElement<TTagName extends ElementTagName>(element: ExpandedElement<TTagName>): void {
+  if (element instanceof Element) {
+    reactiveElements.add(element);
+  }
 }
 
 function assignInlineStyles<TTagName extends ElementTagName>(
@@ -61,6 +69,7 @@ function registerAttributeResolver<TTagName extends ElementTagName>(
   key: AttributeKey<TTagName>,
   resolver: AttributeResolver,
 ): void {
+  trackReactiveElement(element);
   const handler = () => {
     try {
       const nextValue = resolver();
@@ -78,6 +87,7 @@ function registerStyleResolver<TTagName extends ElementTagName>(
   element: ExpandedElement<TTagName>,
   resolver: StyleResolver,
 ): void {
+  trackReactiveElement(element);
   const handler = () => {
     try {
       assignInlineStyles(element, resolver());
@@ -148,4 +158,22 @@ export function applyAttributes<TTagName extends ElementTagName>(
 
     applyAttributeCandidate(element, typedKey, candidate as AttributeCandidate<TTagName>);
   }
+}
+
+/**
+ * Dispatches update events to all registered reactive elements.
+ */
+export function notifyReactiveElements(): void {
+  const staleElements: Element[] = [];
+
+  reactiveElements.forEach((element) => {
+    if (!element.isConnected) {
+      staleElements.push(element);
+      return;
+    }
+
+    element.dispatchEvent(new Event("update", { bubbles: true }));
+  });
+
+  staleElements.forEach((element) => reactiveElements.delete(element));
 }
