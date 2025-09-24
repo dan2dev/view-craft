@@ -63,7 +63,22 @@ const app1 = div(
     // console.log("--", e);
   }),
   createDynamicListRenderer(items, (item) =>
-    div(item.name, "---", item.price, input(), () => data.color),
+    div(
+      item.name,
+      "---",
+      item.price,
+      input(),
+      () => data.color,
+      button("delete", (e) => {
+        e.addEventListener?.("click", (_e) => {
+          items.splice(
+            items.findIndex((i) => i.id === item.id),
+            1,
+          );
+          update();
+        });
+      }),
+    ),
   ),
   button(
     // class({
@@ -80,9 +95,7 @@ const app1 = div(
         "border-radius": "5px",
       }),
     },
-    {
-
-    },
+    {},
     "Click me",
     (e) => {
       e.addEventListener?.("click", (e) => {
