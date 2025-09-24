@@ -53,13 +53,47 @@ export function sync<TItem>(runtime: ListRuntime<TItem>): void {
 
   const currentItems = runtime.itemsProvider();
 
-  if (arraysEqual(runtime.lastSyncedItems, currentItems)) {
+  // Early exit if no changes - this prevents unnecessary DOM operations
+  const areEqual = arraysEqual(runtime.lastSyncedItems, currentItems);
+  if (areEqual) {
     return;
   }
 
-  // Build map of existing records by item reference for O(1) lookup
-  // For duplicates, maintain order to preserve DOM element associations
-  const existingRecordsMap = buildRecordsPool(runtime.records);
+  // Create mapping to track which record should be used for each position
+  // This preserves DOM element identity for duplicate items
+  const recordsByPosition = new Map<number, ListItemRecord<TItem>>();
+  const availableRecords = new Map<TItem, ListItemRecord<TItem>[]>();
+  
+  // Group existing records by item for reuse
+  runtime.records.forEach((record, index) => {
+    const items = availableRecords.get(record.item);
+    if (items) {
+      items.push(record);
+    } else {
+      availableRecords.set(record.item, [record]);
+    }
+  });
+
+  // Try to preserve existing element-to-position mappings for duplicates
+  currentItems.forEach((item, newIndex) => {
+    if (newIndex < runtime.lastSyncedItems.length && runtime.lastSyncedItems[newIndex] === item) {
+      // Item hasn't moved - preserve its record
+      const existingRecord = runtime.records[newIndex];
+      if (existingRecord && existingRecord.item === item) {
+        recordsByPosition.set(newIndex, existingRecord);
+        const items = availableRecords.get(item);
+        if (items) {
+          const recordIndex = items.indexOf(existingRecord);
+          if (recordIndex >= 0) {
+            items.splice(recordIndex, 1);
+            if (items.length === 0) {
+              availableRecords.delete(item);
+            }
+          }
+        }
+      }
+    }
+  });
 
   const newRecords: Array<ListItemRecord<TItem>> = [];
   const elementsToRemove = new Set<ListItemRecord<TItem>>(runtime.records);
@@ -68,22 +102,21 @@ export function sync<TItem>(runtime: ListRuntime<TItem>): void {
   // Process items in reverse order to maintain correct positioning
   for (let i = currentItems.length - 1; i >= 0; i--) {
     const item = currentItems[i];
-    let record: ListItemRecord<TItem> | null = null;
+    let record = recordsByPosition.get(i);
 
-    // Try to find existing record for this item
-    const existingRecords = existingRecordsMap.get(item);
-    if (existingRecords && existingRecords.length > 0) {
-      // For duplicates, take the first available to maintain DOM element order
-      record = existingRecords.shift()!;
-      if (existingRecords.length === 0) {
-        existingRecordsMap.delete(item);
+    if (!record) {
+      // Try to reuse available record for this item
+      const availableItems = availableRecords.get(item);
+      if (availableItems && availableItems.length > 0) {
+        record = availableItems.shift()!;
+        if (availableItems.length === 0) {
+          availableRecords.delete(item);
+        }
       }
     }
 
     if (record) {
-      // Reuse existing element
       elementsToRemove.delete(record);
-      record.item = item; // Update item reference
     } else {
       // Create new element
       const element = renderItem(runtime, item, i);

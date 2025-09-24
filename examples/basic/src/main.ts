@@ -149,8 +149,8 @@ const app1 = div(
   "this is a test",
 )(document.body, 0);
 document.body.appendChild(app1 as Node);
-document.body.addEventListener("update", () => {
-  console.log("update!!!!!!");
-});
+// document.body.addEventListener("update", () => {
+//   console.log("update!!!!!!");
+// });
 
 // div("Hello, world!", { id: "main", virtual: true });

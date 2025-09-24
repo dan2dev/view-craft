@@ -349,12 +349,12 @@ describe('Dynamic List - Comment Markers', () => {
 
   describe('performance optimizations', () => {
     it('should not trigger DOM operations when list is unchanged', () => {
-      // Track DOM insertions by spying on insertBefore
-      const originalInsertBefore = Node.prototype.insertBefore;
+      // Track DOM insertions by spying on container's insertBefore
+      const originalInsertBefore = container.insertBefore;
       let insertCallCount = 0;
-      Node.prototype.insertBefore = function<T extends Node>(this: T, child: Node, reference: Node | null): T {
+      container.insertBefore = function(child: Node, reference: Node | null): Node {
         insertCallCount++;
-        return originalInsertBefore.call(this, child, reference) as T;
+        return originalInsertBefore.call(this, child, reference);
       };
 
       try {
@@ -373,7 +373,7 @@ describe('Dynamic List - Comment Markers', () => {
         // Call update() without changing the items array
         update();
 
-        // Should not have triggered any DOM insertions
+        // Should not have triggered any DOM insertions in this container
         expect(insertCallCount).toBe(0);
 
         // Call update() multiple times - still no changes
@@ -390,16 +390,16 @@ describe('Dynamic List - Comment Markers', () => {
 
       } finally {
         // Restore original method
-        Node.prototype.insertBefore = originalInsertBefore;
+        container.insertBefore = originalInsertBefore;
       }
     });
 
     it('should only trigger DOM operations when list actually changes', () => {
-      const originalInsertBefore = Node.prototype.insertBefore;
+      const originalInsertBefore = container.insertBefore;
       let insertCallCount = 0;
-      Node.prototype.insertBefore = function<T extends Node>(this: T, child: Node, reference: Node | null): T {
+      container.insertBefore = function(child: Node, reference: Node | null): Node {
         insertCallCount++;
-        return originalInsertBefore.call(this, child, reference) as T;
+        return originalInsertBefore.call(this, child, reference);
       };
 
       try {
@@ -412,7 +412,7 @@ describe('Dynamic List - Comment Markers', () => {
         listFn(container as any, 0);
         insertCallCount = 0;
 
-        // No change - should not trigger DOM operations
+        // No change - should not trigger DOM operations in this container
         update();
         expect(insertCallCount).toBe(0);
 
@@ -427,7 +427,7 @@ describe('Dynamic List - Comment Markers', () => {
         expect(insertCallCount).toBe(0);
 
       } finally {
-        Node.prototype.insertBefore = originalInsertBefore;
+        container.insertBefore = originalInsertBefore;
       }
     });
   });
