@@ -140,4 +140,74 @@ describe('Function-based List API', () => {
     expect(elements).toHaveLength(1);
     expect(elements[0].textContent).toBe('New Item');
   });
+
+  it('should only create/move elements when necessary (performance test)', () => {
+    let insertBeforeCallCount = 0;
+    let removeChildCallCount = 0;
+    
+    // Track DOM operations
+    const originalInsertBefore = Node.prototype.insertBefore;
+    const originalRemoveChild = Node.prototype.removeChild;
+    
+    Node.prototype.insertBefore = function<T extends Node>(this: T, child: Node, reference: Node | null): T {
+      insertBeforeCallCount++;
+      return originalInsertBefore.call(this, child, reference) as T;
+    };
+    
+    Node.prototype.removeChild = function<T extends Node>(this: T, child: Node): T {
+      removeChildCallCount++;
+      return originalRemoveChild.call(this, child) as T;
+    };
+
+    try {
+      const listFn = list(() => items, (item) => {
+        const div = document.createElement('div');
+        div.textContent = item.name;
+        div.setAttribute('data-item-id', item.id.toString());
+        return div as any;
+      });
+
+      listFn(container as any, 0);
+      
+      // Reset counters after initial render
+      insertBeforeCallCount = 0;
+      removeChildCallCount = 0;
+
+      // Add one new item - should only cause 1 insertBefore operation
+      items = [...items, { id: 4, name: 'Item 4', price: 40 }];
+      update();
+
+      // Should only insert the new element, not move existing ones
+      expect(insertBeforeCallCount).toBe(1);
+      expect(removeChildCallCount).toBe(0);
+
+      // Reset counters
+      insertBeforeCallCount = 0;
+      removeChildCallCount = 0;
+
+      // Remove middle item - should only remove that one element
+      items = items.filter(item => item.id !== 2);
+      update();
+
+      // Should only remove one element, not move others
+      expect(removeChildCallCount).toBe(1);
+      // May need to move elements to maintain order, but should be minimal
+      expect(insertBeforeCallCount).toBeLessThanOrEqual(1);
+
+      // Reset counters
+      insertBeforeCallCount = 0;
+      removeChildCallCount = 0;
+
+      // No change - should not trigger any DOM operations
+      update();
+      
+      expect(insertBeforeCallCount).toBe(0);
+      expect(removeChildCallCount).toBe(0);
+
+    } finally {
+      // Restore original methods
+      Node.prototype.insertBefore = originalInsertBefore;
+      Node.prototype.removeChild = originalRemoveChild;
+    }
+  });
 });

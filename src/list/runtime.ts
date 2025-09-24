@@ -79,27 +79,60 @@ export function sync<TItem>(runtime: ListRuntime<TItem>): void {
     return;
   }
 
-  const pool = buildPool(runtime.records);
-  const newRecords: Array<ListItemRecord<TItem>> = [];
-
-  currentItems.forEach((item, index) => {
-    let record = takeFromPool(pool, item);
-
-    if (!record) {
-      const element = renderItem(runtime, item, index);
-      if (!element) {
-        return;
-      }
-      record = { item, element };
-    } else {
-      record.item = item;
+  // Build map of existing records by item reference for O(1) lookup
+  // For duplicates, maintain order to preserve DOM element associations
+  const existingRecordsMap = new Map<TItem, ListItemRecord<TItem>[]>();
+  runtime.records.forEach(record => {
+    if (!existingRecordsMap.has(record.item)) {
+      existingRecordsMap.set(record.item, []);
     }
-
-    newRecords.push(record);
-    parent.insertBefore(record.element as unknown as Node, endMarker);
+    existingRecordsMap.get(record.item)!.push(record);
   });
 
-  pool.forEach((records) => records.forEach(remove));
+  const newRecords: Array<ListItemRecord<TItem>> = [];
+  const elementsToRemove = new Set<ListItemRecord<TItem>>(runtime.records);
+  let nextSibling: Node = endMarker;
+
+  // Process items in reverse order to maintain correct positioning
+  for (let i = currentItems.length - 1; i >= 0; i--) {
+    const item = currentItems[i];
+    let record: ListItemRecord<TItem> | null = null;
+
+    // Try to find existing record for this item
+    const existingRecords = existingRecordsMap.get(item);
+    if (existingRecords && existingRecords.length > 0) {
+      // For duplicates, take the first available to maintain DOM element order
+      record = existingRecords.shift()!;
+      if (existingRecords.length === 0) {
+        existingRecordsMap.delete(item);
+      }
+    }
+
+    if (record) {
+      // Reuse existing element
+      elementsToRemove.delete(record);
+      record.item = item; // Update item reference
+    } else {
+      // Create new element
+      const element = renderItem(runtime, item, i);
+      if (!element) {
+        continue;
+      }
+      record = { item, element };
+    }
+
+    newRecords.unshift(record);
+
+    // Only move element if it's not already in the correct position
+    const recordNode = record.element as unknown as Node;
+    if (recordNode.nextSibling !== nextSibling) {
+      parent.insertBefore(recordNode, nextSibling);
+    }
+    nextSibling = recordNode;
+  }
+
+  // Remove elements that are no longer needed
+  elementsToRemove.forEach(remove);
 
   runtime.records = newRecords;
   runtime.lastSyncedItems = [...currentItems];
