@@ -1,5 +1,6 @@
 import { updateListRuntimes } from "../list/runtime";
 import { notifyReactiveElements, notifyReactiveTextNodes } from "./attributeManager";
+import { updateWhenRuntimes } from "../when";
 
 function dispatchGlobalUpdateEvent(): void {
   if (typeof document === "undefined") {
@@ -22,10 +23,11 @@ function dispatchGlobalUpdateEvent(): void {
 }
 
 /**
- * Updates all dynamic data sources, including registered reactive attributes and list renderers.
+ * Updates all dynamic data sources, including registered reactive attributes, list renderers, and when blocks.
  */
 export function update(): void {
   updateListRuntimes();
+  updateWhenRuntimes();
   notifyReactiveElements();
   notifyReactiveTextNodes();
   dispatchGlobalUpdateEvent();

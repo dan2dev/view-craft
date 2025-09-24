@@ -10,7 +10,7 @@ let someMessage = "Hello, world!";
 
 // const cn = ()
 let data: {
-  color: "green" | "blue";
+  color: "green" | "blue" | "red";
 } = { color: "green" };
 
 let items = [
@@ -24,6 +24,24 @@ const app1 = div(
   "this is another string",
   h1("View Craft Basic Example"),
   div("This is a simple example of using View Craft to create DOM elements."),
+  when(
+    () => data.color === "green",
+    h1("this will show only when data.color === green", {className: "green"}),
+    h2("this also will show only when data.color === green", {className: "green"}),
+    p("this also will show only when data.color === green", {className: "green"}),
+  ).when(
+      () => data.color === "blue",
+      h1("this will show only when data.color === blue", {className: "blue"}),
+      h2("also this will show only when data.color === blue", {className: "blue"}),
+    )
+    .else(
+      h1(
+        "this will show only when data.color !== green && data.color !== blue",
+      ),
+      h2(
+        "this will show only when data.color !== green && data.color !== blue",
+      ),
+    ),
   div(
     {
       style: {
@@ -43,7 +61,7 @@ const app1 = div(
   button("push", (e) => {
     e.addEventListener?.("click", (_e) => {
       items.push({
-        id: items.length + 1,
+      id: items.length + 1,
         name: `Item ${items.length + 1}`,
         price: items.length * 10,
       });
@@ -64,27 +82,29 @@ const app1 = div(
   }),
   button("reset", (e) => {
     e.addEventListener?.("click", (_e) => {
-      items = [{id: 1, name: "Item 1", price: 10}];
+      items = [{ id: 1, name: "Item 1", price: 10 }];
       update();
     });
   }),
-  list(() => items, (item) =>
-    div(
-      item.name,
-      "---",
-      item.price,
-      input(),
-      () => data.color,
-      button("delete", (e) => {
-        e.addEventListener?.("click", (_e) => {
-          items.splice(
-            items.findIndex((i) => i.id === item.id),
-            1,
-          );
-          update();
-        });
-      }),
-    ),
+  list(
+    () => items,
+    (item) =>
+      div(
+        item.name,
+        "---",
+        item.price,
+        input(),
+        () => data.color,
+        button("delete", (e) => {
+          e.addEventListener?.("click", (_e) => {
+            items.splice(
+              items.findIndex((i) => i.id === item.id),
+              1,
+            );
+            update();
+          });
+        }),
+      ),
   ),
   button(
     // class({
@@ -106,7 +126,14 @@ const app1 = div(
     "Click me",
     (e) => {
       e.addEventListener?.("click", (e) => {
-        data.color = data.color === "green" ? "blue" : "green";
+        if (data.color === "red") {
+          data.color = "green";
+        } else if (data.color === "green") {
+          data.color = "blue";
+        } else if (data.color === "blue") {
+          data.color = "red";
+        }
+        // data.color = data.color === "green" ? "blue" : "green";
         // console.log("Button clicked!");
         // document.body.dispatchEvent(new Event("update", { bubbles: true }));
         e.currentTarget?.dispatchEvent(new Event("update", { bubbles: true }));

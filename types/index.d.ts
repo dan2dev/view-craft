@@ -251,6 +251,14 @@ declare global {
   export type ListItemsProvider<T> = () => T[];
   export function list<T>(itemsProvider: ListItemsProvider<T>, render: ListRenderFunction<T>): NodeModFn<any>;
   export function update(): void;
+
+  // When/conditional rendering
+  export type WhenCondition = boolean | (() => boolean);
+  export interface WhenBuilder {
+    when(condition: WhenCondition, ...content: any[]): WhenBuilder & NodeModFn<any>;
+    else(...content: any[]): WhenBuilder & NodeModFn<any>;
+  }
+  export function when(condition: WhenCondition, ...content: any[]): WhenBuilder & NodeModFn<any>;
 }
 
 export {};

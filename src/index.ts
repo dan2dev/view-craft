@@ -10,6 +10,7 @@ export { applyNodeModifier } from "./core/modifierProcessor";
 export {
   list,
 } from "./list";
+export { when } from "./when";
 export { update } from "./core/updateController";
 export { applyAttributes } from "./core/attributeManager";
 export { appendChildren } from "./utility/dom";
