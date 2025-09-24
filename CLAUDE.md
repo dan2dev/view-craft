@@ -28,9 +28,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Core Architecture
 
-**Element Creation System (`src/element-builder.ts`):**
-- `buildElement` — Creates element builder functions that return modifier functions
-- `createElementBuilder` — Factory for creating tag builder functions
+**Element Creation System (`src/core/elementFactory.ts`):**
+- `createElementFactory` — Creates element builders that return modifier functions
+- `createTagBuilder` — Factory for generating tag-specific builder functions
 
 **Type System (`types/index.d.ts`):**
 - Global type declarations for all HTML tags as strongly-typed builder functions
@@ -60,9 +60,9 @@ div("Hello", { id: "container" })(parent, index) // Returns HTMLDivElement
 - Creates real DOM elements using `document.createElement`
 - Supports reactive attributes with event listeners
 
-**Dynamic Lists:**
-- `list(items, renderFn)` creates inline dynamic lists using DOM comment markers
-- `update()` refreshes all dynamic lists when underlying arrays change
+**Dynamic Lists (`src/list/renderer.ts`):**
+- `createDynamicListRenderer(items, renderFn)` creates inline dynamic lists using DOM comment markers
+- `refreshDynamicLists()` refreshes all dynamic lists when underlying arrays change
 - Preserves existing DOM elements when reordering (no recreation)
 - Maintains siblings and doesn't require wrapper containers
 - Uses WeakMap for efficient tracking without memory leaks
@@ -71,17 +71,23 @@ div("Hello", { id: "container" })(parent, index) // Returns HTMLDivElement
 
 ```
 src/
-├── index.ts          # Main entry point with exports
-├── start.ts          # Initialization logic
-├── element-builder.ts # Core element creation functions
-├── modifiers.ts      # Modifier processing logic
-├── attributes.ts     # Attribute handling and reactive updates
-├── tags.ts           # HTML/SVG tag definitions and registration
-├── dynamic-list.ts   # Dynamic list functionality with update tracking
-└── utils.ts          # Utility functions and type guards
+├── core/
+│   ├── attributeManager.ts   # Attribute handling and reactive updates
+│   ├── elementFactory.ts     # Core element creation functions
+│   ├── modifierProcessor.ts  # Modifier processing pipeline
+│   ├── runtimeBootstrap.ts   # Global initialization logic
+│   └── tagRegistry.ts        # HTML/SVG tag definitions and registration
+├── list/
+│   ├── index.ts              # Dynamic list public surface
+│   └── renderer.ts           # Dynamic list functionality with update tracking
+├── utility/
+│   ├── dom.ts                # DOM helper utilities
+│   ├── environment.ts        # Runtime environment detection
+│   └── typeGuards.ts         # Shared type guard helpers
+└── index.ts                  # Main entry point with exports
 
 types/
-└── index.d.ts        # Global type declarations
+└── index.d.ts                # Global type declarations
 ```
 
 ### Build System

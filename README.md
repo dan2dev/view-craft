@@ -24,7 +24,23 @@ Alternatively, you can add the following on `vite-env.d.ts`
 /// <reference types="vite/client" />
 /// <reference types="view-craft/types" />
 ```
-# Examples
-```javascript
-import { start } from 'view-craft';
+# Quick Start
+```ts
+import { initializeRuntime } from 'view-craft';
+
+initializeRuntime();
+```
+
+All HTML tag builders become globals once initialized and you can also import helpers directly:
+
+```ts
+import { createDynamicListRenderer, refreshDynamicLists } from 'view-craft';
+
+const items = [1, 2, 3];
+const renderItems = createDynamicListRenderer(items, (value) => div(value));
+
+renderItems(document.body, 0);
+
+items.push(4);
+refreshDynamicLists();
 ```

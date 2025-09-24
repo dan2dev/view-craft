@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { Dom } from '../../src/utils.js';
+import { appendChildren } from '../../src/utility/dom.js';
 
-describe('Dom.push', () => {
+describe('appendChildren', () => {
   let parent: HTMLElement;
 
   beforeEach(() => {
@@ -11,7 +11,7 @@ describe('Dom.push', () => {
   });
 
   it('should append a single string as text node', () => {
-    const result = Dom.push(parent, 'Hello');
+    const result = appendChildren(parent, 'Hello');
     
     expect(result).toBe(parent);
     expect(parent.childNodes).toHaveLength(1);
@@ -23,7 +23,7 @@ describe('Dom.push', () => {
     const span = document.createElement('span');
     span.textContent = 'World';
     
-    const result = Dom.push(parent, span);
+    const result = appendChildren(parent, span);
     
     expect(result).toBe(parent);
     expect(parent.children).toHaveLength(1);
@@ -32,7 +32,7 @@ describe('Dom.push', () => {
   });
 
   it('should append multiple strings as text nodes', () => {
-    const result = Dom.push(parent, 'Hello', ' ', 'World');
+    const result = appendChildren(parent, 'Hello', ' ', 'World');
     
     expect(result).toBe(parent);
     expect(parent.childNodes).toHaveLength(3);
@@ -48,7 +48,7 @@ describe('Dom.push', () => {
     span1.textContent = 'First';
     span2.textContent = 'Second';
     
-    const result = Dom.push(parent, span1, span2);
+    const result = appendChildren(parent, span1, span2);
     
     expect(result).toBe(parent);
     expect(parent.children).toHaveLength(2);
@@ -61,7 +61,7 @@ describe('Dom.push', () => {
     const span = document.createElement('span');
     span.textContent = 'Middle';
     
-    const result = Dom.push(parent, 'Start', span, 'End');
+    const result = appendChildren(parent, 'Start', span, 'End');
     
     expect(result).toBe(parent);
     expect(parent.childNodes).toHaveLength(3);
@@ -72,7 +72,7 @@ describe('Dom.push', () => {
   });
 
   it('should handle empty string', () => {
-    const result = Dom.push(parent, '');
+    const result = appendChildren(parent, '');
     
     expect(result).toBe(parent);
     expect(parent.childNodes).toHaveLength(1);
@@ -81,7 +81,7 @@ describe('Dom.push', () => {
   });
 
   it('should handle no children', () => {
-    const result = Dom.push(parent);
+    const result = appendChildren(parent);
     
     expect(result).toBe(parent);
     expect(parent.childNodes).toHaveLength(0);
@@ -96,7 +96,7 @@ describe('Dom.push', () => {
     const newSpan = document.createElement('div');
     newSpan.textContent = 'New';
     
-    const result = Dom.push(parent, 'Text', newSpan);
+    const result = appendChildren(parent, 'Text', newSpan);
     
     expect(result).toBe(parent);
     expect(parent.childNodes).toHaveLength(3);
@@ -115,7 +115,7 @@ describe('Dom.push', () => {
     input.value = 'test';
     p.textContent = 'Paragraph';
     
-    const result = Dom.push(parent, button, input, p);
+    const result = appendChildren(parent, button, input, p);
     
     expect(result).toBe(parent);
     expect(parent.children).toHaveLength(3);
@@ -127,7 +127,7 @@ describe('Dom.push', () => {
   it('should handle special characters in strings', () => {
     const specialText = '<script>alert("xss")</script> & "quotes" & \'apostrophes\'';
     
-    const result = Dom.push(parent, specialText);
+    const result = appendChildren(parent, specialText);
     
     expect(result).toBe(parent);
     expect(parent.childNodes).toHaveLength(1);

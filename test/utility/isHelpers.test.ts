@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { isNode, isNotNullObject, isTag, isBoolean, isFunction } from "../../src/utils";
+import { isNode, isObject, isTagLike, isBoolean, isFunction } from "../../src/utility/typeGuards.js";
 import { describe, it, expect } from "vitest";
 
 describe("utility is helpers", () => {
@@ -10,17 +10,17 @@ describe("utility is helpers", () => {
     expect(isNode({})).toBe(false);
   });
 
-  it("isNotNullObject returns true for plain objects", () => {
-    expect(isNotNullObject({})).toBe(true);
-    expect(isNotNullObject([])).toBe(true);
-    expect(isNotNullObject(null)).toBe(false);
-    expect(isNotNullObject(42)).toBe(false);
+  it("isObject returns true for plain objects", () => {
+    expect(isObject({})).toBe(true);
+    expect(isObject([])).toBe(true);
+    expect(isObject(null)).toBe(false);
+    expect(isObject(42)).toBe(false);
   });
 
-  it("isTag returns true for objects with tagName", () => {
-    expect(isTag({ tagName: "div" })).toBe(true);
-    expect(isTag({})).toBe(false);
-    expect(isTag(null)).toBe(false);
+  it("isTagLike returns true for objects with tagName", () => {
+    expect(isTagLike({ tagName: "div" })).toBe(true);
+    expect(isTagLike({})).toBe(false);
+    expect(isTagLike(null)).toBe(false);
   });
 
   it("isBoolean properly identifies booleans", () => {

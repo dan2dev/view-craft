@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { htmlTags, svgTags, selfClosingTags } from '../../src/tags.js';
+import {
+  HTML_TAGS as htmlTags,
+  SVG_TAGS as svgTags,
+  SELF_CLOSING_TAGS as selfClosingTags,
+} from '../../src/core/tagRegistry.js';
 
 describe('tags arrays', () => {
   describe('htmlTags', () => {
@@ -185,13 +189,17 @@ describe('tags arrays', () => {
 
   describe('array relationships', () => {
     it('should have no overlap between selfClosingTags and non-self-closing htmlTags', () => {
-      const nonSelfClosingTags = htmlTags.filter(tag => !selfClosingTags.includes(tag));
+      const nonSelfClosingTags = htmlTags.filter(
+        tag => !selfClosingTags.includes(tag as (typeof selfClosingTags)[number]),
+      );
       const overlap = selfClosingTags.filter(tag => nonSelfClosingTags.includes(tag));
       expect(overlap).toHaveLength(0);
     });
 
     it('should have selfClosingTags + non-self-closing htmlTags equal total HTML htmlTags', () => {
-      const nonSelfClosingTags = htmlTags.filter(tag => !selfClosingTags.includes(tag));
+      const nonSelfClosingTags = htmlTags.filter(
+        tag => !selfClosingTags.includes(tag as (typeof selfClosingTags)[number]),
+      );
       expect(selfClosingTags.length + nonSelfClosingTags.length).toBe(htmlTags.length);
     });
   });
