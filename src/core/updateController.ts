@@ -1,7 +1,9 @@
 import { updateListRuntimes } from "../list/runtime";
 import { notifyReactiveElements, notifyReactiveTextNodes } from "./reactive";
 import { updateWhenRuntimes } from "../when";
-import { updateConditionalRuntimes } from "./conditionalElement";
+import { updateConditionalElements } from "./conditionalUpdater";
+
+
 
 function dispatchGlobalUpdateEvent(): void {
   if (typeof document === "undefined") {
@@ -29,7 +31,7 @@ function dispatchGlobalUpdateEvent(): void {
 export function update(): void {
   updateListRuntimes();
   updateWhenRuntimes();
-  updateConditionalRuntimes();
+  updateConditionalElements();
   notifyReactiveElements();
   notifyReactiveTextNodes();
   dispatchGlobalUpdateEvent();

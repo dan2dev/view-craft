@@ -15,24 +15,28 @@ function isBooleanFunction(fn: Function): boolean {
 }
 
 /**
- * Checks if the first modifier should be treated as a conditional boolean function
- * based on the context of the remaining modifiers
+ * Checks if a modifier should be treated as a conditional boolean function
+ * based on the context of other modifiers
  */
 export function isConditionalModifier(
   modifier: any, 
-  remainingModifiers: any[]
+  allModifiers: any[],
+  currentIndex: number
 ): modifier is () => boolean {
   if (!isFunction(modifier) || modifier.length !== 0 || !isBooleanFunction(modifier)) {
     return false;
   }
 
-  // If there are no remaining modifiers, it's not conditional
-  if (remainingModifiers.length === 0) {
+  // Get other modifiers (excluding the current one)
+  const otherModifiers = allModifiers.filter((_, index) => index !== currentIndex);
+  
+  // If there are no other modifiers, it's not conditional
+  if (otherModifiers.length === 0) {
     return false;
   }
 
-  // If any remaining modifier is an object (attributes) or element, it's likely conditional
-  const hasAttributesOrElements = remainingModifiers.some(mod => 
+  // If any other modifier is an object (attributes) or element, it's likely conditional
+  const hasAttributesOrElements = otherModifiers.some(mod => 
     isObject(mod) || isNode(mod) || (isFunction(mod) && (mod as Function).length > 0)
   );
 
@@ -40,9 +44,21 @@ export function isConditionalModifier(
     return true;
   }
 
-  // If all remaining modifiers are primitives or primitive functions, 
+  // If all other modifiers are primitives or primitive functions, 
   // it's likely reactive text content, not conditional rendering
   return false;
+}
+
+/**
+ * Finds the first conditional modifier in the array and returns its index
+ */
+export function findConditionalModifier(modifiers: any[]): number {
+  for (let i = 0; i < modifiers.length; i++) {
+    if (isConditionalModifier(modifiers[i], modifiers, i)) {
+      return i;
+    }
+  }
+  return -1;
 }
 
 /**

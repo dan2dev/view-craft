@@ -85,9 +85,20 @@
 
     <div class="container">
         <h3>How it works</h3>
-        <p>The syntax is:</p>
-        <pre><code>div(() => condition, "content", { attributes })</code></pre>
-        <p>When the condition is <strong>true</strong>, the element is shown. When <strong>false</strong>, it's replaced with a comment placeholder.</p>
+        <p>Boolean functions can be placed in <strong>ANY position</strong> within the modifiers:</p>
+        <pre><code>// Boolean as first modifier
+div(() => condition, "content", { className: "test" })
+
+// Boolean as second modifier  
+div("content", () => condition, { className: "test" })
+
+// Boolean as third modifier
+div("content", { className: "test" }, () => condition)
+
+// Boolean in middle of multiple modifiers
+div("before", { id: "test" }, () => condition, span("after"), { className: "test" })</code></pre>
+        <p>When the condition is <strong>true</strong>, the element is shown with all other modifiers applied. When <strong>false</strong>, it's replaced with a comment placeholder.</p>
+        <p><strong>Note:</strong> If boolean functions are only mixed with primitives (strings, numbers), they're treated as reactive text content instead of conditional rendering.</p>
     </div>
 
     <!-- Load View Craft -->
@@ -106,60 +117,74 @@
         // Create conditional elements
         function createConditionalElements() {
             // Clear container
-            container.innerHTML = '<h3>Conditional Elements</h3>';
+            container.innerHTML = '<h3>Conditional Elements - Boolean in Any Position</h3>';
 
-            // Green element - shows only when color is 'green'
-            const greenElement = div(
+            // Boolean function as FIRST modifier
+            const firstPositionElement = div(
                 () => Boolean(data.color === 'green'),
-                "🟢 This green element shows only when data.color === 'green'",
+                "🟢 Boolean function as FIRST modifier",
                 { className: "green-element" }
             )(container);
 
-            // Blue element - shows only when color is 'blue'  
-            const blueElement = div(
+            // Boolean function as SECOND modifier
+            const secondPositionElement = div(
+                "🔵 Boolean function as SECOND modifier",
                 () => data.color === 'blue',
-                "🔵 This blue element shows only when data.color === 'blue'",
                 { className: "blue-element" }
             )(container);
 
-            // Red element - shows only when color is 'red'
-            const redElement = div(
-                () => data.color === 'red',
-                "🔴 This red element shows only when data.color === 'red'",
-                { className: "red-element" }
+            // Boolean function as THIRD modifier (last)
+            const thirdPositionElement = div(
+                "🔴 Boolean function as THIRD modifier",
+                { className: "red-element" },
+                () => data.color === 'red'
             )(container);
 
-            // Visibility toggle element
-            const toggleElement = div(
+            // Boolean function in MIDDLE of multiple modifiers
+            const middlePositionElement = div(
+                "👁️ Content before condition",
+                { id: "middle-example" },
                 () => data.visible,
-                "👁️ This element can be toggled on/off with the visibility button",
-                div("📦 Nested content also shows/hides together"),
+                div("📦 Nested content after condition"),
                 { 
                     className: "green-element",
-                    style: { marginTop: "15px" }
+                    style: { marginTop: "15px", border: "2px solid #ccc" }
                 }
             )(container);
 
-            // Complex conditional with multiple conditions
+            // Complex example with boolean function among many modifiers
             const complexElement = div(
+                { style: { padding: "10px" } },
+                "✨ Complex example: ",
+                span("Multiple modifiers with condition in middle"),
                 () => data.color === 'green' && data.visible,
-                "✨ Complex condition: Shows only when color is GREEN AND visible is true",
-                div("🎯 This nested content has the same condition"),
+                div("🎯 More nested content"),
                 { 
                     className: "green-element",
                     style: { 
                         border: "2px dashed #28a745",
                         marginTop: "15px"
-                    }
+                    },
+                    "data-example": "complex"
                 }
             )(container);
 
+            // Reactive text example (boolean functions with only primitives)
+            const reactiveTextElement = div(
+                "📊 Reactive text - Color is green: ",
+                () => data.color === 'green',
+                " | Visible: ",
+                () => data.visible,
+                " (This uses reactive text, not conditional rendering)"
+            )(container);
+
             // Append all elements to container
-            container.appendChild(greenElement);
-            container.appendChild(blueElement);
-            container.appendChild(redElement);
-            container.appendChild(toggleElement);
+            container.appendChild(firstPositionElement);
+            container.appendChild(secondPositionElement);
+            container.appendChild(thirdPositionElement);
+            container.appendChild(middlePositionElement);
             container.appendChild(complexElement);
+            container.appendChild(reactiveTextElement);
         }
 
         // Control functions

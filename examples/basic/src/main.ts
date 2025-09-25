@@ -24,7 +24,7 @@ const app1 = div(
   "this is another string",
   h1("View Craft Basic Example"),
   div("This is a simple example of using View Craft to create DOM elements."),
-  div(() => Boolean(data.color === "green"), "this will show only when data.color === green", { className: "green" }),
+  div("----", () => Boolean(data.color === "green"), "this will show only when data.color === green", { className: "green" }),
   when(
     () => data.color === "green",
     h1("this will show only when data.color === green", { className: "green" }),
