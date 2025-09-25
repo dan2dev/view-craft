@@ -3,6 +3,7 @@
  */
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { when, updateWhenRuntimes, clearWhenRuntimes } from '../../src/when/index';
+import { update } from '../../src';
 
 describe('Conditional Rendering (when)', () => {
   let container: HTMLElement;
@@ -283,11 +284,11 @@ describe('Conditional Rendering (when)', () => {
       const whenFn = when(true, () => items.join(' - '));
       
       whenFn(container as any, 0);
-      updateWhenRuntimes();
+      update();
       expect(container.textContent).toBe('A - B - C');
       
       items = ['X', 'Y', 'Z'];
-      updateWhenRuntimes();
+      update();
       expect(container.textContent).toBe('X - Y - Z');
     });
 
