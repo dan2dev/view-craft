@@ -31,6 +31,13 @@ const app1 = div(
     "color:",
     () => data.color,
   ),
+  button(
+    "sort",
+    on("click", () => {
+      items.sort((a, b) => a.price - b.price);
+      update();
+    }),
+  ),
   button("sort", (e) => {
     e.addEventListener?.("click", (_e) => {
       items.sort((a, b) => a.price - b.price);
@@ -38,17 +45,18 @@ const app1 = div(
     });
     // console.log("--", e);
   }),
-  button("push", (e) => {
-    e.addEventListener?.("click", (_e) => {
+  // Example using the on() helper instead of manual addEventListener
+  button(
+    "push (using on helper)",
+    on("click", (e: PointerEvent) => {
       items.push({
         id: items.length + 1,
         name: `Item ${items.length + 1}`,
         price: items.length * 10,
       });
       update();
-    });
-    // console.log("--", e);
-  }),
+    }),
+  ),
   button("insert in the beginning", (e) => {
     e.addEventListener?.("click", (_e) => {
       items.unshift({
@@ -167,16 +175,14 @@ const app1 = div(
   ),
   div(
     "----",
-    // () => Boolean(data.color === "green"),
+    () => Boolean(data.color === "green"),
     "this will show only when data.color === green",
     { className: "green" },
-    div(
-      '----',
-      () => {
-        console.log("output test"); // this should output only once but is output twice
-        return "ok: " + data.color + "!";
-      },
-    )
+    div("----", () => {
+      console.log("output test"); // this should output only once but is output twice
+      // return "ok: " + data.color + "!";
+      return "ok: ";
+    }),
   ),
   when(
     () => data.color === "green",
@@ -196,12 +202,8 @@ const app1 = div(
       }),
     )
     .else(
-      h1(
-        "this will show only when data.color !== green && data.color !== blue",
-      ),
-      h2(
-        "this will show only when data.color !== green && data.color !== blue",
-      ),
+      h1("this will show only when data.color !== green && data.color !== blue"),
+      h2("this will show only when data.color !== green && data.color !== blue"),
     ),
 
   "this is a test",
