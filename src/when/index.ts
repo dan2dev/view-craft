@@ -83,8 +83,14 @@ function renderWhenContent<TTagName extends ElementTagName>(runtime: WhenRuntime
           return (realHost as any).insertBefore(n, endMarker);
         };
         try {
-          const node = applyNodeModifier(host, item, index);
-          if (node) nodes.push(node);
+          // Invoke the NodeModFn. It may either:
+          //  1. Return a node that is NOT yet in the DOM (simple element factory)
+          //  2. Self-append its own markers/content (structural runtime like list / nested when)
+          const maybeNode = applyNodeModifier(host, item, index);
+          if (maybeNode && !maybeNode.parentNode) {
+            // Not in DOM yet => treat as simple element factory result; queue for insertion
+            nodes.push(maybeNode);
+          }
         } finally {
           (realHost as any).appendChild = originalAppend;
         }
