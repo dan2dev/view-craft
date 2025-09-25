@@ -1,4 +1,8 @@
 /**
+ * Array utilities - essential functions and simple multi-map operations
+ */
+
+/**
  * Efficiently compares two arrays for equality by reference and content.
  */
 export function arraysEqual<T>(a: T[], b: T[]): boolean {
@@ -9,7 +13,6 @@ export function arraysEqual<T>(a: T[], b: T[]): boolean {
 
 /**
  * Creates a map where each key contains an array of values.
- * Useful for grouping items by a common property.
  */
 export function createMultiMap<K, V>(): Map<K, V[]> {
   return new Map<K, V[]>();

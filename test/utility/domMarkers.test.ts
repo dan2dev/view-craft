@@ -7,9 +7,8 @@ import {
   createMarkerPair, 
   clearBetweenMarkers,
   insertNodesBefore,
-  getContainerParent,
-  safeRemoveNode
-} from '../../src/utility/domMarkers';
+  safeRemoveChild
+} from '../../src/utility/dom';
 
 describe('DOM Markers', () => {
   let container: HTMLElement;
@@ -306,79 +305,15 @@ describe('DOM Markers', () => {
     });
   });
 
-  describe('getContainerParent', () => {
-    it('should return parent node when it exists', () => {
-      const child = document.createElement('span');
-      container.appendChild(child);
-      
-      const parent = getContainerParent(child);
-      expect(parent).toBe(container);
-    });
 
-    it('should return null when no parent exists', () => {
-      const orphan = document.createElement('span');
-      
-      const parent = getContainerParent(orphan);
-      expect(parent).toBeNull();
-    });
 
-    it('should work with deeply nested elements', () => {
-      const grandParent = document.createElement('section');
-      const parent = document.createElement('div');
-      const child = document.createElement('span');
-      
-      grandParent.appendChild(parent);
-      parent.appendChild(child);
-      container.appendChild(grandParent);
-      
-      expect(getContainerParent(child)).toBe(parent);
-      expect(getContainerParent(parent)).toBe(grandParent);
-      expect(getContainerParent(grandParent)).toBe(container);
-    });
-
-    it('should work with text nodes', () => {
-      const textNode = document.createTextNode('Hello');
-      container.appendChild(textNode);
-      
-      const parent = getContainerParent(textNode);
-      expect(parent).toBe(container);
-    });
-
-    it('should work with comment nodes', () => {
-      const commentNode = document.createComment('Comment');
-      container.appendChild(commentNode);
-      
-      const parent = getContainerParent(commentNode);
-      expect(parent).toBe(container);
-    });
-
-    it('should work with document fragments', () => {
-      const fragment = document.createDocumentFragment();
-      const element = document.createElement('div');
-      fragment.appendChild(element);
-      
-      const parent = getContainerParent(element);
-      expect(parent).toBe(fragment);
-    });
-
-    it('should return the document for elements attached to document', () => {
-      const element = document.createElement('div');
-      document.body.appendChild(element);
-      
-      const parent = getContainerParent(element);
-      expect(parent).toBe(document.body);
-      
-      element.remove(); // Cleanup
-    });
-  });
-
-  describe('safeRemoveNode', () => {
+  describe('safeRemoveChild', () => {
     it('should remove nodes with parent', () => {
       const child = document.createElement('span');
       container.appendChild(child);
       
       expect(container.children).toHaveLength(1);
-      safeRemoveNode(child);
+      safeRemoveChild(child);
       expect(container.children).toHaveLength(0);
     });
 
@@ -386,7 +321,7 @@ describe('DOM Markers', () => {
       const orphan = document.createElement('span');
       
       expect(() => {
-        safeRemoveNode(orphan);
+        safeRemoveChild(orphan);
       }).not.toThrow();
     });
 
@@ -395,7 +330,7 @@ describe('DOM Markers', () => {
       container.appendChild(textNode);
       
       expect(container.childNodes).toHaveLength(1);
-      safeRemoveNode(textNode);
+      safeRemoveChild(textNode);
       expect(container.childNodes).toHaveLength(0);
     });
 
@@ -404,7 +339,7 @@ describe('DOM Markers', () => {
       container.appendChild(commentNode);
       
       expect(container.childNodes).toHaveLength(1);
-      safeRemoveNode(commentNode);
+      safeRemoveChild(commentNode);
       expect(container.childNodes).toHaveLength(0);
     });
 
@@ -415,7 +350,7 @@ describe('DOM Markers', () => {
       container.appendChild(parent);
       
       expect(container.children).toHaveLength(1);
-      safeRemoveNode(parent);
+      safeRemoveChild(parent);
       expect(container.children).toHaveLength(0);
     });
 
@@ -425,7 +360,7 @@ describe('DOM Markers', () => {
       fragment.appendChild(element);
       
       expect(fragment.children).toHaveLength(1);
-      safeRemoveNode(element);
+      safeRemoveChild(element);
       expect(fragment.children).toHaveLength(0);
     });
 
@@ -438,7 +373,7 @@ describe('DOM Markers', () => {
       button.click();
       expect(clicked).toBe(true);
       
-      safeRemoveNode(button);
+      safeRemoveChild(button);
       expect(container.children).toHaveLength(0);
     });
 
@@ -459,7 +394,7 @@ describe('DOM Markers', () => {
       container.appendChild(wrapper);
       expect(container.children).toHaveLength(1);
       
-      safeRemoveNode(wrapper);
+      safeRemoveChild(wrapper);
       expect(container.children).toHaveLength(0);
     });
   });
@@ -557,8 +492,8 @@ describe('DOM Markers', () => {
       expect(container.childNodes).toHaveLength(2);
       
       // Clean up markers themselves
-      safeRemoveNode(start);
-      safeRemoveNode(end);
+      safeRemoveChild(start);
+      safeRemoveChild(end);
       expect(container.childNodes).toHaveLength(0);
     });
 

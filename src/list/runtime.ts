@@ -1,5 +1,5 @@
 import { isFunction, isTagLike } from "../utility/typeGuards";
-import { createMarkerPair, safeRemoveNode, getContainerParent } from "../utility/domMarkers";
+import { createMarkerPair, safeRemoveChild } from "../utility/dom";
 import { arraysEqual, createMultiMap, addToMultiMap, takeFromMultiMap } from "../utility/arrayUtils";
 import type { ListRenderer, ListRuntime, ListItemRecord, ListItemsProvider } from "./types";
 
@@ -44,7 +44,7 @@ function buildRecordsPool<TItem>(records: ListItemRecord<TItem>[]): Map<TItem, L
 
 function remove(record: ListItemRecord<unknown>): void {
   const node = record.element as unknown as Node;
-  safeRemoveNode(node);
+  safeRemoveChild(node);
 }
 
 export function sync<TItem>(runtime: ListRuntime<TItem>): void {

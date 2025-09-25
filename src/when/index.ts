@@ -1,6 +1,6 @@
 import { isBrowser } from "../utility/environment";
 import { applyNodeModifier } from "../core/modifierProcessor";
-import { createMarkerPair, clearBetweenMarkers, insertNodesBefore } from "../utility/domMarkers";
+import { createMarkerPair, clearBetweenMarkers, insertNodesBefore } from "../utility/dom";
 
 type WhenCondition = boolean | (() => boolean);
 type WhenContent<TTagName extends ElementTagName = ElementTagName> = 
@@ -77,7 +77,7 @@ class WhenBuilderImpl<TTagName extends ElementTagName = ElementTagName> {
   }
 
   render(host: ExpandedElement<TTagName>, index: number): Node | null {
-    if (!isBrowser()) {
+    if (!isBrowser) {
       return document.createComment("when-ssr");
     }
 

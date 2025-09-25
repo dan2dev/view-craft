@@ -147,7 +147,7 @@ function findConditionalNodes(): Array<Element | Comment> {
  * Updates all conditional elements and comments
  */
 export function updateConditionalElements(): void {
-  if (!isBrowser()) {
+  if (!isBrowser) {
     return;
   }
 
@@ -163,7 +163,7 @@ export function updateConditionalElements(): void {
  * Cleans up disconnected conditional nodes from memory
  */
 export function cleanupConditionalElements(): void {
-  if (!isBrowser() || !document.body) {
+  if (!isBrowser || !document.body) {
     return;
   }
 

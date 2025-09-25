@@ -15,7 +15,7 @@ export function createConditionalElement<TTagName extends ElementTagName>(
   condition: () => boolean,
   modifiers: Array<NodeMod<TTagName> | NodeModFn<TTagName>>
 ): ExpandedElement<TTagName> | Comment {
-  if (!isBrowser()) {
+  if (!isBrowser) {
     return createSSRConditionalElement(tagName, condition, modifiers);
   }
 

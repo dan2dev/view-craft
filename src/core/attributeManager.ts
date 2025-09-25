@@ -48,7 +48,7 @@ function applyAttributeCandidate<TTagName extends ElementTagName>(
   if (isZeroArgFunction(candidate)) {
     registerAttributeResolver(
       element,
-      key,
+      String(key),
       candidate as () => unknown,
       (value) => assignDirectValue(element, key, value as AttributeValue)
     );
