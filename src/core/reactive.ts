@@ -14,6 +14,7 @@ interface ReactiveElementInfo {
     resolver: AttributeResolver;
     applyValue: (value: unknown) => void;
   }>;
+  updateListener?: EventListener;
 }
 
 // Global reactive state - using regular Maps for iteration support
@@ -30,9 +31,24 @@ export function trackReactiveElement<TTagName extends ElementTagName>(
 
   if (!reactiveElements.has(element)) {
     reactiveElements.set(element, {
-      attributeResolvers: new Map()
+      attributeResolvers: new Map(),
+      updateListener: undefined
     });
   }
+}
+
+function applyAttributeResolversForElement(
+  element: Element,
+  elementInfo: ReactiveElementInfo
+): void {
+  elementInfo.attributeResolvers.forEach((resolverInfo, attributeKey) => {
+    try {
+      const newValue = safeExecute(resolverInfo.resolver);
+      resolverInfo.applyValue(newValue);
+    } catch (error) {
+      logError(`Failed to update reactive attribute: ${attributeKey}`, error);
+    }
+  });
 }
 
 export function createReactiveTextNode(resolver: TextResolver): Text {
@@ -83,6 +99,15 @@ export function registerAttributeResolver<TTagName extends ElementTagName>(
     } catch (error) {
       logError("Failed to apply initial attribute value", error);
     }
+
+    const domElement = element as Element;
+    if (!elementInfo.updateListener) {
+      const listener: EventListener = () => {
+        applyAttributeResolversForElement(domElement, elementInfo);
+      };
+      domElement.addEventListener("update", listener);
+      elementInfo.updateListener = listener;
+    }
   }
 }
 
@@ -124,14 +149,7 @@ export function notifyReactiveElements(): void {
         return;
       }
 
-      elementInfo.attributeResolvers.forEach((resolverInfo, attributeKey) => {
-        try {
-          const newValue = safeExecute(resolverInfo.resolver);
-          resolverInfo.applyValue(newValue);
-        } catch (error) {
-          logError(`Failed to update reactive attribute: ${attributeKey}`, error);
-        }
-      });
+      applyAttributeResolversForElement(element, elementInfo);
     } catch (error) {
       logError("Failed to update reactive element", error);
     }
@@ -139,12 +157,21 @@ export function notifyReactiveElements(): void {
 
   // Clean up disconnected elements
   disconnectedElements.forEach(element => {
+    const elementInfo = reactiveElements.get(element);
+    if (elementInfo?.updateListener && element.removeEventListener) {
+      element.removeEventListener("update", elementInfo.updateListener);
+    }
     reactiveElements.delete(element);
   });
 }
 
 export function clearReactiveState(): void {
   reactiveTextNodes.clear();
+  reactiveElements.forEach((elementInfo, element) => {
+    if (elementInfo.updateListener && element.removeEventListener) {
+      element.removeEventListener("update", elementInfo.updateListener);
+    }
+  });
   reactiveElements.clear();
   logError("Reactive state cleared");
 }
