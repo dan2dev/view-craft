@@ -4,14 +4,15 @@ import { updateWhenRuntimes } from "../when";
 import { updateConditionalElements } from "./conditionalUpdater";
 import { dispatchGlobalUpdateEvent } from "../utility/events";
 
-/**
- * Updates all dynamic data sources, including registered reactive attributes, list renderers, and when blocks.
- */
+const updaters = [
+  updateListRuntimes,
+  updateWhenRuntimes,
+  updateConditionalElements,
+  notifyReactiveElements,
+  notifyReactiveTextNodes,
+  dispatchGlobalUpdateEvent,
+] as const;
+
 export function update(): void {
-  updateListRuntimes();
-  updateWhenRuntimes();
-  updateConditionalElements();
-  notifyReactiveElements();
-  notifyReactiveTextNodes();
-  dispatchGlobalUpdateEvent();
+  for (const fn of updaters) fn();
 }

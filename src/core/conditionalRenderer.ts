@@ -1,95 +1,52 @@
-import { applyNodeModifier, findConditionalModifier } from "./modifierProcessor";
+import { findConditionalModifier } from "./modifierProcessor";
 import { isBrowser } from "../utility/environment";
 import { storeConditionalInfo } from "../utility/conditionalInfo";
 import type { ConditionalInfo } from "../utility/conditionalInfo";
+import { applyModifiers, NodeModifier } from "../internal/applyModifiers";
 
 /**
- * Creates a conditional element or comment based on the condition result
+ * Creates a conditional element or comment based on the condition result (SSR + browser unified)
  */
 export function createConditionalElement<TTagName extends ElementTagName>(
   tagName: TTagName,
   condition: () => boolean,
   modifiers: Array<NodeMod<TTagName> | NodeModFn<TTagName>>
 ): ExpandedElement<TTagName> | Comment {
+  const passed = condition();
+
   if (!isBrowser) {
-    return createSSRConditionalElement(tagName, condition, modifiers);
+    return passed
+      ? createElementWithModifiers(tagName, modifiers)
+      : document.createComment(`conditional-${tagName}-ssr`) as unknown as ExpandedElement<TTagName>;
   }
 
-  return createBrowserConditionalElement(tagName, condition, modifiers);
+  if (passed) {
+    const el = createElementWithModifiers(tagName, modifiers);
+    storeConditionalInfo(el as Node, { condition, tagName, modifiers } as ConditionalInfo);
+    return el;
+  }
+
+  const comment = document.createComment(`conditional-${tagName}-hidden`);
+  storeConditionalInfo(comment as Node, { condition, tagName, modifiers } as ConditionalInfo);
+  return comment as unknown as ExpandedElement<TTagName>;
 }
 
 /**
- * Creates conditional element for SSR environment
- */
-function createSSRConditionalElement<TTagName extends ElementTagName>(
-  tagName: TTagName,
-  condition: () => boolean,
-  modifiers: Array<NodeMod<TTagName> | NodeModFn<TTagName>>
-): ExpandedElement<TTagName> | Comment {
-  if (condition()) {
-    return createElementWithModifiers(tagName, modifiers);
-  } else {
-    return document.createComment(`conditional-${tagName}-ssr`) as unknown as ExpandedElement<TTagName>;
-  }
-}
-
-/**
- * Creates conditional element for browser environment
- */
-function createBrowserConditionalElement<TTagName extends ElementTagName>(
-  tagName: TTagName,
-  condition: () => boolean,
-  modifiers: Array<NodeMod<TTagName> | NodeModFn<TTagName>>
-): ExpandedElement<TTagName> | Comment {
-  if (condition()) {
-    const element = createElementWithModifiers(tagName, modifiers);
-    const info: ConditionalInfo = {
-      condition,
-      tagName,
-      modifiers,
-    };
-    storeConditionalInfo(element as Node, info);
-    return element;
-  } else {
-    const comment = document.createComment(`conditional-${tagName}-hidden`);
-    const info: ConditionalInfo = {
-      condition,
-      tagName,
-      modifiers,
-    };
-    storeConditionalInfo(comment as Node, info);
-    return comment as unknown as ExpandedElement<TTagName>;
-  }
-}
-
-/**
- * Creates an element and applies all modifiers to it
+ * Creates an element and applies all modifiers to it (shared helper based).
  */
 function createElementWithModifiers<TTagName extends ElementTagName>(
   tagName: TTagName,
   modifiers: Array<NodeMod<TTagName> | NodeModFn<TTagName>>
 ): ExpandedElement<TTagName> {
-  const element = document.createElement(tagName) as ExpandedElement<TTagName>;
-  let localIndex = 0;
-
-  modifiers.forEach((modifier) => {
-    const renderedNode = applyNodeModifier(element, modifier, localIndex);
-    if (renderedNode) {
-      const node = renderedNode as Node;
-      const parentNode = element as unknown as Node & ParentNode;
-      if (node.parentNode !== parentNode) {
-        parentNode.appendChild(node);
-      }
-      localIndex += 1;
-    }
-  });
-
-  return element;
+  const el = document.createElement(tagName) as ExpandedElement<TTagName>;
+  applyModifiers(
+    el,
+    modifiers as ReadonlyArray<NodeModifier<TTagName>>,
+    0
+  );
+  return el;
 }
 
-/**
- * Attaches conditional information to a node for later updates
- */
 /**
  * Processes conditional modifiers and separates them from regular modifiers
  */

@@ -1,8 +1,9 @@
-import { applyNodeModifier } from "./modifierProcessor";
 import { createConditionalElement, processConditionalModifiers } from "./conditionalRenderer";
+import { applyModifiers, NodeModifier } from "../internal/applyModifiers";
 
 /**
  * Creates an element factory that applies the given modifiers to a freshly created node.
+ * Now uses shared applyModifiers helper for consistency and reduced duplication.
  */
 export function createElementFactory<TTagName extends ElementTagName>(
   tagName: TTagName,
@@ -11,40 +12,18 @@ export function createElementFactory<TTagName extends ElementTagName>(
   return (parent: ExpandedElement<TTagName>, index: number): ExpandedElement<TTagName> => {
     const { condition, otherModifiers } = processConditionalModifiers(modifiers);
 
-    // Handle conditional rendering
     if (condition) {
       return createConditionalElement(tagName, condition, otherModifiers) as ExpandedElement<TTagName>;
     }
 
-    // Handle regular element creation
-    return createRegularElement(tagName, otherModifiers, index);
+    const el = document.createElement(tagName) as ExpandedElement<TTagName>;
+    applyModifiers(
+      el,
+      otherModifiers as ReadonlyArray<NodeModifier<TTagName>>,
+      index
+    );
+    return el;
   };
-}
-
-/**
- * Creates a regular (non-conditional) element with modifiers
- */
-function createRegularElement<TTagName extends ElementTagName>(
-  tagName: TTagName,
-  modifiers: Array<NodeMod<TTagName> | NodeModFn<TTagName>>,
-  index: number
-): ExpandedElement<TTagName> {
-  const element = document.createElement(tagName) as ExpandedElement<TTagName>;
-  let localIndex = index;
-
-  modifiers.forEach((modifier) => {
-    const renderedNode = applyNodeModifier(element, modifier, localIndex);
-    if (renderedNode) {
-      const node = renderedNode as Node;
-      const parentNode = element as unknown as Node & ParentNode;
-      if (node.parentNode !== parentNode) {
-        parentNode.appendChild(node);
-      }
-      localIndex += 1;
-    }
-  });
-
-  return element;
 }
 
 /**
@@ -53,5 +32,5 @@ function createRegularElement<TTagName extends ElementTagName>(
 export function createTagBuilder<TTagName extends ElementTagName>(
   tagName: TTagName,
 ): (...modifiers: Array<NodeMod<TTagName> | NodeModFn<TTagName>>) => NodeModFn<TTagName> {
-  return (...modifiers) => createElementFactory(tagName, ...modifiers);
+  return (...mods) => createElementFactory(tagName, ...mods);
 }

@@ -6,77 +6,52 @@ type AttributeKey<TTagName extends ElementTagName> = keyof ExpandedElementAttrib
 type AttributeCandidate<TTagName extends ElementTagName> =
   ExpandedElementAttributes<TTagName>[AttributeKey<TTagName>];
 
-type AttributeValue = string | number | boolean;
-
-function isZeroArgFunction(value: unknown): value is () => unknown {
-  return isFunction(value) && value.length === 0;
-}
-
-function assignDirectValue<TTagName extends ElementTagName>(
-  element: ExpandedElement<TTagName>,
+function applySingleAttribute<TTagName extends ElementTagName>(
+  el: ExpandedElement<TTagName>,
   key: AttributeKey<TTagName>,
-  value: AttributeValue | null | undefined,
+  raw: AttributeCandidate<TTagName> | undefined,
 ): void {
-  if (value == null) {
-    return;
-  }
-
-  if (key in element) {
-    (element as Record<string, unknown>)[key as string] = value;
-    return;
-  }
-
-  if (element instanceof Element) {
-    element.setAttribute(String(key), String(value));
-  }
-}
-
-function applyAttributeCandidate<TTagName extends ElementTagName>(
-  element: ExpandedElement<TTagName>,
-  key: AttributeKey<TTagName>,
-  candidate: AttributeCandidate<TTagName>,
-): void {
-  if (candidate == null) {
-    return;
-  }
+  if (raw == null) return;
 
   if (key === "style") {
-    applyStyleAttribute(element, candidate as ExpandedElementAttributes<TTagName>["style"]);
+    // Cast to any to avoid complex conditional expansion for style union types
+    applyStyleAttribute(el, raw as any);
     return;
   }
 
-  if (isZeroArgFunction(candidate)) {
+  const setValue = (v: unknown) => {
+    if (v == null) return;
+    if (key in el) {
+      (el as Record<string, unknown>)[key as string] = v;
+    } else if (el instanceof Element) {
+      el.setAttribute(String(key), String(v));
+    }
+  };
+
+  if (isFunction(raw) && (raw as Function).length === 0) {
     registerAttributeResolver(
-      element,
+      el,
       String(key),
-      candidate as () => unknown,
-      (value) => assignDirectValue(element, key, value as AttributeValue)
+      raw as () => unknown,
+      setValue
     );
-    return;
+  } else {
+    setValue(raw);
   }
-
-  assignDirectValue(element, key, candidate as AttributeValue);
 }
 
 /**
- * Applies attribute candidates to the provided element, wiring up reactive values when necessary.
+ * Applies attribute candidates to the provided element (reactive + static).
  */
 export function applyAttributes<TTagName extends ElementTagName>(
   element: ExpandedElement<TTagName>,
   attributes: ExpandedElementAttributes<TTagName>,
 ): void {
-  for (const key in attributes) {
-    if (!Object.prototype.hasOwnProperty.call(attributes, key)) {
-      continue;
-    }
-
-    const typedKey = key as AttributeKey<TTagName>;
-    const candidate = attributes[typedKey] as AttributeCandidate<TTagName> | undefined;
-    if (candidate == null) {
-      continue;
-    }
-
-    applyAttributeCandidate(element, typedKey, candidate as AttributeCandidate<TTagName>);
+  if (!attributes) return;
+  for (const k of Object.keys(attributes) as Array<AttributeKey<TTagName>>) {
+    // Access through loose map to reduce union complexity for TS
+    const value = (attributes as Record<string, unknown>)[k as string] as AttributeCandidate<TTagName> | undefined;
+    applySingleAttribute(element, k, value);
   }
 }
 

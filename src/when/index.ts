@@ -28,43 +28,39 @@ const activeWhenRuntimes = new Set<WhenRuntime<any>>();
 
 function renderWhenContent<TTagName extends ElementTagName>(runtime: WhenRuntime<TTagName>): void {
   clearBetweenMarkers(runtime.startMarker, runtime.endMarker);
-  
-  let foundMatch = false;
-  const nodesToInsert: Node[] = [];
+  const { groups, elseContent, host, index, endMarker } = runtime;
 
-  for (const group of runtime.groups) {
-    const conditionResult = resolveCondition(group.condition);
+  // Fast exit if nothing to render
+  if (!groups.length && !elseContent.length) return;
 
-    if (conditionResult) {
-      foundMatch = true;
-      for (const item of group.content) {
-        // Invalidate probe cache so zero-arg functions are re-evaluated on re-render
-        if (isFunction(item) && (item as Function).length === 0) {
-          modifierProbeCache.delete(item as Function);
-        }
-        const element = applyNodeModifier(runtime.host, item, runtime.index);
-        if (element) {
-          nodesToInsert.push(element);
-        }
-      }
-      break;
-    }
-  }
+  const nodes: Node[] = [];
 
-  if (!foundMatch && runtime.elseContent.length > 0) {
-    for (const item of runtime.elseContent) {
-      // Invalidate probe cache for zero-arg functions in else branch
+  const renderList = (items: ReadonlyArray<WhenContent<TTagName>>) => {
+    for (const item of items) {
       if (isFunction(item) && (item as Function).length === 0) {
+        // Invalidate probe cache so zero-arg functions re-evaluate
         modifierProbeCache.delete(item as Function);
       }
-      const element = applyNodeModifier(runtime.host, item, runtime.index);
-      if (element) {
-        nodesToInsert.push(element);
-      }
+      const node = applyNodeModifier(host, item, index);
+      if (node) nodes.push(node);
+    }
+  };
+
+  // Attempt groups in order; early return on first truthy condition
+  for (const g of groups) {
+    if (resolveCondition(g.condition)) {
+      renderList(g.content);
+      insertNodesBefore(nodes, endMarker);
+      return;
     }
   }
 
-  insertNodesBefore(nodesToInsert, runtime.endMarker);
+  // Fallback to else branch (if any)
+  if (elseContent.length) {
+    renderList(elseContent);
+  }
+
+  insertNodesBefore(nodes, endMarker);
 }
 
 class WhenBuilderImpl<TTagName extends ElementTagName = ElementTagName> {
