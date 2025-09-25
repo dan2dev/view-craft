@@ -128,48 +128,57 @@ const app1 = div(
         boxSizing: "border-box",
       },
     },
+    div(),
     div(
-      list(
-        () => items,
-        (item) =>
-          div(
-            item.name,
-            "---",
-            item.price,
-            input(),
-            () => data.color,
-            button("delete", (e) => {
-              e.addEventListener?.("click", (_e) => {
-                items.splice(
-                  items.findIndex((i) => i.id === item.id),
-                  1,
-                );
-                update();
-              });
-            }),
-          ),
-      )
-    ),
-    div(
-      list(
-        () => items,
-        (item) =>
-          div(
-            item.name,
-            "---",
-            item.price,
-            input(),
-            () => data.color,
-            button("delete", (e) => {
-              e.addEventListener?.("click", (_e) => {
-                items.splice(
-                  items.findIndex((i) => i.id === item.id),
-                  1,
-                );
-                update();
-              });
-            }),
-          ),
+      // () => items.length >= 2,
+      when(
+        () => items.length > 2,
+        list(
+          () => items,
+          (item) =>
+            div(
+              {
+                style: {
+                  backgroundColor: "red",
+                },
+              },
+              item.name,
+              "---",
+              item.price,
+              input(),
+              () => data.color,
+              button("delete", (e) => {
+                e.addEventListener?.("click", (_e) => {
+                  items.splice(
+                    items.findIndex((i) => i.id === item.id),
+                    1,
+                  );
+                  update();
+                });
+              }),
+            ),
+        ),
+      ).else(
+        list(
+          () => items,
+          (item) =>
+            div(
+              item.name,
+              "---",
+              item.price,
+              input(),
+              () => data.color,
+              button("delete", (e) => {
+                e.addEventListener?.("click", (_e) => {
+                  items.splice(
+                    items.findIndex((i) => i.id === item.id),
+                    1,
+                  );
+                  update();
+                });
+              }),
+            ),
+        ),
       ),
     ),
   ),
