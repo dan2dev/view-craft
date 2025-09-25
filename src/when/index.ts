@@ -2,6 +2,8 @@ import { isBrowser } from "../utility/environment";
 import { applyNodeModifier } from "../core/modifierProcessor";
 import { createMarkerPair, clearBetweenMarkers, insertNodesBefore } from "../utility/dom";
 import { resolveCondition } from "../utility/conditions";
+import { modifierProbeCache } from "../utility/modifierPredicates";
+import { isFunction } from "../utility/typeGuards";
 
 type WhenCondition = boolean | (() => boolean);
 type WhenContent<TTagName extends ElementTagName = ElementTagName> = 
@@ -36,6 +38,10 @@ function renderWhenContent<TTagName extends ElementTagName>(runtime: WhenRuntime
     if (conditionResult) {
       foundMatch = true;
       for (const item of group.content) {
+        // Invalidate probe cache so zero-arg functions are re-evaluated on re-render
+        if (isFunction(item) && (item as Function).length === 0) {
+          modifierProbeCache.delete(item as Function);
+        }
         const element = applyNodeModifier(runtime.host, item, runtime.index);
         if (element) {
           nodesToInsert.push(element);
@@ -47,6 +53,10 @@ function renderWhenContent<TTagName extends ElementTagName>(runtime: WhenRuntime
 
   if (!foundMatch && runtime.elseContent.length > 0) {
     for (const item of runtime.elseContent) {
+      // Invalidate probe cache for zero-arg functions in else branch
+      if (isFunction(item) && (item as Function).length === 0) {
+        modifierProbeCache.delete(item as Function);
+      }
       const element = applyNodeModifier(runtime.host, item, runtime.index);
       if (element) {
         nodesToInsert.push(element);
