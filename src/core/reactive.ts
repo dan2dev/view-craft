@@ -6,7 +6,7 @@ type AttributeResolver = () => unknown;
 
 interface ReactiveTextNodeInfo {
   resolver: TextResolver;
-  lastValue?: string;
+  lastValue: string;
 }
 
 interface ReactiveElementInfo {
@@ -17,157 +17,93 @@ interface ReactiveElementInfo {
   updateListener?: EventListener;
 }
 
-// Global reactive state - using regular Maps for iteration support
 const reactiveTextNodes = new Map<Text, ReactiveTextNodeInfo>();
 const reactiveElements = new Map<Element, ReactiveElementInfo>();
 
-export function trackReactiveElement<TTagName extends ElementTagName>(
-  element: ExpandedElement<TTagName>
-): void {
-  if (!element || !(element instanceof Element)) {
-    logError("Cannot track non-element for reactive updates");
-    return;
+function ensureElementInfo(el: Element): ReactiveElementInfo {
+  let info = reactiveElements.get(el);
+  if (!info) {
+    info = { attributeResolvers: new Map() };
+    reactiveElements.set(el, info);
   }
-
-  if (!reactiveElements.has(element)) {
-    reactiveElements.set(element, {
-      attributeResolvers: new Map(),
-      updateListener: undefined
-    });
-  }
+  return info;
 }
 
-function applyAttributeResolversForElement(
-  element: Element,
-  elementInfo: ReactiveElementInfo
-): void {
-  elementInfo.attributeResolvers.forEach((resolverInfo, attributeKey) => {
+function applyAttributeResolvers(el: Element, info: ReactiveElementInfo): void {
+  info.attributeResolvers.forEach((r, key) => {
     try {
-      const newValue = safeExecute(resolverInfo.resolver);
-      resolverInfo.applyValue(newValue);
-    } catch (error) {
-      logError(`Failed to update reactive attribute: ${attributeKey}`, error);
+      r.applyValue(safeExecute(r.resolver));
+    } catch (e) {
+      logError(`Failed to update reactive attribute: ${key}`, e);
     }
   });
 }
 
-export function createReactiveTextNode(
-  resolver: TextResolver,
-  preEvaluated?: unknown
-): Text {
-  const textNode = document.createTextNode("");
-
-  if (!resolver || typeof resolver !== "function") {
+export function createReactiveTextNode(resolver: TextResolver, preEvaluated?: unknown): Text {
+  const txt = document.createTextNode("");
+  if (typeof resolver !== "function") {
     logError("Invalid resolver provided to createReactiveTextNode");
-    return textNode;
+    return txt;
   }
-
-  const nodeInfo: ReactiveTextNodeInfo = { resolver };
-  reactiveTextNodes.set(textNode, nodeInfo);
-
-  // Use pre-evaluated value if provided (e.g. from modifier probe cache) to avoid double execution.
-  let initial: unknown;
-  if (arguments.length > 1) {
-    initial = preEvaluated;
-  } else {
-    initial = safeExecute(resolver, "");
-  }
-
-  textNode.textContent = String(initial ?? "");
-  nodeInfo.lastValue = String(initial ?? "");
-
-  return textNode;
+  const initial = arguments.length > 1 ? preEvaluated : safeExecute(resolver, "");
+  const str = initial === undefined ? "" : String(initial);
+  txt.textContent = str;
+  reactiveTextNodes.set(txt, { resolver, lastValue: str });
+  return txt;
 }
 
 export function registerAttributeResolver<TTagName extends ElementTagName>(
   element: ExpandedElement<TTagName>,
-  attributeKey: string,
+  key: string,
   resolver: AttributeResolver,
   applyValue: (value: unknown) => void
 ): void {
-  if (!element || !attributeKey || !resolver) {
+  if (!(element instanceof Element) || !key || typeof resolver !== "function") {
     logError("Invalid parameters for registerAttributeResolver");
     return;
   }
+  const info = ensureElementInfo(element as Element);
+  info.attributeResolvers.set(key, { resolver, applyValue });
 
-  trackReactiveElement(element);
-  const elementInfo = reactiveElements.get(element as Element);
-  
-  if (elementInfo) {
-    elementInfo.attributeResolvers.set(attributeKey, {
-      resolver,
-      applyValue
-    });
+  try {
+    applyValue(safeExecute(resolver));
+  } catch (e) {
+    logError("Failed to apply initial attribute value", e);
+  }
 
-    // Apply initial value
-    const initialValue = safeExecute(resolver);
-    try {
-      applyValue(initialValue);
-    } catch (error) {
-      logError("Failed to apply initial attribute value", error);
-    }
-
-    const domElement = element as Element;
-    if (!elementInfo.updateListener) {
-      const listener: EventListener = () => {
-        applyAttributeResolversForElement(domElement, elementInfo);
-      };
-      domElement.addEventListener("update", listener);
-      elementInfo.updateListener = listener;
-    }
+  if (!info.updateListener) {
+    const listener: EventListener = () => applyAttributeResolvers(element as Element, info);
+    (element as Element).addEventListener("update", listener);
+    info.updateListener = listener;
   }
 }
 
 export function notifyReactiveTextNodes(): void {
-  const disconnectedNodes: Text[] = [];
-  
-  reactiveTextNodes.forEach((nodeInfo, textNode) => {
-    try {
-      if (!isNodeConnected(textNode)) {
-        disconnectedNodes.push(textNode);
-        return;
-      }
-
-      const newValue = safeExecute(nodeInfo.resolver, "");
-      const newValueStr = String(newValue);
-      
-      if (nodeInfo.lastValue !== newValueStr) {
-        textNode.textContent = newValueStr;
-        nodeInfo.lastValue = newValueStr;
-      }
-    } catch (error) {
-      logError("Failed to update reactive text node", error);
+  reactiveTextNodes.forEach((info, node) => {
+    if (!isNodeConnected(node)) {
+      reactiveTextNodes.delete(node);
+      return;
     }
-  });
-
-  // Clean up disconnected nodes
-  disconnectedNodes.forEach(node => {
-    reactiveTextNodes.delete(node);
+    try {
+      const raw = safeExecute(info.resolver);
+      const newVal = raw === undefined ? "" : String(raw);
+      if (newVal !== info.lastValue) {
+        node.textContent = newVal;
+        info.lastValue = newVal;
+      }
+    } catch (e) {
+      logError("Failed to update reactive text node", e);
+    }
   });
 }
 
 export function notifyReactiveElements(): void {
-  const disconnectedElements: Element[] = [];
-  
-  reactiveElements.forEach((elementInfo, element) => {
-    try {
-      if (!isNodeConnected(element)) {
-        disconnectedElements.push(element);
-        return;
-      }
-
-      applyAttributeResolversForElement(element, elementInfo);
-    } catch (error) {
-      logError("Failed to update reactive element", error);
+  reactiveElements.forEach((info, el) => {
+    if (!isNodeConnected(el)) {
+      if (info.updateListener) el.removeEventListener("update", info.updateListener);
+      reactiveElements.delete(el);
+      return;
     }
-  });
-
-  // Clean up disconnected elements
-  disconnectedElements.forEach(element => {
-    const elementInfo = reactiveElements.get(element);
-    if (elementInfo?.updateListener && element.removeEventListener) {
-      element.removeEventListener("update", elementInfo.updateListener);
-    }
-    reactiveElements.delete(element);
+    applyAttributeResolvers(el, info);
   });
 }

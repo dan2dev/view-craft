@@ -1,4 +1,4 @@
-import { applyNodeModifier } from "./modifierProcessor";
+import { applyModifiers } from "../internal/applyModifiers";
 import { isBrowser } from "../utility/environment";
 import {
   ConditionalInfo,
@@ -28,25 +28,19 @@ import { runCondition } from "../utility/conditions";
  */
 function createElementFromConditionalInfo(conditionalInfo: ConditionalInfo): Element {
   const element = document.createElement(conditionalInfo.tagName);
-  let localIndex = 0;
+  // Use shared helper to apply modifiers (handles appending + indexing)
 
-  conditionalInfo.modifiers.forEach((modifier) => {
-    try {
-      const renderedNode = applyNodeModifier(element, modifier, localIndex);
-      if (renderedNode) {
-        const renderedDomNode = renderedNode as Node;
-        const parentNode = element as unknown as Node & ParentNode;
-        if (renderedDomNode.parentNode !== parentNode) {
-          parentNode.appendChild(renderedDomNode);
-        }
-        localIndex += 1;
-      }
-    } catch (error) {
-      console.error(`Error applying modifier in conditional element "${conditionalInfo.tagName}":`, error);
-    }
-  });
-
+  try {
+    applyModifiers(
+      element as any,
+      conditionalInfo.modifiers as ReadonlyArray<NodeMod<any> | NodeModFn<any>>,
+      0
+    );
+  } catch (error) {
+    console.error(`Error applying modifiers in conditional element "${conditionalInfo.tagName}":`, error);
+  }
   return element;
+
 }
 
 /**
