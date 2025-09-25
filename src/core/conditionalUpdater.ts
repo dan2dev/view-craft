@@ -1,10 +1,12 @@
 import { applyNodeModifier } from "./modifierProcessor";
 import { isBrowser } from "../utility/environment";
-import { 
-  ConditionalInfo, 
-  hasConditionalInfo, 
-  getConditionalInfo 
-} from "./conditionalRenderer";
+import {
+  ConditionalInfo,
+  getConditionalInfo,
+  hasConditionalInfo,
+  storeConditionalInfo,
+} from "../utility/conditionalInfo";
+import { runCondition } from "../utility/conditions";
 
 /**
  * Conditional Rendering System for TagBuilders
@@ -55,25 +57,6 @@ function createCommentPlaceholder(conditionalInfo: ConditionalInfo): Comment {
 }
 
 /**
- * Attaches conditional info to a node
- */
-function attachConditionalInfo(node: Node, conditionalInfo: ConditionalInfo): void {
-  (node as any)._conditionalInfo = conditionalInfo;
-}
-
-/**
- * Safely evaluates a condition function
- */
-function evaluateCondition(condition: () => boolean): boolean {
-  try {
-    return condition();
-  } catch (error) {
-    console.error("Error evaluating conditional condition:", error);
-    return false; // Default to hidden on error
-  }
-}
-
-/**
  * Replaces one node with another in the DOM
  */
 function replaceNodeSafely(oldNode: Node, newNode: Node): void {
@@ -95,19 +78,21 @@ function updateConditionalNode(node: Element | Comment): void {
     return;
   }
 
-  const shouldShow = evaluateCondition(conditionalInfo.condition);
+  const shouldShow = runCondition(conditionalInfo.condition, (error) => {
+    console.error("Error evaluating conditional condition:", error);
+  });
   const isElement = node.nodeType === Node.ELEMENT_NODE;
 
   if (shouldShow && !isElement) {
     // Currently hidden (comment), should show - replace with element
     const element = createElementFromConditionalInfo(conditionalInfo);
-    attachConditionalInfo(element, conditionalInfo);
+    storeConditionalInfo(element, conditionalInfo);
     replaceNodeSafely(node, element);
 
   } else if (!shouldShow && isElement) {
     // Currently shown (element), should hide - replace with comment
     const comment = createCommentPlaceholder(conditionalInfo);
-    attachConditionalInfo(comment, conditionalInfo);
+    storeConditionalInfo(comment, conditionalInfo);
     replaceNodeSafely(node, comment);
   }
   // If shouldShow matches current state (element/comment), no change needed

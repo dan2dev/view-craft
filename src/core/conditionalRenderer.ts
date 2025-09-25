@@ -1,11 +1,7 @@
 import { applyNodeModifier, findConditionalModifier } from "./modifierProcessor";
 import { isBrowser } from "../utility/environment";
-
-export interface ConditionalInfo {
-  condition: () => boolean;
-  tagName: string;
-  modifiers: Array<NodeMod<any> | NodeModFn<any>>;
-}
+import { storeConditionalInfo } from "../utility/conditionalInfo";
+import type { ConditionalInfo } from "../utility/conditionalInfo";
 
 /**
  * Creates a conditional element or comment based on the condition result
@@ -47,11 +43,21 @@ function createBrowserConditionalElement<TTagName extends ElementTagName>(
 ): ExpandedElement<TTagName> | Comment {
   if (condition()) {
     const element = createElementWithModifiers(tagName, modifiers);
-    attachConditionalInfo(element as Node, condition, tagName, modifiers);
+    const info: ConditionalInfo = {
+      condition,
+      tagName,
+      modifiers,
+    };
+    storeConditionalInfo(element as Node, info);
     return element;
   } else {
     const comment = document.createComment(`conditional-${tagName}-hidden`);
-    attachConditionalInfo(comment as Node, condition, tagName, modifiers);
+    const info: ConditionalInfo = {
+      condition,
+      tagName,
+      modifiers,
+    };
+    storeConditionalInfo(comment as Node, info);
     return comment as unknown as ExpandedElement<TTagName>;
   }
 }
@@ -84,33 +90,6 @@ function createElementWithModifiers<TTagName extends ElementTagName>(
 /**
  * Attaches conditional information to a node for later updates
  */
-function attachConditionalInfo(
-  node: Node,
-  condition: () => boolean,
-  tagName: string,
-  modifiers: Array<NodeMod<any> | NodeModFn<any>>
-): void {
-  (node as any)._conditionalInfo = {
-    condition,
-    tagName,
-    modifiers
-  } as ConditionalInfo;
-}
-
-/**
- * Checks if a node has conditional information attached
- */
-export function hasConditionalInfo(node: Node): boolean {
-  return !!(node as any)._conditionalInfo;
-}
-
-/**
- * Gets conditional information from a node
- */
-export function getConditionalInfo(node: Node): ConditionalInfo | null {
-  return (node as any)._conditionalInfo || null;
-}
-
 /**
  * Processes conditional modifiers and separates them from regular modifiers
  */

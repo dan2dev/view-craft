@@ -1,65 +1,7 @@
 import { applyAttributes } from "./attributeManager";
 import { createReactiveTextNode } from "./reactive";
 import { isFunction, isNode, isObject, isPrimitive } from "../utility/typeGuards";
-
-/**
- * Checks if a function returns a boolean value
- */
-function isBooleanFunction(fn: Function): boolean {
-  try {
-    const result = fn();
-    return typeof result === "boolean";
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Checks if a modifier should be treated as a conditional boolean function
- * based on the context of other modifiers
- */
-export function isConditionalModifier(
-  modifier: any, 
-  allModifiers: any[],
-  currentIndex: number
-): modifier is () => boolean {
-  if (!isFunction(modifier) || modifier.length !== 0 || !isBooleanFunction(modifier)) {
-    return false;
-  }
-
-  // Get other modifiers (excluding the current one)
-  const otherModifiers = allModifiers.filter((_, index) => index !== currentIndex);
-  
-  // If there are no other modifiers, it's not conditional
-  if (otherModifiers.length === 0) {
-    return false;
-  }
-
-  // If any other modifier is an object (attributes) or element, it's likely conditional
-  const hasAttributesOrElements = otherModifiers.some(mod => 
-    isObject(mod) || isNode(mod) || (isFunction(mod) && (mod as Function).length > 0)
-  );
-
-  if (hasAttributesOrElements) {
-    return true;
-  }
-
-  // If all other modifiers are primitives or primitive functions, 
-  // it's likely reactive text content, not conditional rendering
-  return false;
-}
-
-/**
- * Finds the first conditional modifier in the array and returns its index
- */
-export function findConditionalModifier(modifiers: any[]): number {
-  for (let i = 0; i < modifiers.length; i++) {
-    if (isConditionalModifier(modifiers[i], modifiers, i)) {
-      return i;
-    }
-  }
-  return -1;
-}
+export { isConditionalModifier, findConditionalModifier } from "../utility/modifierPredicates";
 
 /**
  * Applies a modifier to the parent element and returns any rendered node.

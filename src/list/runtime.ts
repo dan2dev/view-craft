@@ -1,6 +1,6 @@
-import { isFunction, isTagLike } from "../utility/typeGuards";
 import { createMarkerPair, safeRemoveChild } from "../utility/dom";
 import { arraysEqual } from "../utility/arrayUtils";
+import { resolveRenderable } from "../utility/renderables";
 import type { ListRenderer, ListRuntime, ListItemRecord, ListItemsProvider } from "./types";
 
 const activeListRuntimes = new Set<ListRuntime<any>>();
@@ -11,20 +11,7 @@ function renderItem<TItem>(
   index: number,
 ): ExpandedElement<any> | null {
   const result = runtime.renderItem(item, index);
-
-  if (isFunction(result)) {
-    const element = (result as NodeModFn<any>)(runtime.host, index);
-    if (element && isTagLike(element)) {
-      return element as ExpandedElement<any>;
-    }
-    return null;
-  }
-
-  if (result && isTagLike(result)) {
-    return result as ExpandedElement<any>;
-  }
-
-  return null;
+  return resolveRenderable(result, runtime.host, index);
 }
 
 function remove(record: ListItemRecord<unknown>): void {

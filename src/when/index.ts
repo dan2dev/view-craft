@@ -1,6 +1,7 @@
 import { isBrowser } from "../utility/environment";
 import { applyNodeModifier } from "../core/modifierProcessor";
 import { createMarkerPair, clearBetweenMarkers, insertNodesBefore } from "../utility/dom";
+import { resolveCondition } from "../utility/conditions";
 
 type WhenCondition = boolean | (() => boolean);
 type WhenContent<TTagName extends ElementTagName = ElementTagName> = 
@@ -30,9 +31,7 @@ function renderWhenContent<TTagName extends ElementTagName>(runtime: WhenRuntime
   const nodesToInsert: Node[] = [];
 
   for (const group of runtime.groups) {
-    const conditionResult = typeof group.condition === "function" 
-      ? group.condition() 
-      : group.condition;
+    const conditionResult = resolveCondition(group.condition);
 
     if (conditionResult) {
       foundMatch = true;
