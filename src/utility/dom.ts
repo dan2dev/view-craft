@@ -5,7 +5,7 @@ import { isBrowser } from "./environment";
  */
 
 // Basic DOM operations with minimal error handling
-export function safeAppendChild(parent: Element | Node, child: Node): boolean {
+function safeAppendChild(parent: Element | Node, child: Node): boolean {
   if (!parent || !child) return false;
   try {
     parent.appendChild(child);
@@ -25,7 +25,7 @@ export function safeRemoveChild(child: Node): boolean {
   }
 }
 
-export function safeInsertBefore(parent: Node, newNode: Node, referenceNode: Node | null): boolean {
+function safeInsertBefore(parent: Node, newNode: Node, referenceNode: Node | null): boolean {
   if (!parent || !newNode) return false;
   try {
     parent.insertBefore(newNode, referenceNode);
@@ -35,27 +35,7 @@ export function safeInsertBefore(parent: Node, newNode: Node, referenceNode: Nod
   }
 }
 
-export function safeReplaceChild(parent: Node, newChild: Node, oldChild: Node): boolean {
-  if (!parent || !newChild || !oldChild) return false;
-  try {
-    parent.replaceChild(newChild, oldChild);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-// Element creation
-export function createElementSafely(tagName: string): Element | null {
-  if (!isBrowser) return null;
-  try {
-    return document.createElement(tagName);
-  } catch {
-    return null;
-  }
-}
-
-export function createTextNodeSafely(text: string | number | boolean): Text | null {
+function createTextNodeSafely(text: string | number | boolean): Text | null {
   if (!isBrowser) return null;
   try {
     return document.createTextNode(String(text));
@@ -64,7 +44,7 @@ export function createTextNodeSafely(text: string | number | boolean): Text | nu
   }
 }
 
-export function createCommentSafely(text: string): Comment | null {
+function createCommentSafely(text: string): Comment | null {
   if (!isBrowser) return null;
   try {
     return document.createComment(text);
@@ -129,61 +109,8 @@ export function appendChildren(parent: Element | Node, ...children: Array<Elemen
   return parent;
 }
 
-// Attribute management
-export function setAttributeSafely(element: Element, name: string, value: string | number | boolean): boolean {
-  if (!element || !name) return false;
-  try {
-    element.setAttribute(name, String(value));
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-export function removeAttributeSafely(element: Element, name: string): boolean {
-  if (!element || !name) return false;
-  try {
-    element.removeAttribute(name);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-export function setTextContentSafely(element: Element | Node, text: string): boolean {
-  if (!element) return false;
-  try {
-    if ('textContent' in element) {
-      element.textContent = text;
-      return true;
-    }
-    return false;
-  } catch {
-    return false;
-  }
-}
-
 // Utility functions
 export function isNodeConnected(node: Node | null | undefined): boolean {
   if (!node) return false;
   return typeof node.isConnected === "boolean" ? node.isConnected : document.contains(node);
-}
-
-export function getChildElements(parent: Element | Node): Element[] {
-  if (!parent || !('children' in parent)) return [];
-  try {
-    return Array.from(parent.children);
-  } catch {
-    return [];
-  }
-}
-
-export function dispatchEventSafely(element: Element | Node, eventName: string, detail?: any): boolean {
-  if (!element || !eventName) return false;
-  try {
-    const event = new CustomEvent(eventName, { detail, bubbles: true, cancelable: true });
-    return element.dispatchEvent(event);
-  } catch {
-    return false;
-  }
 }

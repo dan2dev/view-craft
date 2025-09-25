@@ -164,14 +164,3 @@ export function notifyReactiveElements(): void {
     reactiveElements.delete(element);
   });
 }
-
-export function clearReactiveState(): void {
-  reactiveTextNodes.clear();
-  reactiveElements.forEach((elementInfo, element) => {
-    if (elementInfo.updateListener && element.removeEventListener) {
-      element.removeEventListener("update", elementInfo.updateListener);
-    }
-  });
-  reactiveElements.clear();
-  logError("Reactive state cleared");
-}

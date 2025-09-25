@@ -158,16 +158,3 @@ export function updateConditionalElements(): void {
     console.error("Error during conditional elements update:", error);
   }
 }
-
-/**
- * Cleans up disconnected conditional nodes from memory
- */
-export function cleanupConditionalElements(): void {
-  if (!isBrowser || !document.body) {
-    return;
-  }
-
-  // This function could be extended to maintain a registry of conditional nodes
-  // for more efficient cleanup, but for now we rely on the tree walker approach
-  // which automatically skips disconnected nodes
-}

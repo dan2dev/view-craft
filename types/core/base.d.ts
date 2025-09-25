@@ -1,7 +1,7 @@
-import type { Primitive as TypeFestPrimitive } from "type-fest";
+
 
 declare global {
-  export type Primitive = TypeFestPrimitive;
+  export type Primitive = string | number | bigint | boolean | symbol | null | undefined;
   export type ElementTagName = keyof HTMLElementTagNameMap;
 
   // Core element attribute types
@@ -10,8 +10,8 @@ declare global {
   > = Omit<
     {
       [K in keyof HTMLElementTagNameMap[TTagName]]?:
-        | HTMLElementTagNameMap[TTagName][K]
-        | (() => HTMLElementTagNameMap[TTagName][K]);
+      | HTMLElementTagNameMap[TTagName][K]
+      | (() => HTMLElementTagNameMap[TTagName][K]);
     },
     "style"
   > & {
@@ -59,4 +59,4 @@ declare global {
   ) => ExpandedElement<TTagName>;
 }
 
-export {};
+export { };

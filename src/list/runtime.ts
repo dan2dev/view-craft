@@ -1,6 +1,6 @@
 import { isFunction, isTagLike } from "../utility/typeGuards";
 import { createMarkerPair, safeRemoveChild } from "../utility/dom";
-import { arraysEqual, createMultiMap, addToMultiMap, takeFromMultiMap } from "../utility/arrayUtils";
+import { arraysEqual } from "../utility/arrayUtils";
 import type { ListRenderer, ListRuntime, ListItemRecord, ListItemsProvider } from "./types";
 
 const activeListRuntimes = new Set<ListRuntime<any>>();
@@ -25,21 +25,6 @@ function renderItem<TItem>(
   }
 
   return null;
-}
-
-function buildRecordsPool<TItem>(records: ListItemRecord<TItem>[]): Map<TItem, ListItemRecord<TItem>[]> {
-  const pool = new Map<TItem, ListItemRecord<TItem>[]>();
-  
-  records.forEach((record) => {
-    const items = pool.get(record.item);
-    if (items) {
-      items.push(record);
-    } else {
-      pool.set(record.item, [record]);
-    }
-  });
-  
-  return pool;
 }
 
 function remove(record: ListItemRecord<unknown>): void {
