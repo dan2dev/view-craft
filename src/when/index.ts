@@ -21,43 +21,86 @@ interface WhenRuntime<TTagName extends ElementTagName = ElementTagName> {
   index: number;
   groups: WhenGroup<TTagName>[];
   elseContent: WhenContent<TTagName>[];
+  /**
+   * Tracks which branch is currently rendered:
+   *  - null: nothing rendered yet
+   *  - -1: else branch
+   *  - >=0: index of groups[]
+   */
+  activeIndex: number | -1 | null;
   update(): void;
 }
 
 const activeWhenRuntimes = new Set<WhenRuntime<any>>();
 
 function renderWhenContent<TTagName extends ElementTagName>(runtime: WhenRuntime<TTagName>): void {
-  clearBetweenMarkers(runtime.startMarker, runtime.endMarker);
   const { groups, elseContent, host, index, endMarker } = runtime;
 
-  // Fast exit if nothing to render
-  if (!groups.length && !elseContent.length) return;
+  // Determine which branch (if any) should be active now
+  let newActive: number | -1 | null = null;
+  for (let i = 0; i < groups.length; i++) {
+    if (resolveCondition(groups[i].condition)) {
+      newActive = i;
+      break;
+    }
+  }
+  if (newActive === null && elseContent.length) {
+    newActive = -1;
+  }
+
+  // If the active branch hasn't changed, we skip re-rendering to preserve
+  // any existing structural runtimes (like list) inside the branch.
+  if (newActive === runtime.activeIndex) {
+    return;
+  }
+
+  // Branch changed – clear old content
+  clearBetweenMarkers(runtime.startMarker, runtime.endMarker);
+  runtime.activeIndex = newActive;
+
+  // Nothing to render
+  if (newActive === null) return;
 
   const nodes: Node[] = [];
 
-  const renderList = (items: ReadonlyArray<WhenContent<TTagName>>) => {
+  const renderItems = (items: ReadonlyArray<WhenContent<TTagName>>) => {
     for (const item of items) {
-      if (isFunction(item) && (item as Function).length === 0) {
-        // Invalidate probe cache so zero-arg functions re-evaluate
-        modifierProbeCache.delete(item as Function);
+      if (isFunction(item)) {
+        if ((item as Function).length === 0) {
+          // Zero-arg reactive function (reactive text)
+            modifierProbeCache.delete(item as Function);
+            const node = applyNodeModifier(host, item, index);
+            if (node) nodes.push(node);
+            continue;
+        }
+        // Structural NodeModFn (list, nested when, tag builders returning functions, etc.)
+        const realHost = host as unknown as Element & {
+          appendChild: (n: Node) => any;
+          insertBefore: (n: Node, ref: Node | null) => any;
+        };
+        const originalAppend = realHost.appendChild;
+        (realHost as any).appendChild = function(n: Node) {
+          return (realHost as any).insertBefore(n, endMarker);
+        };
+        try {
+          const node = applyNodeModifier(host, item, index);
+          if (node) nodes.push(node);
+        } finally {
+          (realHost as any).appendChild = originalAppend;
+        }
+        continue;
       }
+
+      // Plain content (primitive, Node, attribute object)
       const node = applyNodeModifier(host, item, index);
       if (node) nodes.push(node);
     }
   };
 
-  // Attempt groups in order; early return on first truthy condition
-  for (const g of groups) {
-    if (resolveCondition(g.condition)) {
-      renderList(g.content);
-      insertNodesBefore(nodes, endMarker);
-      return;
-    }
-  }
-
-  // Fallback to else branch (if any)
-  if (elseContent.length) {
-    renderList(elseContent);
+  if (newActive >= 0) {
+    renderItems(groups[newActive].content);
+  } else if (newActive === -1) {
+    renderItems(elseContent);
   }
 
   insertNodesBefore(nodes, endMarker);
@@ -95,6 +138,7 @@ class WhenBuilderImpl<TTagName extends ElementTagName = ElementTagName> {
       index,
       groups: [...this.groups],
       elseContent: [...this.elseContent],
+      activeIndex: null,
       update: () => renderWhenContent(runtime)
     };
 
