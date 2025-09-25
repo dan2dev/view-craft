@@ -1,5 +1,6 @@
 import { applyAttributes } from "./attributeManager";
 import { createReactiveTextNode } from "./reactive";
+import { logError } from "../utility/errorHandler";
 import { isFunction, isNode, isObject, isPrimitive } from "../utility/typeGuards";
 export { isConditionalModifier, findConditionalModifier } from "../utility/modifierPredicates";
 
@@ -26,7 +27,7 @@ export function applyNodeModifier<TTagName extends ElementTagName>(
       // If the function returns null/undefined, ignore it completely
       return null;
     } catch (error) {
-      console.error("Error evaluating reactive text function:", error);
+      logError("Error evaluating reactive text function:", error);
       // Return a text node with empty content if the function throws
       return createReactiveTextNode(() => "");
     }
