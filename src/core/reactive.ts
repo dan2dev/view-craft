@@ -122,7 +122,7 @@ export function notifyReactiveTextNodes(): void {
       }
 
       const newValue = safeExecute(nodeInfo.resolver, "");
-      const newValueStr = newValue == null ? String(newValue) : String(newValue);
+      const newValueStr = String(newValue);
       
       if (nodeInfo.lastValue !== newValueStr) {
         textNode.textContent = newValueStr;
