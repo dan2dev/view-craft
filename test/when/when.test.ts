@@ -114,8 +114,8 @@ describe('When Conditional Rendering', () => {
     });
 
     it('should handle function modifiers', () => {
-      const modifier = (el: HTMLElement) => {
-        el.setAttribute('data-modified', 'true');
+      const modifier = (parent: any, index: number) => {
+        parent.setAttribute('data-modified', 'true');
       };
       
       const whenFn = when(true, modifier);

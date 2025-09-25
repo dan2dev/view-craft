@@ -58,7 +58,7 @@ function renderWhenContent<TTagName extends ElementTagName>(runtime: WhenRuntime
   insertNodesBefore(nodesToInsert, runtime.endMarker);
 }
 
-class WhenBuilder<TTagName extends ElementTagName = ElementTagName> {
+class WhenBuilderImpl<TTagName extends ElementTagName = ElementTagName> {
   private groups: WhenGroup<TTagName>[] = [];
   private elseContent: WhenContent<TTagName>[] = [];
 
@@ -66,12 +66,12 @@ class WhenBuilder<TTagName extends ElementTagName = ElementTagName> {
     this.groups.push({ condition: initialCondition, content });
   }
 
-  when(condition: WhenCondition, ...content: WhenContent<TTagName>[]): WhenBuilder<TTagName> {
+  when(condition: WhenCondition, ...content: WhenContent<TTagName>[]): WhenBuilderImpl<TTagName> {
     this.groups.push({ condition, content });
     return this;
   }
 
-  else(...content: WhenContent<TTagName>[]): WhenBuilder<TTagName> {
+  else(...content: WhenContent<TTagName>[]): WhenBuilderImpl<TTagName> {
     this.elseContent = content;
     return this;
   }
@@ -105,26 +105,23 @@ class WhenBuilder<TTagName extends ElementTagName = ElementTagName> {
   }
 }
 
-type WhenBuilderFunction<TTagName extends ElementTagName = ElementTagName> = 
-  WhenBuilder<TTagName> & NodeModFn<TTagName>;
-
 function createWhenBuilderFunction<TTagName extends ElementTagName>(
-  builder: WhenBuilder<TTagName>
-): WhenBuilderFunction<TTagName> {
+  builder: WhenBuilderImpl<TTagName>
+): WhenBuilder<TTagName> {
   const nodeModFn = (host: ExpandedElement<TTagName>, index: number): Node | null => {
     return builder.render(host, index);
   };
 
   return Object.assign(nodeModFn, {
-    when: (condition: WhenCondition, ...content: WhenContent<TTagName>[]): WhenBuilderFunction<TTagName> => {
+    when: (condition: WhenCondition, ...content: WhenContent<TTagName>[]): WhenBuilder<TTagName> => {
       builder.when(condition, ...content);
       return createWhenBuilderFunction(builder);
     },
-    else: (...content: WhenContent<TTagName>[]): WhenBuilderFunction<TTagName> => {
+    else: (...content: WhenContent<TTagName>[]): WhenBuilder<TTagName> => {
       builder.else(...content);
       return createWhenBuilderFunction(builder);
     },
-  }) as unknown as WhenBuilderFunction<TTagName>;
+  }) as unknown as WhenBuilder<TTagName>;
 }
 
 export function updateWhenRuntimes(): void {
@@ -145,7 +142,7 @@ export function clearWhenRuntimes(): void {
 export function when<TTagName extends ElementTagName = ElementTagName>(
   condition: WhenCondition, 
   ...content: WhenContent<TTagName>[]
-): WhenBuilderFunction<TTagName> {
-  const builder = new WhenBuilder<TTagName>(condition, ...content);
+): WhenBuilder<TTagName> {
+  const builder = new WhenBuilderImpl<TTagName>(condition, ...content);
   return createWhenBuilderFunction(builder);
 }

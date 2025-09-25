@@ -352,9 +352,9 @@ describe('Dynamic List - Comment Markers', () => {
       // Track DOM insertions by spying on container's insertBefore
       const originalInsertBefore = container.insertBefore;
       let insertCallCount = 0;
-      container.insertBefore = function(child: Node, reference: Node | null): Node {
+      container.insertBefore = function<T extends Node>(child: T, reference: Node | null): T {
         insertCallCount++;
-        return originalInsertBefore.call(this, child, reference);
+        return originalInsertBefore.call(this, child, reference) as T;
       };
 
       try {
@@ -397,9 +397,9 @@ describe('Dynamic List - Comment Markers', () => {
     it('should only trigger DOM operations when list actually changes', () => {
       const originalInsertBefore = container.insertBefore;
       let insertCallCount = 0;
-      container.insertBefore = function(child: Node, reference: Node | null): Node {
+      container.insertBefore = function<T extends Node>(child: T, reference: Node | null): T {
         insertCallCount++;
-        return originalInsertBefore.call(this, child, reference);
+        return originalInsertBefore.call(this, child, reference) as T;
       };
 
       try {
