@@ -21,10 +21,10 @@
     "dist"
   ],
   "scripts": {
-    "build": "rm -rf dist/* && rollup -c && tsc --emitDeclarationOnly",
-    "dev": "rm -rf dist/* && rollup -c -w & tsc --emitDeclarationOnly --watch",
+    "build": "rm -rf dist && rollup -c && tsc --emitDeclarationOnly",
+    "dev": "rm -rf dist && rollup -c -w & tsc --emitDeclarationOnly --watch",
     "dev:all": "pnpm dev & cd examples/basic && npm run dev",
-    "build:watch": "rm -rf dist/* && rollup -c -w & tsc --emitDeclarationOnly --watch",
+    "build:watch": "rm -rf dist && rollup -c -w & tsc --emitDeclarationOnly --watch",
     "build:rollup": "rollup -c",
     "build:types": "tsc --emitDeclarationOnly",
     "clean": "rm -rf dist *.tsbuildinfo",
