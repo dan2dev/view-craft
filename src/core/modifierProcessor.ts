@@ -2,6 +2,7 @@ import { applyAttributes } from "./attributeManager";
 import { createReactiveTextNode } from "./reactive";
 import { logError } from "../utility/errorHandler";
 import { isFunction, isNode, isObject, isPrimitive } from "../utility/typeGuards";
+import { modifierProbeCache } from "../utility/modifierPredicates";
 export { isConditionalModifier, findConditionalModifier } from "../utility/modifierPredicates";
 
 /**
@@ -17,18 +18,31 @@ export function applyNodeModifier<TTagName extends ElementTagName>(
     return null;
   }
 
-  // Check if this is a zero-argument function (reactive text) before treating as NodeModFn
+  // Zero-arg function branch (reactive text or side-effect function)
+  // Use probe cache so we don't execute user functions twice (classification + application)
   if (isFunction(modifier) && modifier.length === 0) {
     try {
-      const testValue = (modifier as () => unknown)();
-      if (isPrimitive(testValue) && testValue != null) {
-        return createReactiveTextNode(modifier as () => Primitive);
+      let record = modifierProbeCache.get(modifier as Function);
+      if (!record) {
+        const value = (modifier as () => unknown)();
+        record = { value, error: false };
+        modifierProbeCache.set(modifier as Function, record);
       }
-      // If the function returns null/undefined, ignore it completely
+
+      if (record.error) {
+        return createReactiveTextNode(() => "");
+      }
+
+      const testValue = record.value;
+      if (isPrimitive(testValue) && testValue != null) {
+        // Create reactive text node; we will still call original function for live updates
+        return createReactiveTextNode(modifier as () => Primitive, testValue);
+      }
+      // null / undefined → ignore silently
       return null;
     } catch (error) {
+      modifierProbeCache.set(modifier as Function, { value: undefined, error: true });
       logError("Error evaluating reactive text function:", error);
-      // Return a text node with empty content if the function throws
       return createReactiveTextNode(() => "");
     }
   }

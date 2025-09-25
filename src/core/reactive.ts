@@ -51,24 +51,31 @@ function applyAttributeResolversForElement(
   });
 }
 
-export function createReactiveTextNode(resolver: TextResolver): Text {
+export function createReactiveTextNode(
+  resolver: TextResolver,
+  preEvaluated?: unknown
+): Text {
   const textNode = document.createTextNode("");
-  
+
   if (!resolver || typeof resolver !== "function") {
     logError("Invalid resolver provided to createReactiveTextNode");
     return textNode;
   }
 
-  const nodeInfo: ReactiveTextNodeInfo = {
-    resolver
-  };
-
+  const nodeInfo: ReactiveTextNodeInfo = { resolver };
   reactiveTextNodes.set(textNode, nodeInfo);
-  
-  const initialValue = safeExecute(resolver, "");
-  textNode.textContent = String(initialValue ?? "");
-  nodeInfo.lastValue = String(initialValue ?? "");
-  
+
+  // Use pre-evaluated value if provided (e.g. from modifier probe cache) to avoid double execution.
+  let initial: unknown;
+  if (arguments.length > 1) {
+    initial = preEvaluated;
+  } else {
+    initial = safeExecute(resolver, "");
+  }
+
+  textNode.textContent = String(initial ?? "");
+  nodeInfo.lastValue = String(initial ?? "");
+
   return textNode;
 }
 
