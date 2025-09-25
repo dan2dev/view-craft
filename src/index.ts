@@ -14,6 +14,7 @@ export { when } from "./when";
 export { update } from "./core/updateController";
 export { applyAttributes } from "./core/attributeManager";
 export { appendChildren } from "./utility/dom";
+export { on } from "./utility/on";
 export {
   isBoolean,
   isFunction,
