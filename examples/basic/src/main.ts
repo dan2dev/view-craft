@@ -20,41 +20,8 @@ let items = [
 ];
 
 const app1 = div(
-  someMessage,
-  "this is another string",
   h1("View Craft Basic Example"),
   div("This is a simple example of using View Craft to create DOM elements."),
-  div(
-    "----",
-    () => Boolean(data.color === "green"),
-    "this will show only when data.color === green",
-    { className: "green" },
-  ),
-  when(
-    () => data.color === "green",
-    h1("this will show only when data.color === green", { className: "green" }),
-    h2("this also will show only when data.color === green", {
-      className: "green",
-    }),
-    p("this also will show only when data.color === green", {
-      className: "green",
-    }),
-  )
-    .when(
-      () => data.color === "blue",
-      h1("this will show only when data.color === blue", { className: "blue" }),
-      h2("also this will show only when data.color === blue", {
-        className: "blue",
-      }),
-    )
-    .else(
-      h1(
-        "this will show only when data.color !== green && data.color !== blue",
-      ),
-      h2(
-        "this will show only when data.color !== green && data.color !== blue",
-      ),
-    ),
   div(
     {
       style: {
@@ -99,6 +66,47 @@ const app1 = div(
       update();
     });
   }),
+
+  button(
+    // class({
+    //   "small": true
+    // }),
+    // id("myButton"),
+    {
+      id: "myButton",
+      style: () => ({
+        // color: "green",
+        backgroundColor: data.color, // camelCase CSS properties now work!
+        padding: "10px 20px",
+        // fontSize: data.color === "green" ? "40px" : "50px", // camelCase
+        // "font-size": data.color === "blue" ? "40px" : "40px", // kebab-case also works
+        borderRadius: "5px", // camelCase instead of "border-radius"
+      }),
+    },
+    {},
+    "Click me",
+    (e) => {
+      e.addEventListener?.("click", (e) => {
+        if (data.color === "red") {
+          data.color = "green";
+        } else if (data.color === "green") {
+          data.color = "blue";
+        } else if (data.color === "blue") {
+          data.color = "red";
+        }
+        // data.color = data.color === "green" ? "blue" : "green";
+        // console.log("Button clicked!");
+        // document.body.dispatchEvent(new Event("update", { bubbles: true }));
+        e.currentTarget?.dispatchEvent(new Event("update", { bubbles: true }));
+        update();
+      });
+      // console.log("--", e);
+    },
+    // () => {
+    //   someMessage = "Button Clicked!";
+    //   alert(someMessage);
+    // }
+  ),
   div(
     {
       style: {
@@ -157,47 +165,38 @@ const app1 = div(
       ),
     ),
   ),
-
-  button(
-    // class({
-    //   "small": true
-    // }),
-    // id("myButton"),
-    {
-      id: "myButton",
-      style: () => ({
-        // color: "green",
-        backgroundColor: data.color, // camelCase CSS properties now work!
-        padding: "10px 20px",
-        fontSize: data.color === "green" ? "40px" : "50px", // camelCase
-        // "font-size": data.color === "blue" ? "40px" : "40px", // kebab-case also works
-        borderRadius: "5px", // camelCase instead of "border-radius"
-      }),
-    },
-    {},
-    "Click me",
-    (e) => {
-      e.addEventListener?.("click", (e) => {
-        if (data.color === "red") {
-          data.color = "green";
-        } else if (data.color === "green") {
-          data.color = "blue";
-        } else if (data.color === "blue") {
-          data.color = "red";
-        }
-        // data.color = data.color === "green" ? "blue" : "green";
-        // console.log("Button clicked!");
-        // document.body.dispatchEvent(new Event("update", { bubbles: true }));
-        e.currentTarget?.dispatchEvent(new Event("update", { bubbles: true }));
-        update();
-      });
-      // console.log("--", e);
-    },
-    // () => {
-    //   someMessage = "Button Clicked!";
-    //   alert(someMessage);
-    // }
+  div(
+    "----",
+    () => Boolean(data.color === "green"),
+    "this will show only when data.color === green",
+    { className: "green" },
   ),
+  when(
+    () => data.color === "green",
+    h1("this will show only when data.color === green", { className: "green" }),
+    h2("this also will show only when data.color === green", {
+      className: "green",
+    }),
+    p("this also will show only when data.color === green", {
+      className: "green",
+    }),
+  )
+    .when(
+      () => data.color === "blue",
+      h1("this will show only when data.color === blue", { className: "blue" }),
+      h2("also this will show only when data.color === blue", {
+        className: "blue",
+      }),
+    )
+    .else(
+      h1(
+        "this will show only when data.color !== green && data.color !== blue",
+      ),
+      h2(
+        "this will show only when data.color !== green && data.color !== blue",
+      ),
+    ),
+
   "this is a test",
 )(document.body, 0);
 document.body.appendChild(app1 as Node);
