@@ -97,7 +97,7 @@ const app1 = div(
         // data.color = data.color === "green" ? "blue" : "green";
         // console.log("Button clicked!");
         // document.body.dispatchEvent(new Event("update", { bubbles: true }));
-        e.currentTarget?.dispatchEvent(new Event("update", { bubbles: true }));
+        // e.currentTarget?.dispatchEvent(new Event("update", { bubbles: true }));
         update();
       });
       // console.log("--", e);
@@ -167,9 +167,16 @@ const app1 = div(
   ),
   div(
     "----",
-    () => Boolean(data.color === "green"),
+    // () => Boolean(data.color === "green"),
     "this will show only when data.color === green",
     { className: "green" },
+    div(
+      '----',
+      () => {
+        console.log("output test"); // this should output only once but is output twice
+        return "ok: " + data.color + "!";
+      },
+    )
   ),
   when(
     () => data.color === "green",
