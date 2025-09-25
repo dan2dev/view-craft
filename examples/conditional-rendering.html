@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Craft - Conditional Rendering Example</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
+        .controls {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .green-element {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+        .blue-element {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+        .red-element {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+        button {
+            padding: 8px 16px;
+            margin: 4px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .status {
+            font-weight: bold;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>View Craft - Conditional Rendering Demo</h1>
+    <p>This example demonstrates conditional rendering using boolean functions as the first modifier in TagBuilders.</p>
+
+    <div class="controls">
+        <h3>Controls</h3>
+        <button onclick="setColor('green')">Show Green</button>
+        <button onclick="setColor('blue')">Show Blue</button>
+        <button onclick="setColor('red')">Show Red</button>
+        <button onclick="setColor('none')">Hide All</button>
+        <button onclick="toggleVisibility()">Toggle Visibility</button>
+        
+        <div class="status" id="status">Current color: green, Visible: true</div>
+    </div>
+
+    <div id="demo-container" class="container">
+        <h3>Conditional Elements</h3>
+        <!-- Elements will be dynamically rendered here -->
+    </div>
+
+    <div class="container">
+        <h3>How it works</h3>
+        <p>The syntax is:</p>
+        <pre><code>div(() => condition, "content", { attributes })</code></pre>
+        <p>When the condition is <strong>true</strong>, the element is shown. When <strong>false</strong>, it's replaced with a comment placeholder.</p>
+    </div>
+
+    <!-- Load View Craft -->
+    <script src="../dist/view-craft.umd.js"></script>
+    
+    <script>
+        // Application state
+        let data = {
+            color: 'green',
+            visible: true
+        };
+
+        // Get the container where we'll render elements
+        const container = document.getElementById('demo-container');
+
+        // Create conditional elements
+        function createConditionalElements() {
+            // Clear container
+            container.innerHTML = '<h3>Conditional Elements</h3>';
+
+            // Green element - shows only when color is 'green'
+            const greenElement = div(
+                () => Boolean(data.color === 'green'),
+                "🟢 This green element shows only when data.color === 'green'",
+                { className: "green-element" }
+            )(container);
+
+            // Blue element - shows only when color is 'blue'  
+            const blueElement = div(
+                () => data.color === 'blue',
+                "🔵 This blue element shows only when data.color === 'blue'",
+                { className: "blue-element" }
+            )(container);
+
+            // Red element - shows only when color is 'red'
+            const redElement = div(
+                () => data.color === 'red',
+                "🔴 This red element shows only when data.color === 'red'",
+                { className: "red-element" }
+            )(container);
+
+            // Visibility toggle element
+            const toggleElement = div(
+                () => data.visible,
+                "👁️ This element can be toggled on/off with the visibility button",
+                div("📦 Nested content also shows/hides together"),
+                { 
+                    className: "green-element",
+                    style: { marginTop: "15px" }
+                }
+            )(container);
+
+            // Complex conditional with multiple conditions
+            const complexElement = div(
+                () => data.color === 'green' && data.visible,
+                "✨ Complex condition: Shows only when color is GREEN AND visible is true",
+                div("🎯 This nested content has the same condition"),
+                { 
+                    className: "green-element",
+                    style: { 
+                        border: "2px dashed #28a745",
+                        marginTop: "15px"
+                    }
+                }
+            )(container);
+
+            // Append all elements to container
+            container.appendChild(greenElement);
+            container.appendChild(blueElement);
+            container.appendChild(redElement);
+            container.appendChild(toggleElement);
+            container.appendChild(complexElement);
+        }
+
+        // Control functions
+        function setColor(newColor) {
+            data.color = newColor;
+            updateStatus();
+            update(); // Trigger View Craft's reactive update
+        }
+
+        function toggleVisibility() {
+            data.visible = !data.visible;
+            updateStatus();
+            update(); // Trigger View Craft's reactive update
+        }
+
+        function updateStatus() {
+            document.getElementById('status').textContent = 
+                `Current color: ${data.color}, Visible: ${data.visible}`;
+        }
+
+        // Initialize the demo
+        createConditionalElements();
+        updateStatus();
+
+        // Add some additional info
+        const infoElement = div(
+            () => true,
+            "ℹ️ Check the DOM inspector to see comment placeholders when elements are hidden!",
+            {
+                style: {
+                    background: "#e9ecef",
+                    padding: "10px",
+                    borderRadius: "4px",
+                    marginTop: "10px",
+                    fontSize: "14px"
+                }
+            }
+        )(container);
+        container.appendChild(infoElement);
+    </script>
+</body>
+</html>

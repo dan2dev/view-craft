@@ -24,23 +24,21 @@ const app1 = div(
   "this is another string",
   h1("View Craft Basic Example"),
   div("This is a simple example of using View Craft to create DOM elements."),
+  div(() => Boolean(data.color === "green"), "this will show only when data.color === green", { className: "green" }),
   when(
     () => data.color === "green",
-    h1("this will show only when data.color === green", {className: "green"}),
-    h2("this also will show only when data.color === green", {className: "green"}),
-    p("this also will show only when data.color === green", {className: "green"}),
-  ).when(
+    h1("this will show only when data.color === green", { className: "green" }),
+    h2("this also will show only when data.color === green", { className: "green" }),
+    p("this also will show only when data.color === green", { className: "green" }),
+  )
+    .when(
       () => data.color === "blue",
-      h1("this will show only when data.color === blue", {className: "blue"}),
-      h2("also this will show only when data.color === blue", {className: "blue"}),
+      h1("this will show only when data.color === blue", { className: "blue" }),
+      h2("also this will show only when data.color === blue", { className: "blue" }),
     )
     .else(
-      h1(
-        "this will show only when data.color !== green && data.color !== blue",
-      ),
-      h2(
-        "this will show only when data.color !== green && data.color !== blue",
-      ),
+      h1("this will show only when data.color !== green && data.color !== blue"),
+      h2("this will show only when data.color !== green && data.color !== blue"),
     ),
   div(
     {
@@ -61,7 +59,7 @@ const app1 = div(
   button("push", (e) => {
     e.addEventListener?.("click", (_e) => {
       items.push({
-      id: items.length + 1,
+        id: items.length + 1,
         name: `Item ${items.length + 1}`,
         price: items.length * 10,
       });

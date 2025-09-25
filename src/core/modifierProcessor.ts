@@ -3,6 +3,49 @@ import { createReactiveTextNode } from "./reactive";
 import { isFunction, isNode, isObject, isPrimitive } from "../utility/typeGuards";
 
 /**
+ * Checks if a function returns a boolean value
+ */
+function isBooleanFunction(fn: Function): boolean {
+  try {
+    const result = fn();
+    return typeof result === "boolean";
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Checks if the first modifier should be treated as a conditional boolean function
+ * based on the context of the remaining modifiers
+ */
+export function isConditionalModifier(
+  modifier: any, 
+  remainingModifiers: any[]
+): modifier is () => boolean {
+  if (!isFunction(modifier) || modifier.length !== 0 || !isBooleanFunction(modifier)) {
+    return false;
+  }
+
+  // If there are no remaining modifiers, it's not conditional
+  if (remainingModifiers.length === 0) {
+    return false;
+  }
+
+  // If any remaining modifier is an object (attributes) or element, it's likely conditional
+  const hasAttributesOrElements = remainingModifiers.some(mod => 
+    isObject(mod) || isNode(mod) || (isFunction(mod) && (mod as Function).length > 0)
+  );
+
+  if (hasAttributesOrElements) {
+    return true;
+  }
+
+  // If all remaining modifiers are primitives or primitive functions, 
+  // it's likely reactive text content, not conditional rendering
+  return false;
+}
+
+/**
  * Applies a modifier to the parent element and returns any rendered node.
  */
 export function applyNodeModifier<TTagName extends ElementTagName>(

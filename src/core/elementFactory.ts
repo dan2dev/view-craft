@@ -1,4 +1,5 @@
-import { applyNodeModifier } from "./modifierProcessor";
+import { applyNodeModifier, isConditionalModifier } from "./modifierProcessor";
+import { createConditionalElement } from "./conditionalElement";
 
 /**
  * Creates an element factory that applies the given modifiers to a freshly created node.
@@ -8,6 +9,20 @@ export function createElementFactory<TTagName extends ElementTagName>(
   ...modifiers: Array<NodeMod<TTagName> | NodeModFn<TTagName>>
 ): NodeModFn<TTagName> {
   return (parent: ExpandedElement<TTagName>, index: number) => {
+    // Check if first modifier is a conditional boolean function based on context
+    if (modifiers.length > 1 && isConditionalModifier(modifiers[0], modifiers.slice(1))) {
+      const condition = modifiers[0] as () => boolean;
+      const remainingModifiers = modifiers.slice(1);
+      
+      return createConditionalElement(
+        tagName,
+        condition,
+        remainingModifiers,
+        parent,
+        index
+      ) as unknown as ExpandedElement<TTagName>;
+    }
+
     const element = document.createElement(tagName) as ExpandedElement<TTagName>;
     let localIndex = index;
 
