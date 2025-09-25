@@ -1,5 +1,10 @@
 import { applyNodeModifier } from "./modifierProcessor";
 import { isBrowser } from "../utility/environment";
+import { 
+  ConditionalInfo, 
+  hasConditionalInfo, 
+  getConditionalInfo 
+} from "./conditionalRenderer";
 
 /**
  * Conditional Rendering System for TagBuilders
@@ -16,86 +21,153 @@ import { isBrowser } from "../utility/environment";
  * This approach reuses existing infrastructure while providing the requested TagBuilder syntax.
  */
 
-interface ConditionalInfo {
-  condition: () => boolean;
-  tagName: string;
-  modifiers: Array<NodeMod<any> | NodeModFn<any>>;
+/**
+ * Creates a new element with the given conditional info
+ */
+function createElementFromConditionalInfo(conditionalInfo: ConditionalInfo): Element {
+  const element = document.createElement(conditionalInfo.tagName);
+  let localIndex = 0;
+
+  conditionalInfo.modifiers.forEach((modifier) => {
+    try {
+      const renderedNode = applyNodeModifier(element, modifier, localIndex);
+      if (renderedNode) {
+        const renderedDomNode = renderedNode as Node;
+        const parentNode = element as unknown as Node & ParentNode;
+        if (renderedDomNode.parentNode !== parentNode) {
+          parentNode.appendChild(renderedDomNode);
+        }
+        localIndex += 1;
+      }
+    } catch (error) {
+      console.error(`Error applying modifier in conditional element "${conditionalInfo.tagName}":`, error);
+    }
+  });
+
+  return element;
 }
 
-
+/**
+ * Creates a comment placeholder for hidden conditional content
+ */
+function createCommentPlaceholder(conditionalInfo: ConditionalInfo): Comment {
+  return document.createComment(`conditional-${conditionalInfo.tagName}-hidden`);
+}
 
 /**
- * Updates all conditional elements and comments
+ * Attaches conditional info to a node
  */
-export function updateConditionalElements(): void {
-  if (!isBrowser) return;
+function attachConditionalInfo(node: Node, conditionalInfo: ConditionalInfo): void {
+  (node as any)._conditionalInfo = conditionalInfo;
+}
 
-  // Find all conditional elements and comments in the document
+/**
+ * Safely evaluates a condition function
+ */
+function evaluateCondition(condition: () => boolean): boolean {
+  try {
+    return condition();
+  } catch (error) {
+    console.error("Error evaluating conditional condition:", error);
+    return false; // Default to hidden on error
+  }
+}
+
+/**
+ * Replaces one node with another in the DOM
+ */
+function replaceNodeSafely(oldNode: Node, newNode: Node): void {
+  if (oldNode.parentNode) {
+    try {
+      oldNode.parentNode.replaceChild(newNode, oldNode);
+    } catch (error) {
+      console.error("Error replacing conditional node:", error);
+    }
+  }
+}
+
+/**
+ * Updates a single conditional node
+ */
+function updateConditionalNode(node: Element | Comment): void {
+  const conditionalInfo = getConditionalInfo(node);
+  if (!conditionalInfo) {
+    return;
+  }
+
+  const shouldShow = evaluateCondition(conditionalInfo.condition);
+  const isElement = node.nodeType === Node.ELEMENT_NODE;
+
+  if (shouldShow && !isElement) {
+    // Currently hidden (comment), should show - replace with element
+    const element = createElementFromConditionalInfo(conditionalInfo);
+    attachConditionalInfo(element, conditionalInfo);
+    replaceNodeSafely(node, element);
+
+  } else if (!shouldShow && isElement) {
+    // Currently shown (element), should hide - replace with comment
+    const comment = createCommentPlaceholder(conditionalInfo);
+    attachConditionalInfo(comment, conditionalInfo);
+    replaceNodeSafely(node, comment);
+  }
+  // If shouldShow matches current state (element/comment), no change needed
+}
+
+/**
+ * Finds all conditional nodes in the document
+ */
+function findConditionalNodes(): Array<Element | Comment> {
+  if (!document.body) {
+    return [];
+  }
+
   const walker = document.createTreeWalker(
     document.body,
     NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT,
     {
       acceptNode: (node) => {
-        if (node.nodeType === Node.ELEMENT_NODE && (node as any)._conditionalInfo) {
-          return NodeFilter.FILTER_ACCEPT;
-        }
-        if (node.nodeType === Node.COMMENT_NODE && (node as any)._conditionalInfo) {
-          return NodeFilter.FILTER_ACCEPT;
-        }
-        return NodeFilter.FILTER_SKIP;
+        return hasConditionalInfo(node) 
+          ? NodeFilter.FILTER_ACCEPT 
+          : NodeFilter.FILTER_SKIP;
       }
     }
   );
 
-  const nodesToUpdate: Array<Element | Comment> = [];
+  const nodes: Array<Element | Comment> = [];
   let node: Node | null;
+  
   while ((node = walker.nextNode())) {
-    nodesToUpdate.push(node as Element | Comment);
+    nodes.push(node as Element | Comment);
   }
 
-  // Update each conditional node
-  nodesToUpdate.forEach(node => {
-    const conditionalInfo = (node as any)._conditionalInfo as ConditionalInfo | undefined;
-    if (!conditionalInfo) return;
+  return nodes;
+}
 
-    const shouldShow = conditionalInfo.condition();
-    const isElement = node.nodeType === Node.ELEMENT_NODE;
+/**
+ * Updates all conditional elements and comments
+ */
+export function updateConditionalElements(): void {
+  if (!isBrowser()) {
+    return;
+  }
 
-    if (shouldShow && !isElement) {
-      // Currently hidden (comment), should show - replace with element
-      const element = document.createElement(conditionalInfo.tagName);
-      let localIndex = 0;
+  try {
+    const conditionalNodes = findConditionalNodes();
+    conditionalNodes.forEach(updateConditionalNode);
+  } catch (error) {
+    console.error("Error during conditional elements update:", error);
+  }
+}
 
-      conditionalInfo.modifiers.forEach((modifier) => {
-        const renderedNode = applyNodeModifier(element, modifier, localIndex);
-        if (renderedNode) {
-          const renderedDomNode = renderedNode as Node;
-          const parentNode = element as unknown as Node & ParentNode;
-          if (renderedDomNode.parentNode !== parentNode) {
-            parentNode.appendChild(renderedDomNode);
-          }
-          localIndex += 1;
-        }
-      });
+/**
+ * Cleans up disconnected conditional nodes from memory
+ */
+export function cleanupConditionalElements(): void {
+  if (!isBrowser() || !document.body) {
+    return;
+  }
 
-      // Store conditional info on new element
-      (element as any)._conditionalInfo = conditionalInfo;
-
-      // Replace comment with element
-      if (node.parentNode) {
-        node.parentNode.replaceChild(element, node);
-      }
-
-    } else if (!shouldShow && isElement) {
-      // Currently shown (element), should hide - replace with comment
-      const comment = document.createComment(`conditional-${conditionalInfo.tagName}-hidden`);
-      (comment as any)._conditionalInfo = conditionalInfo;
-
-      // Replace element with comment
-      if (node.parentNode) {
-        node.parentNode.replaceChild(comment, node);
-      }
-    }
-    // If shouldShow matches current state (element/comment), no change needed
-  });
+  // This function could be extended to maintain a registry of conditional nodes
+  // for more efficient cleanup, but for now we rely on the tree walker approach
+  // which automatically skips disconnected nodes
 }

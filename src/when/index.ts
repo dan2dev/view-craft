@@ -77,7 +77,7 @@ class WhenBuilderImpl<TTagName extends ElementTagName = ElementTagName> {
   }
 
   render(host: ExpandedElement<TTagName>, index: number): Node | null {
-    if (!isBrowser) {
+    if (!isBrowser()) {
       return document.createComment("when-ssr");
     }
 

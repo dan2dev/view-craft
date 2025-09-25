@@ -5,6 +5,6 @@ import { isBrowser } from '../../src/utility/environment.js';
 
 describe("isBrowser", () => {
   it("should be true in browser environment", () => {
-    expect(isBrowser).toBe(true);
+    expect(isBrowser()).toBe(true);
   });
 });
