@@ -129,8 +129,17 @@ function createWhenBuilderFunction<TTagName extends ElementTagName>(
 
 export function updateWhenRuntimes(): void {
   activeWhenRuntimes.forEach(runtime => {
-    runtime.update();
+    try {
+      runtime.update();
+    } catch (error) {
+      // Remove runtime if it errors (likely due to cleanup)
+      activeWhenRuntimes.delete(runtime);
+    }
   });
+}
+
+export function clearWhenRuntimes(): void {
+  activeWhenRuntimes.clear();
 }
 
 export function when<TTagName extends ElementTagName = ElementTagName>(
