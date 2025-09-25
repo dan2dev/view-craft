@@ -24,21 +24,36 @@ const app1 = div(
   "this is another string",
   h1("View Craft Basic Example"),
   div("This is a simple example of using View Craft to create DOM elements."),
-  div("----", () => Boolean(data.color === "green"), "this will show only when data.color === green", { className: "green" }),
+  div(
+    "----",
+    () => Boolean(data.color === "green"),
+    "this will show only when data.color === green",
+    { className: "green" },
+  ),
   when(
     () => data.color === "green",
     h1("this will show only when data.color === green", { className: "green" }),
-    h2("this also will show only when data.color === green", { className: "green" }),
-    p("this also will show only when data.color === green", { className: "green" }),
+    h2("this also will show only when data.color === green", {
+      className: "green",
+    }),
+    p("this also will show only when data.color === green", {
+      className: "green",
+    }),
   )
     .when(
       () => data.color === "blue",
       h1("this will show only when data.color === blue", { className: "blue" }),
-      h2("also this will show only when data.color === blue", { className: "blue" }),
+      h2("also this will show only when data.color === blue", {
+        className: "blue",
+      }),
     )
     .else(
-      h1("this will show only when data.color !== green && data.color !== blue"),
-      h2("this will show only when data.color !== green && data.color !== blue"),
+      h1(
+        "this will show only when data.color !== green && data.color !== blue",
+      ),
+      h2(
+        "this will show only when data.color !== green && data.color !== blue",
+      ),
     ),
   div(
     {
@@ -84,26 +99,65 @@ const app1 = div(
       update();
     });
   }),
-  list(
-    () => items,
-    (item) =>
-      div(
-        item.name,
-        "---",
-        item.price,
-        input(),
-        () => data.color,
-        button("delete", (e) => {
-          e.addEventListener?.("click", (_e) => {
-            items.splice(
-              items.findIndex((i) => i.id === item.id),
-              1,
-            );
-            update();
-          });
-        }),
+  div(
+    {
+      style: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        fontFamily: "Arial, sans-serif",
+        fontSize: "16px",
+        padding: "20px",
+        boxSizing: "border-box",
+      },
+    },
+    div(
+      list(
+        () => items,
+        (item) =>
+          div(
+            item.name,
+            "---",
+            item.price,
+            input(),
+            () => data.color,
+            button("delete", (e) => {
+              e.addEventListener?.("click", (_e) => {
+                items.splice(
+                  items.findIndex((i) => i.id === item.id),
+                  1,
+                );
+                update();
+              });
+            }),
+          ),
       ),
+    ),
+    div(
+      list(
+        () => items,
+        (item) =>
+          div(
+            item.name,
+            "---",
+            item.price,
+            input(),
+            () => data.color,
+            button("delete", (e) => {
+              e.addEventListener?.("click", (_e) => {
+                items.splice(
+                  items.findIndex((i) => i.id === item.id),
+                  1,
+                );
+                update();
+              });
+            }),
+          ),
+      ),
+    ),
   ),
+
   button(
     // class({
     //   "small": true
