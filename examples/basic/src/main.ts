@@ -148,7 +148,7 @@ const app1 = div(
               });
             }),
           ),
-      ),
+      )
     ),
     div(
       list(
