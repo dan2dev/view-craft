@@ -205,7 +205,7 @@ const app = div(
           { className: "space-y-2" },
           list(
             () => filteredTodos(),
-            (todo) =>
+            (todo, index) =>
               div(
                 {
                   className:
@@ -232,6 +232,7 @@ const app = div(
                         : "text-gray-800"),
                     title: () => todo.title,
                   },
+                  () => `${index + 1}`,
                   () => todo.title,
                 ),
                 button(
