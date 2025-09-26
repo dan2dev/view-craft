@@ -216,10 +216,7 @@ const app = div(
                     type: "checkbox",
                     className:
                       "w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500",
-                  },
-                  (el: any) => {
-                    const inputEl = el as HTMLInputElement;
-                    inputEl.checked = !!todo.done;
+                    checked: () => !!todo.done,
                   },
                   on("change", (e: any) => {
                     const checked = (e.target as HTMLInputElement).checked;
