@@ -101,19 +101,19 @@ declare global {
   export const video: ExpandedElementBuilder<"video">;
 
   // Self-closing HTML tags (cannot have children)
-  export const area: SelfClosingElementBuilder<"area">;
-  export const base: SelfClosingElementBuilder<"base">;
-  export const br: SelfClosingElementBuilder<"br">;
-  export const col: SelfClosingElementBuilder<"col">;
-  export const embed: SelfClosingElementBuilder<"embed">;
-  export const hr: SelfClosingElementBuilder<"hr">;
-  export const img: SelfClosingElementBuilder<"img">;
-  export const input: SelfClosingElementBuilder<"input">;
-  export const link: SelfClosingElementBuilder<"link">;
-  export const meta: SelfClosingElementBuilder<"meta">;
-  export const source: SelfClosingElementBuilder<"source">;
-  export const track: SelfClosingElementBuilder<"track">;
-  export const wbr: SelfClosingElementBuilder<"wbr">;
+  export const area: ExpandedElementBuilder<"area">;
+  export const base: ExpandedElementBuilder<"base">;
+  export const br: ExpandedElementBuilder<"br">;
+  export const col: ExpandedElementBuilder<"col">;
+  export const embed: ExpandedElementBuilder<"embed">;
+  export const hr: ExpandedElementBuilder<"hr">;
+  export const img: ExpandedElementBuilder<"img">;
+  export const input: ExpandedElementBuilder<"input">;
+  export const link: ExpandedElementBuilder<"link">;
+  export const meta: ExpandedElementBuilder<"meta">;
+  export const source: ExpandedElementBuilder<"source">;
+  export const track: ExpandedElementBuilder<"track">;
+  export const wbr: ExpandedElementBuilder<"wbr">;
 }
 
 export {};
