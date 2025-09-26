@@ -1,6 +1,5 @@
 import { logError, safeExecute } from "../utility/errorHandler";
 import { isNodeConnected } from "../utility/dom";
-import { createText } from "../utility/nodeFactory";
 
 type TextResolver = () => Primitive;
 type AttributeResolver = () => unknown;
@@ -40,27 +39,15 @@ function applyAttributeResolvers(el: Element, info: ReactiveElementInfo): void {
   });
 }
 
-export function createReactiveTextNode(
-  resolver: TextResolver, 
-  preEvaluated?: unknown, 
-  existingNode?: Text
-): Text {
-  // Use existing node during hydration if provided
-  const txt = existingNode || (createText("") as Text);
-  
+export function createReactiveTextNode(resolver: TextResolver, preEvaluated?: unknown): Text {
+  const txt = document.createTextNode("");
   if (typeof resolver !== "function") {
     logError("Invalid resolver provided to createReactiveTextNode");
     return txt;
   }
-  
   const initial = arguments.length > 1 ? preEvaluated : safeExecute(resolver, "");
   const str = initial === undefined ? "" : String(initial);
-  
-  // Only update text content if it differs (preserve SSR content when possible)
-  if (txt.textContent !== str) {
-    txt.textContent = str;
-  }
-  
+  txt.textContent = str;
   reactiveTextNodes.set(txt, { resolver, lastValue: str });
   return txt;
 }

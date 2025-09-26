@@ -2,16 +2,13 @@ import { createMarkerPair, safeRemoveChild } from "../utility/dom";
 import { arraysEqual } from "../utility/arrayUtils";
 import { resolveRenderable } from "../utility/renderables";
 import type { ListRenderer, ListRuntime, ListItemRecord, ListItemsProvider } from "./types";
-import { isSSR, isHydrating } from "../utility/runtimeContext";
-import { appendChild } from "../utility/nodeFactory";
-import { claimChild } from "../core/hydration";
 
 const activeListRuntimes = new Set<ListRuntime<any>>();
 
-function renderListItem<TItem>(
+function renderItem<TItem>(
   runtime: ListRuntime<TItem>,
   item: TItem,
-  index: number
+  index: number,
 ): ExpandedElement<any> | null {
   const result = runtime.renderItem(item, index);
   return resolveRenderable(result, runtime.host, index);
@@ -94,7 +91,7 @@ export function sync<TItem>(runtime: ListRuntime<TItem>): void {
       elementsToRemove.delete(record);
     } else {
       // Create new element
-      const element = renderListItem(runtime, item, i);
+      const element = renderItem(runtime, item, i);
       if (!element) {
         continue;
       }
@@ -123,28 +120,7 @@ export function createListRuntime<TItem>(
   renderItem: ListRenderer<TItem>,
   host: ExpandedElement<any>,
 ): ListRuntime<TItem> {
-  let startMarker: Comment;
-  let endMarker: Comment;
-
-  if (isHydrating()) {
-    // Hydration mode: claim existing markers
-    const claimedStart = claimChild(host as unknown as Node, "comment");
-    const claimedEnd = claimChild(host as unknown as Node, "comment");
-    
-    if (claimedStart && claimedEnd) {
-      startMarker = claimedStart as Comment;
-      endMarker = claimedEnd as Comment;
-    } else {
-      // Fallback if claiming fails
-      const markers = createMarkerPair("list");
-      startMarker = markers.start;
-      endMarker = markers.end;
-    }
-  } else {
-    const markers = createMarkerPair("list");
-    startMarker = markers.start;
-    endMarker = markers.end;
-  }
+  const { start: startMarker, end: endMarker } = createMarkerPair("list");
 
   const runtime: ListRuntime<TItem> = {
     itemsProvider,
@@ -156,51 +132,6 @@ export function createListRuntime<TItem>(
     lastSyncedItems: [],
   };
 
-  if (isSSR()) {
-    // SSR mode: render all items immediately between markers
-    appendChild(host, startMarker);
-    appendChild(host, endMarker);
-    
-    const currentItems = itemsProvider();
-    currentItems.forEach((item, index) => {
-      const element = renderListItem(runtime, item, index);
-      if (element) {
-        // Insert before end marker in SSR
-        (host as any).insertBefore(element, endMarker);
-        runtime.records.push({ item, element: element as ExpandedElement<any> });
-      }
-    });
-    runtime.lastSyncedItems = [...currentItems];
-    
-    return runtime;
-  }
-
-  if (isHydrating()) {
-    // Hydration mode: adopt existing children between markers
-    const currentItems = itemsProvider();
-    const existingNodes: Node[] = [];
-    
-    // Collect nodes between markers
-    let current = startMarker.nextSibling;
-    while (current && current !== endMarker) {
-      existingNodes.push(current);
-      current = current.nextSibling;
-    }
-
-    // Map existing nodes to items (assuming they match by index)
-    currentItems.forEach((item, index) => {
-      if (index < existingNodes.length) {
-        const node = existingNodes[index] as unknown as ExpandedElement<any>;
-        runtime.records.push({ item, element: node });
-      }
-    });
-    
-    runtime.lastSyncedItems = [...currentItems];
-    activeListRuntimes.add(runtime);
-    return runtime;
-  }
-
-  // Browser mode: set up dynamic runtime
   const parentNode = host as unknown as Node & ParentNode;
   parentNode.appendChild(startMarker);
   parentNode.appendChild(endMarker);

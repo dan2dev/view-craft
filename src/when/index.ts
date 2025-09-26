@@ -4,9 +4,6 @@ import { createMarkerPair, clearBetweenMarkers, insertNodesBefore } from "../uti
 import { resolveCondition } from "../utility/conditions";
 import { modifierProbeCache } from "../utility/modifierPredicates";
 import { isFunction } from "../utility/typeGuards";
-import { isSSR, isHydrating } from "../utility/runtimeContext";
-import { appendChild } from "../utility/nodeFactory";
-import { claimChild } from "../core/hydration";
 
 type WhenCondition = boolean | (() => boolean);
 type WhenContent<TTagName extends ElementTagName = ElementTagName> = 
@@ -134,51 +131,12 @@ class WhenBuilderImpl<TTagName extends ElementTagName = ElementTagName> {
   }
 
   render(host: ExpandedElement<TTagName>, index: number): Node | null {
-    let startMarker: Comment;
-    let endMarker: Comment;
-
-    if (isHydrating()) {
-      // Hydration mode: claim existing markers
-      const claimedStart = claimChild(host as Node, "comment");
-      const claimedEnd = claimChild(host as Node, "comment");
-      
-      if (claimedStart && claimedEnd) {
-        startMarker = claimedStart as Comment;
-        endMarker = claimedEnd as Comment;
-      } else {
-        // Fallback if claiming fails
-        const markers = createMarkerPair("when");
-        startMarker = markers.start;
-        endMarker = markers.end;
-      }
-    } else {
-      const markers = createMarkerPair("when");
-      startMarker = markers.start;
-      endMarker = markers.end;
+    if (!isBrowser) {
+      return document.createComment("when-ssr");
     }
+
+    const { start: startMarker, end: endMarker } = createMarkerPair("when");
     
-    if (isSSR()) {
-      // SSR: render the active branch content directly between markers
-      appendChild(host, startMarker);
-      appendChild(host, endMarker);
-      
-      // Find and render the first matching condition
-      for (let i = 0; i < this.groups.length; i++) {
-        if (resolveCondition(this.groups[i].condition)) {
-          this.renderContentBetweenMarkers(this.groups[i].content, host, endMarker, index);
-          return startMarker;
-        }
-      }
-      
-      // No conditions matched, render else content if available
-      if (this.elseContent.length > 0) {
-        this.renderContentBetweenMarkers(this.elseContent, host, endMarker, index);
-      }
-      
-      return startMarker;
-    }
-
-    // Browser/Hydration: set up runtime for dynamic updates
     const runtime: WhenRuntime<TTagName> = {
       startMarker,
       endMarker,
@@ -190,53 +148,15 @@ class WhenBuilderImpl<TTagName extends ElementTagName = ElementTagName> {
       update: () => renderWhenContent(runtime)
     };
 
-    if (isHydrating()) {
-      // Hydration: determine which branch should be active and verify existing content
-      let expectedActive: number | -1 | null = null;
-      for (let i = 0; i < this.groups.length; i++) {
-        if (resolveCondition(this.groups[i].condition)) {
-          expectedActive = i;
-          break;
-        }
-      }
-      if (expectedActive === null && this.elseContent.length) {
-        expectedActive = -1;
-      }
-      
-      runtime.activeIndex = expectedActive;
-      activeWhenRuntimes.add(runtime);
-      return startMarker;
-    }
-
-    // Browser mode: append markers and render
+    activeWhenRuntimes.add(runtime);
+    
     const parent = host as unknown as Node & ParentNode;
     parent.appendChild(startMarker);
     parent.appendChild(endMarker);
     
-    activeWhenRuntimes.add(runtime);
     renderWhenContent(runtime);
 
     return startMarker;
-  }
-
-  private renderContentBetweenMarkers(
-    content: WhenContent<TTagName>[], 
-    host: ExpandedElement<TTagName>, 
-    endMarker: Comment, 
-    index: number
-  ): void {
-    for (const item of content) {
-      const node = applyNodeModifier(host, item, index);
-      if (node) {
-        if (isSSR()) {
-          // In SSR, insert before the end marker
-          (host as any).insertBefore(node, endMarker);
-        } else {
-          // In browser, should not reach here, but handle gracefully
-          appendChild(host, node);
-        }
-      }
-    }
   }
 }
 
