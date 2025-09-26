@@ -3,8 +3,9 @@ import { isBrowser } from "../utility/environment";
 import {
   ConditionalInfo,
   getConditionalInfo,
-  hasConditionalInfo,
   storeConditionalInfo,
+  getActiveConditionalNodes,
+  unregisterConditionalNode,
 } from "../utility/conditionalInfo";
 import { runCondition } from "../utility/conditions";
 
@@ -17,7 +18,7 @@ import { runCondition } from "../utility/conditions";
  * How it works:
  * 1. When TagBuilder detects first modifier is boolean function, creates element or comment based on condition
  * 2. Stores conditional info on the DOM node using _conditionalInfo property
- * 3. During updates, DOM tree walker finds all conditional nodes and updates them
+ * 3. A lightweight registry tracks conditional nodes; updates iterate only that set
  * 4. Elements are replaced with comments when hidden, comments with elements when shown
  * 
  * This approach reuses existing infrastructure while providing the requested TagBuilder syntax.
@@ -93,33 +94,16 @@ function updateConditionalNode(node: Element | Comment): void {
 }
 
 /**
- * Finds all conditional nodes in the document
+ * (Removed) Previous implementation walked the entire DOM tree each update.
+ * Registry-based approach (see conditionalInfo.ts) makes this unnecessary.
+ * Keeping placeholder block to preserve line numbering stability.
+ *
+ * Legacy code replaced by a no-op function (not exported) for compatibility
+ * in case of any accidental references.
  */
 function findConditionalNodes(): Array<Element | Comment> {
-  if (!document.body) {
-    return [];
-  }
-
-  const walker = document.createTreeWalker(
-    document.body,
-    NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT,
-    {
-      acceptNode: (node) => {
-        return hasConditionalInfo(node) 
-          ? NodeFilter.FILTER_ACCEPT 
-          : NodeFilter.FILTER_SKIP;
-      }
-    }
-  );
-
-  const nodes: Array<Element | Comment> = [];
-  let node: Node | null;
-  
-  while ((node = walker.nextNode())) {
-    nodes.push(node as Element | Comment);
-  }
-
-  return nodes;
+  // Deprecated: return empty; real updates use getActiveConditionalNodes()
+  return [];
 }
 
 /**
@@ -131,8 +115,15 @@ export function updateConditionalElements(): void {
   }
 
   try {
-    const conditionalNodes = findConditionalNodes();
-    conditionalNodes.forEach(updateConditionalNode);
+    // Iterate only tracked conditional nodes (O(nConditionals))
+    getActiveConditionalNodes().forEach((node) => {
+      if (!node.isConnected) {
+        // Prune disconnected node from registry to avoid memory growth
+        unregisterConditionalNode(node);
+        return;
+      }
+      updateConditionalNode(node as Element | Comment);
+    });
   } catch (error) {
     console.error("Error during conditional elements update:", error);
   }
