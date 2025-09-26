@@ -1,5 +1,7 @@
 import { createConditionalElement, processConditionalModifiers } from "./conditionalRenderer";
 import { applyModifiers, NodeModifier } from "../internal/applyModifiers";
+import { createElement, setHydrationParent } from "../utility/nodeFactory";
+import { isHydrating } from "../utility/runtimeContext";
 
 /**
  * Creates an element factory that applies the given modifiers to a freshly created node.
@@ -13,10 +15,15 @@ export function createElementFactory<TTagName extends ElementTagName>(
     const { condition, otherModifiers } = processConditionalModifiers(modifiers);
 
     if (condition) {
-      return createConditionalElement(tagName, condition, otherModifiers) as ExpandedElement<TTagName>;
+      return createConditionalElement(tagName, condition, otherModifiers, parent as Node) as ExpandedElement<TTagName>;
     }
 
-    const el = document.createElement(tagName) as ExpandedElement<TTagName>;
+    // Set hydration context if needed
+    if (isHydrating()) {
+      setHydrationParent(parent as Node);
+    }
+
+    const el = createElement(tagName, parent as Node) as ExpandedElement<TTagName>;
     applyModifiers(
       el,
       otherModifiers as ReadonlyArray<NodeModifier<TTagName>>,
