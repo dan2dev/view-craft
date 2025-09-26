@@ -235,7 +235,7 @@ describe('Conditional Rendering (when)', () => {
     // Note: Nested conditional rendering has an issue where inner when runtimes 
     // interfere with outer when runtimes. This is a known limitation that could
     // be addressed in a future enhancement.
-    it.skip('should handle nested conditional rendering', () => {
+    it('should handle nested conditional rendering', () => {
       let showOuter = true;
       let showInner = false;
       
