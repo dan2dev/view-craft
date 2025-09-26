@@ -48,7 +48,7 @@ const app1 = div(
   // Example using the on() helper instead of manual addEventListener
   button(
     "push (using on helper)",
-    on("click", (e: PointerEvent) => {
+    on("click", (e) => {
       items.push({
         id: items.length + 1,
         name: `Item ${items.length + 1}`,
