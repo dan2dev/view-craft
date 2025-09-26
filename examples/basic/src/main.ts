@@ -132,7 +132,7 @@ const app1 = div(
     div(
       // () => items.length >= 2,
       when(
-        () => items.length > 2,
+        () => false,
         list(
           () => items,
           (item) =>
@@ -168,6 +168,18 @@ const app1 = div(
               item.price,
               input(),
               () => data.color,
+              div(
+                {
+                  style: {
+                    color: "red",
+                    backgroundColor: "#FFF",
+                  },
+                },
+                list(
+                  () => items,
+                  (tag) => div("--", tag.name),
+                ),
+              ),
               button("delete", (e) => {
                 e.addEventListener?.("click", (_e) => {
                   items.splice(
