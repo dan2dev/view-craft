@@ -92,4 +92,23 @@ describe('utility/events.dispatchGlobalUpdateEvent', () => {
     expect((docA.mock.calls[0][0] as Event).type).toBe('update');
     expect((docA.mock.calls[1][0] as Event).type).toBe('update');
   });
+
+  it('logs two errors when both body and document dispatch throw independently', () => {
+    const originalBodyDispatch = document.body.dispatchEvent.bind(document.body);
+    const originalDocDispatch = document.dispatchEvent.bind(document);
+
+    (document.body as any).dispatchEvent = vi.fn(() => { throw new Error('body-fail'); });
+    (document as any).dispatchEvent = vi.fn(() => { throw new Error('doc-fail'); });
+
+    // No listeners needed; we're exercising error paths only.
+    dispatchGlobalUpdateEvent();
+
+    expect(consoleErrorSpy.mock.calls.length).toBeGreaterThanOrEqual(2);
+    const messages = consoleErrorSpy.mock.calls.map(c => String(c[0]));
+    expect(messages.filter(m => m.includes('Error dispatching global update event')).length).toBeGreaterThanOrEqual(2);
+
+    // Restore originals
+    (document.body as any).dispatchEvent = originalBodyDispatch;
+    (document as any).dispatchEvent = originalDocDispatch;
+  });
 });
