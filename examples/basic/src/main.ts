@@ -9,41 +9,14 @@ type Todo = {
 
 type Filter = "all" | "active" | "completed";
 
-const STORAGE_KEY = "vc_todos_v1";
-
-function loadTodos(): Todo[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed
-      .map((t) => ({
-        id: Number(t.id),
-        title: String(t.title ?? ""),
-        done: Boolean(t.done),
-      }))
-      .filter((t) => !!t.title);
-  } catch {
-    return [];
-  }
-}
-
-let todos: Todo[] = loadTodos();
-let nextId = todos.reduce((max, t) => Math.max(max, t.id), 0) + 1;
+// State
+let todos: Todo[] = [];
+let nextId = 1;
 let filter: Filter = "all";
 let newTitle = "";
 
-function save() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
-  } catch {
-    // ignore storage errors
-  }
-}
-
+// Actions
 function rerender() {
-  save();
   update();
 }
 
@@ -80,6 +53,7 @@ function setFilter(f: Filter) {
   rerender();
 }
 
+// Derived
 function remainingCount() {
   return todos.filter((t) => !t.done).length;
 }
@@ -94,191 +68,194 @@ function filteredTodos(): Todo[] {
   return todos;
 }
 
+// UI
 const root = document.getElementById("app") as HTMLElement;
 
 const app = div(
   {
-    className: "todo-app",
+    className:
+      "min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4",
   },
-
-  // Header
   div(
     {
-      className: "todo-header",
+      className:
+        "max-w-2xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden",
     },
-    h1("Todo List (view-craft)"),
+
+    // Header
     div(
-      {
-        className: "todo-input-row",
-      },
-      (el) => {
-        const inputEl = el as HTMLInputElement;
-        inputEl.placeholder = "What needs to be done?";
-        if (inputEl.value !== newTitle) {
-          inputEl.value = newTitle;
-        }
-        inputEl.className = "todo-input";
-      },
-      input(
-        {
-          placeholder: "What needs to be done?",
-          className: "todo-input",
-          value: () => newTitle,
-        },
-        // Imperative modifier to set placeholder, styles and keep value in sync
-        (el) => {
-          const inputEl = el;
-          inputEl.placeholder = "What needs to be done?";
-          if (inputEl.value !== newTitle) {
-            inputEl.value = newTitle;
-          }
-          inputEl.className = "todo-input";
-        },
-        on("input", (e) => {
-          newTitle = (e.target as HTMLInputElement).value ?? "";
-          update();
-        }),
-        on("keydown", (e: any) => {
-          if ((e as KeyboardEvent).key === "Enter") {
-            addTodo(newTitle);
-            // newTitle = "";
-            // e.currentTarget.value = "";
-            // update();
-          } else if ((e as KeyboardEvent).key === "Escape") {
-            newTitle = "";
+      { className: "bg-gradient-to-r from-blue-500 to-indigo-600 p-6" },
+      h1("Todo List", {
+        className: "text-3xl font-bold text-white text-center mb-4",
+      }),
+      div(
+        { className: "flex gap-2" },
+        input(
+          {
+            type: "text",
+            placeholder: "What needs to be done?",
+            className:
+              "flex-1 px-4 py-2 rounded-lg border-2 border-transparent focus:border-white focus:outline-none",
+            value: () => newTitle,
+          },
+          on("input", (e) => {
+            newTitle = (e.target as HTMLInputElement).value ?? "";
             update();
-          }
-        }),
-      ),
-      button(
-        {
-          disabled: () => newTitle.trim().length === 0,
-          className: () =>
-            "todo-add-btn" +
-            (newTitle.trim().length === 0 ? " is-disabled" : ""),
-        },
-        "Add",
-        on("click", () => addTodo(newTitle)),
+          }),
+          on("keydown", (e: any) => {
+            const ke = e as KeyboardEvent;
+            if (ke.key === "Enter") {
+              addTodo(newTitle);
+            } else if (ke.key === "Escape") {
+              newTitle = "";
+              update();
+            }
+          }),
+        ),
+        button(
+          {
+            disabled: () => newTitle.trim().length === 0,
+            className: () =>
+              "px-6 py-2 rounded-lg font-semibold transition-all " +
+              (newTitle.trim().length === 0
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-white text-indigo-600 hover:bg-indigo-50"),
+          },
+          "Add",
+          on("click", () => addTodo(newTitle)),
+        ),
       ),
     ),
-  ),
 
-  // Controls
-  when(
-    () => todos.length > 0,
-    div(
-      {
-        className: "todo-controls",
-      },
-      // Left: counters
+    // Controls
+    when(
+      () => todos.length > 0,
       div(
-        {
-          className: "todo-counters",
-        },
+        { className: "flex items-center justify-between p-4 border-b" },
+        // Left counters
         div(
-          () =>
-            `${remainingCount()} item${remainingCount() === 1 ? "" : "s"} left`,
-        ),
-        div("•"),
-        div(() => `${completedCount()} completed`),
-      ),
-      // Middle: filters
-      div(
-        {
-          className: "todo-filters",
-        },
-        button(
-          {
-            className: () =>
-              "todo-filter" + (filter === "all" ? " is-active" : ""),
-          },
-          "All",
-          on("click", () => setFilter("all")),
-        ),
-        button(
-          {
-            className: () =>
-              "todo-filter" + (filter === "active" ? " is-active" : ""),
-          },
-          "Active",
-          on("click", () => setFilter("active")),
-        ),
-        button(
-          {
-            className: () =>
-              "todo-filter" + (filter === "completed" ? " is-active" : ""),
-          },
-          "Completed",
-          on("click", () => setFilter("completed")),
-        ),
-      ),
-      // Right: clear completed
-      when(
-        () => completedCount() > 0,
-        button(
-          {
-            className: "todo-clear-completed",
-          },
-          "Clear completed",
-          on("click", clearCompleted),
-        ),
-      ),
-    ),
-  ),
-
-  // List
-  when(
-    () => filteredTodos().length > 0,
-    div(
-      {
-        className: "todo-list",
-      },
-      list(
-        () => filteredTodos(),
-        (todo) =>
+          { className: "flex items-center gap-3 text-sm text-gray-600" },
           div(
-            {
-              className: "todo-item",
-            },
-            input(
-              // Imperative modifier to set type, styles, and keep checked in sync
-              (el: any) => {
-                const inputEl = el as HTMLInputElement;
-                inputEl.type = "checkbox";
-                inputEl.checked = !!todo.done;
-                inputEl.className = "todo-checkbox";
-              },
-              on("change", (e: any) => {
-                const checked = (e.target as HTMLInputElement).checked;
-                toggleTodo(todo.id, checked);
-              }),
-            ),
-            div(
-              {
-                className: () => "todo-title" + (todo.done ? " is-done" : ""),
-                title: () => todo.title,
-              },
-              () => todo.title,
-            ),
-            button(
-              {
-                className: "todo-delete-btn",
-                title: "Delete todo",
-              },
-              "Delete",
-              on("click", () => removeTodo(todo.id)),
-            ),
+            () =>
+              `${remainingCount()} item${
+                remainingCount() === 1 ? "" : "s"
+              } left`,
           ),
+          div("•"),
+          div(() => `${completedCount()} completed`),
+        ),
+        // Middle: filters
+        div(
+          { className: "flex gap-2" },
+          button(
+            {
+              className: () =>
+                "px-3 py-1 rounded-md text-sm font-medium transition-colors " +
+                (filter === "all"
+                  ? "bg-indigo-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"),
+            },
+            "All",
+            on("click", () => setFilter("all")),
+          ),
+          button(
+            {
+              className: () =>
+                "px-3 py-1 rounded-md text-sm font-medium transition-colors " +
+                (filter === "active"
+                  ? "bg-indigo-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"),
+            },
+            "Active",
+            on("click", () => setFilter("active")),
+          ),
+          button(
+            {
+              className: () =>
+                "px-3 py-1 rounded-md text-sm font-medium transition-colors " +
+                (filter === "completed"
+                  ? "bg-indigo-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"),
+            },
+            "Completed",
+            on("click", () => setFilter("completed")),
+          ),
+        ),
+        // Right: clear completed
+        when(
+          () => completedCount() > 0,
+          button(
+            {
+              className:
+                "px-3 py-1 text-sm text-red-600 hover:text-red-700 font-medium",
+            },
+            "Clear completed",
+            on("click", clearCompleted),
+          ),
+        ),
       ),
     ),
-  ).else(
+
+    // List section
     div(
-      {
-        className: "todo-empty",
-      },
-      "No todos yet. Add one above!",
+      { className: "p-4" },
+      when(
+        () => filteredTodos().length > 0,
+        div(
+          { className: "space-y-2" },
+          list(
+            () => filteredTodos(),
+            (todo) =>
+              div(
+                {
+                  className:
+                    "flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors",
+                },
+                input(
+                  {
+                    type: "checkbox",
+                    className:
+                      "w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500",
+                  },
+                  (el: any) => {
+                    const inputEl = el as HTMLInputElement;
+                    inputEl.checked = !!todo.done;
+                  },
+                  on("change", (e: any) => {
+                    const checked = (e.target as HTMLInputElement).checked;
+                    toggleTodo(todo.id, checked);
+                  }),
+                ),
+                div(
+                  {
+                    className: () =>
+                      "flex-1 " +
+                      (todo.done
+                        ? "line-through text-gray-400"
+                        : "text-gray-800"),
+                    title: () => todo.title,
+                  },
+                  () => todo.title,
+                ),
+                button(
+                  {
+                    className:
+                      "px-3 py-1 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors",
+                    title: "Delete todo",
+                  },
+                  "Delete",
+                  on("click", () => removeTodo(todo.id)),
+                ),
+              ),
+          ),
+        ),
+      ).else(
+        div(
+          { className: "text-center py-12 text-gray-400" },
+          "No todos yet. Add one above!",
+        ),
+      ),
     ),
   ),
 )(root, 0);
-
 root.appendChild(app as Node);
