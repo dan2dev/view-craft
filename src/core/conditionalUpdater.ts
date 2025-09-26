@@ -8,7 +8,6 @@ import {
   unregisterConditionalNode,
 } from "../utility/conditionalInfo";
 import { runCondition } from "../utility/conditions";
-import { createElement, createComment } from "../utility/nodeFactory";
 
 /**
  * Conditional Rendering System for TagBuilders
@@ -29,7 +28,7 @@ import { createElement, createComment } from "../utility/nodeFactory";
  * Creates a new element with the given conditional info
  */
 function createElementFromConditionalInfo(conditionalInfo: ConditionalInfo): Element {
-  const element = createElement(conditionalInfo.tagName);
+  const element = document.createElement(conditionalInfo.tagName);
   // Use shared helper to apply modifiers (handles appending + indexing)
 
   try {
@@ -49,7 +48,7 @@ function createElementFromConditionalInfo(conditionalInfo: ConditionalInfo): Ele
  * Creates a comment placeholder for hidden conditional content
  */
 function createCommentPlaceholder(conditionalInfo: ConditionalInfo): Comment {
-  return createComment(`conditional-${conditionalInfo.tagName}-hidden`);
+  return document.createComment(`conditional-${conditionalInfo.tagName}-hidden`);
 }
 
 /**

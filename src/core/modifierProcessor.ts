@@ -3,8 +3,6 @@ import { createReactiveTextNode } from "./reactive";
 import { logError } from "../utility/errorHandler";
 import { isFunction, isNode, isObject, isPrimitive } from "../utility/typeGuards";
 import { modifierProbeCache } from "../utility/modifierPredicates";
-import { createText, setHydrationParent } from "../utility/nodeFactory";
-import { isHydrating } from "../utility/runtimeContext";
 export { isConditionalModifier, findConditionalModifier } from "../utility/modifierPredicates";
 
 /**
@@ -43,19 +41,9 @@ export function applyNodeModifier<TTagName extends ElementTagName>(
         }
         if (record.error) return createReactiveTextNode(() => "");
         const v = record.value;
-        if (isPrimitive(v) && v != null) {
-          // During hydration, try to claim existing text node
-          let existingTextNode: Text | undefined;
-          if (isHydrating()) {
-            setHydrationParent(parent as Node);
-            const claimed = createText(String(v), parent as Node);
-            if (claimed && claimed.nodeType === Node.TEXT_NODE) {
-              existingTextNode = claimed as Text;
-            }
-          }
-          return createReactiveTextNode(modifier as () => Primitive, v, existingTextNode);
-        }
-        return null;
+        return (isPrimitive(v) && v != null)
+          ? createReactiveTextNode(modifier as () => Primitive, v)
+          : null;
       } catch (error) {
         modifierProbeCache.set(modifier as Function, { value: undefined, error: true });
         logError("Error evaluating reactive text function:", error);
@@ -65,12 +53,7 @@ export function applyNodeModifier<TTagName extends ElementTagName>(
     // Non-zero-arg NodeModFn
     const produced = (modifier as NodeModFn<TTagName>)(parent, index);
     if (produced == null) return null;
-    if (isPrimitive(produced)) {
-      if (isHydrating()) {
-        setHydrationParent(parent as Node);
-      }
-      return createText(String(produced), parent as Node);
-    }
+    if (isPrimitive(produced)) return document.createTextNode(String(produced));
     if (isNode(produced)) return produced;
     if (isObject(produced)) applyAttributes(parent, produced as ExpandedElementAttributes<TTagName>);
     return null;
@@ -79,12 +62,7 @@ export function applyNodeModifier<TTagName extends ElementTagName>(
   // Plain value / node / attributes object
   const candidate = modifier as NodeMod<TTagName>;
   if (candidate == null) return null;
-  if (isPrimitive(candidate)) {
-    if (isHydrating()) {
-      setHydrationParent(parent as Node);
-    }
-    return createText(String(candidate), parent as Node);
-  }
+  if (isPrimitive(candidate)) return document.createTextNode(String(candidate));
   if (isNode(candidate)) return candidate;
   if (isObject(candidate)) applyAttributes(parent, candidate as ExpandedElementAttributes<TTagName>);
   return null;
