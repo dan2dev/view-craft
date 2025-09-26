@@ -25,5 +25,10 @@ export {
 } from "./utility/typeGuards";
 export { isBrowser } from "./utility/environment";
 
+// SSR and Hydration exports
+export { renderToString } from "./core/ssr/renderToString";
+export { hydrate } from "./core/hydration";
+export type { RenderOptions } from "./core/ssr/renderToString";
+
 // Auto-initialize when the module is loaded.
 import "./core/runtimeBootstrap";

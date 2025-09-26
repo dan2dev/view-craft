@@ -1,4 +1,6 @@
 import { isBrowser } from "./environment";
+import { createText, createComment } from "./nodeFactory";
+import { isSSR } from "./runtimeContext";
 
 /**
  * Consolidated DOM utilities - simplified for better performance and smaller bundle size
@@ -38,7 +40,7 @@ function safeInsertBefore(parent: Node, newNode: Node, referenceNode: Node | nul
 function createTextNodeSafely(text: string | number | boolean): Text | null {
   if (!isBrowser) return null;
   try {
-    return document.createTextNode(String(text));
+    return createText(String(text)) as Text;
   } catch {
     return null;
   }
@@ -47,25 +49,56 @@ function createTextNodeSafely(text: string | number | boolean): Text | null {
 function createCommentSafely(text: string): Comment | null {
   if (!isBrowser) return null;
   try {
-    return document.createComment(text);
+    return createComment(text) as Comment;
   } catch {
     return null;
   }
 }
 
+// Global counter for deterministic markers in SSR
+let markerCounter = 0;
+
+export function resetMarkerCounter(): void {
+  markerCounter = 0;
+}
+
 // Consolidated marker utilities
 export function createMarkerComment(prefix: string): Comment {
-  if (!isBrowser) throw new Error("Cannot create comment in non-browser environment");
-  const comment = createCommentSafely(`${prefix}-${Math.random().toString(36).slice(2)}`);
+  if (!isBrowser && !isSSR()) throw new Error("Cannot create comment in non-browser environment");
+  
+  let markerId: string;
+  if (isSSR()) {
+    // Deterministic markers for SSR
+    markerId = String(markerCounter++);
+  } else {
+    // Random markers for browser (existing behavior)
+    markerId = Math.random().toString(36).slice(2);
+  }
+  
+  const comment = createCommentSafely(`${prefix}-${markerId}`);
   if (!comment) throw new Error("Failed to create comment");
   return comment;
 }
 
 export function createMarkerPair(prefix: string): { start: Comment; end: Comment } {
+  if (!isBrowser && !isSSR()) throw new Error("Cannot create comments in non-browser environment");
+  
+  let markerId: string;
+  if (isSSR()) {
+    // Deterministic markers for SSR
+    markerId = String(markerCounter++);
+  } else {
+    // Random markers for browser (existing behavior)
+    markerId = Math.random().toString(36).slice(2);
+  }
+  
+  const startComment = createCommentSafely(`${prefix}-start-${markerId}`);
   const endComment = createCommentSafely(`${prefix}-end`);
-  if (!endComment) throw new Error("Failed to create end comment");
+  
+  if (!startComment || !endComment) throw new Error("Failed to create comment pair");
+  
   return {
-    start: createMarkerComment(`${prefix}-start`),
+    start: startComment,
     end: endComment
   };
 }
