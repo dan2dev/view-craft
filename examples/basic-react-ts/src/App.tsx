@@ -1,12 +1,21 @@
 import { useState } from 'react'
+import type { ChangeEvent, KeyboardEvent } from 'react'
+
+type Todo = {
+  id: number;
+  title: string;
+  done: boolean;
+}
+
+type Filter = 'all' | 'active' | 'completed'
 
 function App() {
-  const [todos, setTodos] = useState([])
+  const [todos, setTodos] = useState<Todo[]>([])
   const [nextId, setNextId] = useState(1)
-  const [filter, setFilter] = useState('all')
+  const [filter, setFilter] = useState<Filter>('all')
   const [newTitle, setNewTitle] = useState('')
 
-  const addTodo = (title) => {
+  const addTodo = (title: string) => {
     const t = title.trim()
     if (!t) return
     setTodos((prev) => [...prev, { id: nextId, title: t, done: false }])
@@ -14,11 +23,11 @@ function App() {
     setNewTitle('')
   }
 
-  const removeTodo = (id) => {
+  const removeTodo = (id: number) => {
     setTodos((prev) => prev.filter((t) => t.id !== id))
   }
 
-  const toggleTodo = (id, done) => {
+  const toggleTodo = (id: number, done?: boolean) => {
     setTodos((prev) =>
       prev.map((t) =>
         t.id === id ? { ...t, done: typeof done === 'boolean' ? done : !t.done } : t,
@@ -39,7 +48,7 @@ function App() {
     return true
   })
 
-  const onInputKeyDown = (e) => {
+  const onInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       addTodo(newTitle)
     } else if (e.key === 'Escape') {
@@ -58,7 +67,7 @@ function App() {
               placeholder="What needs to be done?"
               className="flex-1 px-4 py-2 rounded-lg border-2 border-transparent focus:border-white focus:outline-none"
               value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value ?? '')}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setNewTitle(e.currentTarget.value)}
               onKeyDown={onInputKeyDown}
             />
             <button
@@ -139,7 +148,7 @@ function App() {
                     type="checkbox"
                     className="w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500"
                     checked={!!todo.done}
-                    onChange={(e) => toggleTodo(todo.id, e.target.checked)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => toggleTodo(todo.id, e.currentTarget.checked)}
                   />
                   <div
                     className={`flex-1 ${
