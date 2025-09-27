@@ -25,5 +25,10 @@ export {
 } from "./utility/typeGuards";
 export { isBrowser } from "./utility/environment";
 
+// Export styling utilities
+export { w, h, bg, border, borderRadius, css, cn, registerGlobalStyleUtilities } from "./style";
+
 // Auto-initialize when the module is loaded.
 import "./core/runtimeBootstrap";
+// Register styling utilities globals at import time
+import "./style";

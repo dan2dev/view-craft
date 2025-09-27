@@ -1,6 +1,7 @@
 import "./style.css";
 import "view-craft";
 
+
 type Todo = {
   id: number;
   title: string;
@@ -73,14 +74,15 @@ function filteredTodos(): Todo[] {
 
 // UI
 const root = document.getElementById("app") as HTMLElement;
-console.time("render");
+// console.time("render");
 const app = div(
   {
     className: "min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4",
   },
-  h1("this is a header", {
-    className: "dynamic-header",
-  }),
+  h1("view-craft1", cn("w-200px", "h-200px", "flex", "flex-row", "justify-center", "items-center")),
+  // size("100px", "200px").bg("blue").border("2px solid black").borderRadius("16px")),
+  // h1("view-craft1", size("100px", "200px").bg("blue").border("2px solid black").borderRadius("16px")),
+  h1("view-craft2", w("100px").h("200px").bg("blue").border("2px solid black").borderRadius("16px"), w("200px").h("200px")),
   div(
     {
       className: "max-w-2xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden",
@@ -236,4 +238,4 @@ const app = div(
   ),
 )(root, 0);
 root.appendChild(app as Node);
-console.timeEnd("render");
+// console.timeEnd("render");
