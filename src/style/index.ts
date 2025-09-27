@@ -176,139 +176,35 @@ function createChain(): StyleChain {
 
 type CnArg = string | number | null | undefined | false | Record<string, any> | Array<any>;
 
-const spacingScale: Record<string, string> = {
-  "0": "0px",
-  px: "1px",
-  "0.5": "0.125rem",
-  "1": "0.25rem",
-  "1.5": "0.375rem",
-  "2": "0.5rem",
-  "2.5": "0.625rem",
-  "3": "0.75rem",
-  "3.5": "0.875rem",
-  "4": "1rem",
-  "5": "1.25rem",
-  "6": "1.5rem",
-  "8": "2rem",
-  "10": "2.5rem",
-  "12": "3rem",
-  "16": "4rem",
-  "20": "5rem",
+const scales = {
+  spacing: { "0": "0px", px: "1px", "0.5": "0.125rem", "1": "0.25rem", "1.5": "0.375rem", "2": "0.5rem", "2.5": "0.625rem", "3": "0.75rem", "3.5": "0.875rem", "4": "1rem", "5": "1.25rem", "6": "1.5rem", "8": "2rem", "10": "2.5rem", "12": "3rem", "16": "4rem", "20": "5rem" } as Record<string, string>,
+  rounded: { none: "0px", sm: "0.125rem", "": "0.25rem", md: "0.375rem", lg: "0.5rem", xl: "0.75rem", "2xl": "1rem", full: "9999px" } as Record<string, string>,
+  fontWeight: { thin: "100", extralight: "200", light: "300", normal: "400", medium: "500", semibold: "600", bold: "700", extrabold: "800", black: "900" } as Record<string, string>
 };
 
-const roundedScale: Record<string, string> = {
-  none: "0px",
-  sm: "0.125rem",
-  "": "0.25rem",
-  md: "0.375rem",
-  lg: "0.5rem",
-  xl: "0.75rem",
-  "2xl": "1rem",
-  full: "9999px",
-};
-
-const fontWeightMap: Record<string, string> = {
-  thin: "100",
-  extralight: "200",
-  light: "300",
-  normal: "400",
-  medium: "500",
-  semibold: "600",
-  bold: "700",
-  extrabold: "800",
-  black: "900",
-};
-
-// Tailwind color palette
-const colorPalette: Record<string, Record<string, string> | string> = {
-  gray: {
-    "50": "#f9fafb",
-    "100": "#f3f4f6",
-    "200": "#e5e7eb",
-    "300": "#d1d5db",
-    "400": "#9ca3af",
-    "500": "#6b7280",
-    "600": "#4b5563",
-    "700": "#374151",
-    "800": "#1f2937",
-    "900": "#111827",
-  },
-  red: {
-    "50": "#fef2f2",
-    "100": "#fee2e2",
-    "200": "#fecaca",
-    "300": "#fca5a5",
-    "400": "#f87171",
-    "500": "#ef4444",
-    "600": "#dc2626",
-    "700": "#b91c1c",
-    "800": "#991b1b",
-    "900": "#7f1d1d",
-  },
-  blue: {
-    "50": "#eff6ff",
-    "100": "#dbeafe",
-    "200": "#bfdbfe",
-    "300": "#93c5fd",
-    "400": "#60a5fa",
-    "500": "#3b82f6",
-    "600": "#2563eb",
-    "700": "#1d4ed8",
-    "800": "#1e40af",
-    "900": "#1e3a8a",
-  },
-  indigo: {
-    "50": "#eef2ff",
-    "100": "#e0e7ff",
-    "200": "#c7d2fe",
-    "300": "#a5b4fc",
-    "400": "#818cf8",
-    "500": "#6366f1",
-    "600": "#4f46e5",
-    "700": "#4338ca",
-    "800": "#3730a3",
-    "900": "#312e81",
-  },
-  white: "white",
-  black: "black",
-  transparent: "transparent",
+const colors = {
+  gray: ["#f9fafb", "#f3f4f6", "#e5e7eb", "#d1d5db", "#9ca3af", "#6b7280", "#4b5563", "#374151", "#1f2937", "#111827"],
+  red: ["#fef2f2", "#fee2e2", "#fecaca", "#fca5a5", "#f87171", "#ef4444", "#dc2626", "#b91c1c", "#991b1b", "#7f1d1d"],
+  blue: ["#eff6ff", "#dbeafe", "#bfdbfe", "#93c5fd", "#60a5fa", "#3b82f6", "#2563eb", "#1d4ed8", "#1e40af", "#1e3a8a"],
+  indigo: ["#eef2ff", "#e0e7ff", "#c7d2fe", "#a5b4fc", "#818cf8", "#6366f1", "#4f46e5", "#4338ca", "#3730a3", "#312e81"]
 };
 
 function resolveColor(colorName: string): string {
-  // Handle direct color names
-  if (colorName === "white" || colorName === "black" || colorName === "transparent") {
-    return colorName;
-  }
+  if (["white", "black", "transparent"].includes(colorName)) return colorName;
   
-  // Handle color-number format (e.g., "blue-500", "gray-300")
-  const match = colorName.match(/^([a-z]+)-(\d+)$/);
+  const match = colorName.match(/^([a-z]+)-?(\d+)?$/);
   if (match) {
     const [, color, shade] = match;
-    const colorData = colorPalette[color];
-    if (colorData && typeof colorData === "object") {
-      return colorData[shade] || colorName;
+    const arr = colors[color as keyof typeof colors];
+    if (arr) {
+      const idx = shade ? Math.floor(parseInt(shade) / 100) - 1 : 4; // default to 500 (index 5)
+      return arr[Math.max(0, Math.min(idx, arr.length - 1))] || colorName;
     }
-    return colorName;
   }
-  
-  // Handle single color names (e.g., "blue" -> "blue-500")
-  const colorData = colorPalette[colorName];
-  if (colorData && typeof colorData === "object") {
-    return colorData["500"] || colorName;
-  }
-  
-  // Return as-is for custom colors
   return colorName;
 }
 
-const displayMap: Record<string, string> = {
-  block: "block",
-  inline: "inline",
-  "inline-block": "inline-block",
-  flex: "flex",
-  grid: "grid",
-  hidden: "none",
-};
+
 
 function isNumeric(v: string): boolean {
   return /^-?\d+(\.\d+)?$/.test(v);
@@ -324,9 +220,7 @@ function pushRule(classes: string[], property: string, value: string) {
 }
 
 function resolveSpacing(value: string): string {
-  if (value in spacingScale) return spacingScale[value];
-  if (isNumeric(value)) return `${value}px`;
-  return value;
+  return scales.spacing[value] || (isNumeric(value) ? `${value}px` : value);
 }
 
 function applySpacing(classes: string[], base: "padding" | "margin", dir: string, raw: string) {
@@ -362,7 +256,7 @@ function getPropertyForToken(token: string): string | null {
       return 'background-color';
     }
   }
-  
+
   // Text color
   if (token.startsWith('text-')) {
     const colorPart = token.slice(5);
@@ -371,22 +265,22 @@ function getPropertyForToken(token: string): string | null {
       return 'color';
     }
   }
-  
+
   // Border
   if (token.startsWith('border-') && !token.match(/^border-[0-9]/)) {
     return 'border-color';
   }
-  
+
   // Outline
   if (token === 'outline-none') {
     return 'outline';
   }
-  
+
   // Ring (focus ring)
   if (token.startsWith('ring-')) {
     return 'box-shadow';
   }
-  
+
   return null;
 }
 
@@ -398,7 +292,7 @@ function getValueForToken(token: string): string | null {
       return resolveColor(colorPart);
     }
   }
-  
+
   // Text color
   if (token.startsWith('text-')) {
     const colorPart = token.slice(5);
@@ -407,18 +301,18 @@ function getValueForToken(token: string): string | null {
       return resolveColor(colorPart);
     }
   }
-  
+
   // Border color
   if (token.startsWith('border-') && !token.match(/^border-[0-9]/)) {
     const colorPart = token.slice(7);
     return resolveColor(colorPart);
   }
-  
+
   // Outline
   if (token === 'outline-none') {
     return 'none';
   }
-  
+
   // Ring (focus ring)
   if (token.startsWith('ring-')) {
     const ringPart = token.slice(5);
@@ -429,7 +323,7 @@ function getValueForToken(token: string): string | null {
       return `0 0 0 2px ${color}`;
     }
   }
-  
+
   return null;
 }
 
@@ -493,7 +387,7 @@ function processToken(token: string, classes: string[]) {
   const bgMatch = token.match(/^bg-(.+)$/);
   if (bgMatch) {
     const v = bgMatch[1];
-    
+
     // Handle gradient backgrounds
     if (v.startsWith("gradient-")) {
       if (v === "gradient-to-r") {
@@ -529,7 +423,7 @@ function processToken(token: string, classes: string[]) {
         return;
       }
     }
-    
+
     // Regular background color
     const color = resolveColor(v);
     pushRule(classes, "background-color", color);
@@ -540,22 +434,8 @@ function processToken(token: string, classes: string[]) {
   const textMatch = token.match(/^text-(.+)$/i);
   if (textMatch) {
     const v = textMatch[1];
-    const sizeMap: Record<string, string> = {
-      xs: "0.75rem",
-      sm: "0.875rem",
-      base: "1rem",
-      lg: "1.125rem",
-      xl: "1.25rem",
-      "2xl": "1.5rem",
-      "3xl": "1.875rem",
-      "4xl": "2.25rem",
-    };
-    if (v in sizeMap) {
-      pushRule(classes, "font-size", sizeMap[v]);
-    } else {
-      const color = resolveColor(v);
-      pushRule(classes, "color", color);
-    }
+    const sizes: Record<string, string> = { xs: "0.75rem", sm: "0.875rem", base: "1rem", lg: "1.125rem", xl: "1.25rem", "2xl": "1.5rem", "3xl": "1.875rem", "4xl": "2.25rem" };
+    pushRule(classes, sizes[v] ? "font-size" : "color", sizes[v] || resolveColor(v));
     return;
   }
 
@@ -579,26 +459,19 @@ function processToken(token: string, classes: string[]) {
   // Font weight: font-bold, font-semibold, font-light, etc
   const fw = token.match(/^font-([a-z]+)$/);
   if (fw) {
-    const w = fontWeightMap[fw[1].toLowerCase()];
+    const w = scales.fontWeight[fw[1].toLowerCase()];
     if (w) pushRule(classes, "font-weight", w);
     else classes.push(token);
     return;
   }
 
-  // Display: block, inline, inline-block, flex, grid, hidden
-  if (token in displayMap) {
-    pushRule(classes, "display", displayMap[token]);
-    return;
-  }
+  // Display
+  const displays: Record<string, string> = { block: "block", inline: "inline", "inline-block": "inline-block", flex: "flex", grid: "grid", hidden: "none" };
+  if (displays[token]) { pushRule(classes, "display", displays[token]); return; }
 
-  // Align / justify
-  if (token === "items-center") { pushRule(classes, "align-items", "center"); return; }
-  if (token === "items-start") { pushRule(classes, "align-items", "flex-start"); return; }
-  if (token === "items-end") { pushRule(classes, "align-items", "flex-end"); return; }
-  if (token === "justify-center") { pushRule(classes, "justify-content", "center"); return; }
-  if (token === "justify-between") { pushRule(classes, "justify-content", "space-between"); return; }
-  if (token === "justify-around") { pushRule(classes, "justify-content", "space-around"); return; }
-  if (token === "justify-end") { pushRule(classes, "justify-content", "flex-end"); return; }
+  // Flexbox alignment
+  const alignMap: Record<string, [string, string]> = { "items-center": ["align-items", "center"], "items-start": ["align-items", "flex-start"], "items-end": ["align-items", "flex-end"], "justify-center": ["justify-content", "center"], "justify-between": ["justify-content", "space-between"], "justify-around": ["justify-content", "space-around"], "justify-end": ["justify-content", "flex-end"] };
+  if (alignMap[token]) { pushRule(classes, alignMap[token][0], alignMap[token][1]); return; }
   if (token.startsWith("gap-")) {
     const val = token.slice(4);
     pushRule(classes, "gap", resolveSpacing(val));
@@ -635,9 +508,8 @@ function processToken(token: string, classes: string[]) {
   }
   const rounded = token.match(/^rounded(?:-([a-z0-9]+))?$/);
   if (rounded) {
-    const key = (rounded[1] ?? "").toLowerCase();
-    const val = key in roundedScale ? roundedScale[key] : roundedScale[""];
-    pushRule(classes, "border-radius", val);
+    const key = rounded[1] || "";
+    pushRule(classes, "border-radius", scales.rounded[key] || scales.rounded[""]);
     return;
   }
 
@@ -647,7 +519,7 @@ function processToken(token: string, classes: string[]) {
     const innerToken = hoverMatch[1];
     const property = getPropertyForToken(innerToken);
     const value = getValueForToken(innerToken);
-    
+
     if (property && value) {
       const cls = ensureCssRule(`${property}:hover`, value);
       classes.push(cls);
@@ -661,7 +533,7 @@ function processToken(token: string, classes: string[]) {
     const innerToken = focusMatch[1];
     const property = getPropertyForToken(innerToken);
     const value = getValueForToken(innerToken);
-    
+
     if (property && value) {
       const cls = ensureCssRule(`${property}:focus`, value);
       classes.push(cls);
@@ -775,11 +647,11 @@ function buildCnClasses(args: CnArg[]): string[] {
 /**
  * cn(...args) builds Tailwind-like classes (with arbitrary values support) and applies them.
  * Accepts strings, numbers, arrays, functions, and object conditionals similarly to classnames/clsx.
- * 
+ *
  * For dynamic styling, pass functions that return class arguments:
- *  - cn(() => isActive ? "bg-blue" : "bg-gray") 
+ *  - cn(() => isActive ? "bg-blue" : "bg-gray")
  *  - cn("w-[100px]", () => ({ "rounded": isRounded }))
- * 
+ *
  * Static examples:
  *  - cn("w-[100px]", "h-[200px]", "bg-blue")
  *  - cn(["px-4", "py-2", { "rounded": isActive }])
@@ -787,7 +659,7 @@ function buildCnClasses(args: CnArg[]): string[] {
 export function cn(...args: (CnArg | (() => CnArg) | (() => CnArg[]))[]): NodeModFn<any> {
   // Check if any argument is a function (dynamic)
   const hasFunctions = args.some(arg => typeof arg === "function");
-  
+
   if (!hasFunctions) {
     // Static case - compute classes once
     const normalized = args.length === 1 && Array.isArray(args[0]) ? (args[0] as any[]) : args;
@@ -811,10 +683,10 @@ export function cn(...args: (CnArg | (() => CnArg) | (() => CnArg[]))[]): NodeMo
 
   // Dynamic case - create a reactive className updater
   let lastClasses: string[] = [];
-  
+
   return (parent: ExpandedElement<any>) => {
     if (!parent) return;
-    
+
     try {
       // Evaluate functions and resolve all arguments
       const resolvedArgs: CnArg[] = [];
@@ -835,16 +707,16 @@ export function cn(...args: (CnArg | (() => CnArg) | (() => CnArg[]))[]): NodeMo
           resolvedArgs.push(arg as CnArg);
         }
       }
-      
+
       const newClasses = buildCnClasses(resolvedArgs);
-      
+
       // Only update if classes changed
       if (JSON.stringify(newClasses) !== JSON.stringify(lastClasses)) {
         // Remove old classes
         if (lastClasses.length > 0 && (parent as any).classList?.remove) {
           (parent as any).classList.remove(...lastClasses);
         }
-        
+
         // Add new classes
         if (newClasses.length > 0) {
           if ((parent as any).classList?.add) {
@@ -858,7 +730,7 @@ export function cn(...args: (CnArg | (() => CnArg) | (() => CnArg[]))[]): NodeMo
             (parent as any).className = unique;
           }
         }
-        
+
         lastClasses = newClasses;
       }
     } catch {
@@ -873,9 +745,8 @@ export function cn(...args: (CnArg | (() => CnArg) | (() => CnArg[]))[]): NodeMo
  * Width utility.
  * Example: w("100px"), w(100) -> "100px"
  */
-export function w(value: CSSValue): StyleChain {
-  return createChain().w(value);
-}
+export const w = (value: CSSValue): StyleChain => createChain().w(value);
+
 
 /**
  * Height utility.
