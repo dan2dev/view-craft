@@ -40,7 +40,7 @@ declare global {
    * Tailwind-like class builder input types (strings, numbers, arrays, conditional objects).
    */
   type ViewCraftCnArg = string | number | null | undefined | false | Record<string, any> | Array<any>;
-  type ViewCraftCn = (...args: Array<ViewCraftCnArg>) => NodeModFn<any>;
+  type ViewCraftCn = (...args: Array<ViewCraftCnArg | (() => ViewCraftCnArg) | (() => ViewCraftCnArg[])>) => NodeModFn<any>;
 
   // Global variables (available on globalThis/window)
   var w: ViewCraftStyleUtil;

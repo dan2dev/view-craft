@@ -31,6 +31,7 @@ declare global {
   export type NodeMod<TTagName extends ElementTagName = ElementTagName> =
     | Primitive
     | (() => Primitive)
+    | (() => NodeModFn<TTagName>)
     | ExpandedElementAttributes<TTagName>
     | ExpandedElement<TTagName>;
 

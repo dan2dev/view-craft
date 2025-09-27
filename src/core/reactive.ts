@@ -3,6 +3,7 @@ import { isNodeConnected } from "../utility/dom";
 
 type TextResolver = () => Primitive;
 type AttributeResolver = () => unknown;
+type NodeModFnResolver<TTagName extends ElementTagName = ElementTagName> = () => NodeModFn<TTagName>;
 
 interface ReactiveTextNodeInfo {
   resolver: TextResolver;
@@ -17,8 +18,16 @@ interface ReactiveElementInfo {
   updateListener?: EventListener;
 }
 
+interface ReactiveNodeModFnInfo<TTagName extends ElementTagName = ElementTagName> {
+  resolver: NodeModFnResolver<TTagName>;
+  parent: ExpandedElement<TTagName>;
+  index: number;
+  lastModFn?: NodeModFn<TTagName>;
+}
+
 const reactiveTextNodes = new Map<Text, ReactiveTextNodeInfo>();
 const reactiveElements = new Map<Element, ReactiveElementInfo>();
+const reactiveNodeModFns = new Map<Element, ReactiveNodeModFnInfo[]>();
 
 function ensureElementInfo(el: Element): ReactiveElementInfo {
   let info = reactiveElements.get(el);
@@ -50,6 +59,48 @@ export function createReactiveTextNode(resolver: TextResolver, preEvaluated?: un
   txt.textContent = str;
   reactiveTextNodes.set(txt, { resolver, lastValue: str });
   return txt;
+}
+
+export function createReactiveNodeModFn<TTagName extends ElementTagName>(
+  resolver: NodeModFnResolver<TTagName>,
+  parent: ExpandedElement<TTagName>,
+  index: number
+): Node | null {
+  if (typeof resolver !== "function") {
+    logError("Invalid resolver provided to createReactiveNodeModFn");
+    return null;
+  }
+
+  try {
+    // Execute the resolver to get the NodeModFn
+    const nodeModFn = safeExecute(resolver);
+    if (typeof nodeModFn !== "function") {
+      logError("Resolver did not return a function");
+      return null;
+    }
+
+    // Execute the NodeModFn initially (e.g., cn() applies styles to parent)
+    nodeModFn(parent, index);
+    
+    // Store reactive info for updates
+    const info: ReactiveNodeModFnInfo<TTagName> = {
+      resolver,
+      parent,
+      index,
+      lastModFn: nodeModFn
+    };
+
+    const parentElement = parent as Element;
+    const existing = reactiveNodeModFns.get(parentElement) || [];
+    existing.push(info);
+    reactiveNodeModFns.set(parentElement, existing);
+
+    // Return null since NodeModFn like cn() doesn't produce a new node
+    return null;
+  } catch (error) {
+    logError("Failed to create reactive NodeModFn", error);
+    return null;
+  }
 }
 
 export function registerAttributeResolver<TTagName extends ElementTagName>(
@@ -105,5 +156,29 @@ export function notifyReactiveElements(): void {
       return;
     }
     applyAttributeResolvers(el, info);
+  });
+}
+
+export function notifyReactiveNodeModFns(): void {
+  reactiveNodeModFns.forEach((infos, el) => {
+    if (!isNodeConnected(el)) {
+      reactiveNodeModFns.delete(el);
+      return;
+    }
+
+    infos.forEach((info) => {
+      try {
+        // Re-evaluate the resolver to get the NodeModFn (may be same function but with different closure state)
+        const nodeModFn = safeExecute(info.resolver);
+        if (typeof nodeModFn === "function") {
+          // Always execute the NodeModFn since reactive state may have changed
+          // For cn(), this will re-evaluate the classes and update the DOM
+          nodeModFn(info.parent, info.index);
+          info.lastModFn = nodeModFn;
+        }
+      } catch (error) {
+        logError("Failed to update reactive NodeModFn", error);
+      }
+    });
   });
 }

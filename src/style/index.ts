@@ -61,12 +61,18 @@ function ensureCssRule(property: string, value: string): string {
   const cached = ruleCache.get(key);
   if (cached) return cached;
 
-  const cls = `${CLASS_PREFIX}-${propAbbrev(property)}-${hash(key)}`;
+  // Handle pseudo-classes (hover, focus, etc.)
+  const isPseudo = property.includes(':');
+  const baseProp = isPseudo ? property.split(':')[0] : property;
+  const pseudoClass = isPseudo ? property.split(':')[1] : '';
+  
+  const cls = `${CLASS_PREFIX}-${propAbbrev(baseProp)}-${hash(key)}`;
   const sheet = getOrCreateStyleSheet();
 
   // Insert the rule if possible (browser); on SSR we just cache the class for later use.
   if (sheet) {
-    const rule = `.${cls} { ${property}: ${value}; }`;
+    const selector = isPseudo ? `.${cls}:${pseudoClass}` : `.${cls}`;
+    const rule = `${selector} { ${baseProp}: ${value}; }`;
     try {
       sheet.insertRule(rule, sheet.cssRules.length);
     } catch {
@@ -207,6 +213,88 @@ const fontWeightMap: Record<string, string> = {
   black: "900",
 };
 
+// Tailwind color palette
+const colorPalette: Record<string, Record<string, string> | string> = {
+  gray: {
+    "50": "#f9fafb",
+    "100": "#f3f4f6",
+    "200": "#e5e7eb",
+    "300": "#d1d5db",
+    "400": "#9ca3af",
+    "500": "#6b7280",
+    "600": "#4b5563",
+    "700": "#374151",
+    "800": "#1f2937",
+    "900": "#111827",
+  },
+  red: {
+    "50": "#fef2f2",
+    "100": "#fee2e2",
+    "200": "#fecaca",
+    "300": "#fca5a5",
+    "400": "#f87171",
+    "500": "#ef4444",
+    "600": "#dc2626",
+    "700": "#b91c1c",
+    "800": "#991b1b",
+    "900": "#7f1d1d",
+  },
+  blue: {
+    "50": "#eff6ff",
+    "100": "#dbeafe",
+    "200": "#bfdbfe",
+    "300": "#93c5fd",
+    "400": "#60a5fa",
+    "500": "#3b82f6",
+    "600": "#2563eb",
+    "700": "#1d4ed8",
+    "800": "#1e40af",
+    "900": "#1e3a8a",
+  },
+  indigo: {
+    "50": "#eef2ff",
+    "100": "#e0e7ff",
+    "200": "#c7d2fe",
+    "300": "#a5b4fc",
+    "400": "#818cf8",
+    "500": "#6366f1",
+    "600": "#4f46e5",
+    "700": "#4338ca",
+    "800": "#3730a3",
+    "900": "#312e81",
+  },
+  white: "white",
+  black: "black",
+  transparent: "transparent",
+};
+
+function resolveColor(colorName: string): string {
+  // Handle direct color names
+  if (colorName === "white" || colorName === "black" || colorName === "transparent") {
+    return colorName;
+  }
+  
+  // Handle color-number format (e.g., "blue-500", "gray-300")
+  const match = colorName.match(/^([a-z]+)-(\d+)$/);
+  if (match) {
+    const [, color, shade] = match;
+    const colorData = colorPalette[color];
+    if (colorData && typeof colorData === "object") {
+      return colorData[shade] || colorName;
+    }
+    return colorName;
+  }
+  
+  // Handle single color names (e.g., "blue" -> "blue-500")
+  const colorData = colorPalette[colorName];
+  if (colorData && typeof colorData === "object") {
+    return colorData["500"] || colorName;
+  }
+  
+  // Return as-is for custom colors
+  return colorName;
+}
+
 const displayMap: Record<string, string> = {
   block: "block",
   inline: "inline",
@@ -258,6 +346,85 @@ function applySpacing(classes: string[], base: "padding" | "margin", dir: string
     case "l":
       pushRule(classes, `${base}-left`, val); break;
   }
+}
+
+function getPropertyForToken(token: string): string | null {
+  // Background color
+  if (token.startsWith('bg-')) {
+    const colorPart = token.slice(3);
+    if (!colorPart.startsWith('gradient-')) {
+      return 'background-color';
+    }
+  }
+  
+  // Text color
+  if (token.startsWith('text-')) {
+    const colorPart = token.slice(5);
+    const sizeMap = ['xs', 'sm', 'base', 'lg', 'xl', '2xl', '3xl', '4xl'];
+    if (!sizeMap.includes(colorPart)) {
+      return 'color';
+    }
+  }
+  
+  // Border
+  if (token.startsWith('border-') && !token.match(/^border-[0-9]/)) {
+    return 'border-color';
+  }
+  
+  // Outline
+  if (token === 'outline-none') {
+    return 'outline';
+  }
+  
+  // Ring (focus ring)
+  if (token.startsWith('ring-')) {
+    return 'box-shadow';
+  }
+  
+  return null;
+}
+
+function getValueForToken(token: string): string | null {
+  // Background color
+  if (token.startsWith('bg-')) {
+    const colorPart = token.slice(3);
+    if (!colorPart.startsWith('gradient-')) {
+      return resolveColor(colorPart);
+    }
+  }
+  
+  // Text color
+  if (token.startsWith('text-')) {
+    const colorPart = token.slice(5);
+    const sizeMap = ['xs', 'sm', 'base', 'lg', 'xl', '2xl', '3xl', '4xl'];
+    if (!sizeMap.includes(colorPart)) {
+      return resolveColor(colorPart);
+    }
+  }
+  
+  // Border color
+  if (token.startsWith('border-') && !token.match(/^border-[0-9]/)) {
+    const colorPart = token.slice(7);
+    return resolveColor(colorPart);
+  }
+  
+  // Outline
+  if (token === 'outline-none') {
+    return 'none';
+  }
+  
+  // Ring (focus ring)
+  if (token.startsWith('ring-')) {
+    const ringPart = token.slice(5);
+    if (ringPart === '2') {
+      return '0 0 0 2px rgba(59, 130, 246, 0.5)';
+    } else {
+      const color = resolveColor(ringPart);
+      return `0 0 0 2px ${color}`;
+    }
+  }
+  
+  return null;
 }
 
 function processToken(token: string, classes: string[]) {
@@ -320,15 +487,53 @@ function processToken(token: string, classes: string[]) {
   const bgMatch = token.match(/^bg-(.+)$/);
   if (bgMatch) {
     const v = bgMatch[1];
-    // Allow raw CSS color names or codes
-    pushRule(classes, "background-color", v);
+    
+    // Handle gradient backgrounds
+    if (v.startsWith("gradient-")) {
+      if (v === "gradient-to-r") {
+        pushRule(classes, "background-image", "linear-gradient(to right, var(--tw-gradient-stops))");
+        return;
+      }
+      if (v === "gradient-to-br") {
+        pushRule(classes, "background-image", "linear-gradient(to bottom right, var(--tw-gradient-stops))");
+        return;
+      }
+      if (v === "gradient-to-b") {
+        pushRule(classes, "background-image", "linear-gradient(to bottom, var(--tw-gradient-stops))");
+        return;
+      }
+      if (v === "gradient-to-l") {
+        pushRule(classes, "background-image", "linear-gradient(to left, var(--tw-gradient-stops))");
+        return;
+      }
+      if (v === "gradient-to-t") {
+        pushRule(classes, "background-image", "linear-gradient(to top, var(--tw-gradient-stops))");
+        return;
+      }
+      if (v === "gradient-to-bl") {
+        pushRule(classes, "background-image", "linear-gradient(to bottom left, var(--tw-gradient-stops))");
+        return;
+      }
+      if (v === "gradient-to-tr") {
+        pushRule(classes, "background-image", "linear-gradient(to top right, var(--tw-gradient-stops))");
+        return;
+      }
+      if (v === "gradient-to-tl") {
+        pushRule(classes, "background-image", "linear-gradient(to top left, var(--tw-gradient-stops))");
+        return;
+      }
+    }
+    
+    // Regular background color
+    const color = resolveColor(v);
+    pushRule(classes, "background-color", color);
     return;
   }
 
   // Text color: text-<color> and text size: text-xs/sm/base/lg/xl/...
-  const textMatch = token.match(/^text-([a-z0-9]+)$/i);
+  const textMatch = token.match(/^text-(.+)$/i);
   if (textMatch) {
-    const v = textMatch[1].toLowerCase();
+    const v = textMatch[1];
     const sizeMap: Record<string, string> = {
       xs: "0.75rem",
       sm: "0.875rem",
@@ -342,8 +547,26 @@ function processToken(token: string, classes: string[]) {
     if (v in sizeMap) {
       pushRule(classes, "font-size", sizeMap[v]);
     } else {
-      pushRule(classes, "color", v);
+      const color = resolveColor(v);
+      pushRule(classes, "color", color);
     }
+    return;
+  }
+
+  // Gradient color stops: from-* and to-*
+  const fromMatch = token.match(/^from-(.+)$/);
+  if (fromMatch) {
+    const color = resolveColor(fromMatch[1]);
+    pushRule(classes, "--tw-gradient-from", color);
+    pushRule(classes, "--tw-gradient-to", "rgb(255 255 255 / 0)");
+    pushRule(classes, "--tw-gradient-stops", "var(--tw-gradient-from), var(--tw-gradient-to)");
+    return;
+  }
+
+  const toMatch = token.match(/^to-(.+)$/);
+  if (toMatch) {
+    const color = resolveColor(toMatch[1]);
+    pushRule(classes, "--tw-gradient-to", color);
     return;
   }
 
@@ -382,6 +605,15 @@ function processToken(token: string, classes: string[]) {
     pushRule(classes, "border-width", "1px");
     return;
   }
+  if (token === "border-b") {
+    pushRule(classes, "border-bottom-style", "solid");
+    pushRule(classes, "border-bottom-width", "1px");
+    return;
+  }
+  if (token === "border-transparent") {
+    pushRule(classes, "border-color", "transparent");
+    return;
+  }
   const borderWidth = token.match(/^border-(0|2|4|8)$/);
   if (borderWidth) {
     pushRule(classes, "border-style", "solid");
@@ -389,11 +621,109 @@ function processToken(token: string, classes: string[]) {
     pushRule(classes, "border-width", w);
     return;
   }
+  const borderColor = token.match(/^border-(.+)$/);
+  if (borderColor && !borderColor[1].match(/^[0-9]/)) {
+    const color = resolveColor(borderColor[1]);
+    pushRule(classes, "border-color", color);
+    return;
+  }
   const rounded = token.match(/^rounded(?:-([a-z0-9]+))?$/);
   if (rounded) {
     const key = (rounded[1] ?? "").toLowerCase();
     const val = key in roundedScale ? roundedScale[key] : roundedScale[""];
     pushRule(classes, "border-radius", val);
+    return;
+  }
+
+  // Hover states: hover:*
+  const hoverMatch = token.match(/^hover:(.+)$/);
+  if (hoverMatch) {
+    const innerToken = hoverMatch[1];
+    const property = getPropertyForToken(innerToken);
+    const value = getValueForToken(innerToken);
+    
+    if (property && value) {
+      const cls = ensureCssRule(`${property}:hover`, value);
+      classes.push(cls);
+    }
+    return;
+  }
+
+  // Focus states: focus:*
+  const focusMatch = token.match(/^focus:(.+)$/);
+  if (focusMatch) {
+    const innerToken = focusMatch[1];
+    const property = getPropertyForToken(innerToken);
+    const value = getValueForToken(innerToken);
+    
+    if (property && value) {
+      const cls = ensureCssRule(`${property}:focus`, value);
+      classes.push(cls);
+    }
+    return;
+  }
+
+  // Additional utilities
+  if (token === "transition-colors") {
+    pushRule(classes, "transition-property", "color, background-color, border-color, text-decoration-color, fill, stroke");
+    pushRule(classes, "transition-timing-function", "cubic-bezier(0.4, 0, 0.2, 1)");
+    pushRule(classes, "transition-duration", "150ms");
+    return;
+  }
+  if (token === "transition-all") {
+    pushRule(classes, "transition-property", "all");
+    pushRule(classes, "transition-timing-function", "cubic-bezier(0.4, 0, 0.2, 1)");
+    pushRule(classes, "transition-duration", "150ms");
+    return;
+  }
+  if (token === "cursor-not-allowed") {
+    pushRule(classes, "cursor", "not-allowed");
+    return;
+  }
+  if (token === "line-through") {
+    pushRule(classes, "text-decoration-line", "line-through");
+    return;
+  }
+  if (token === "text-center") {
+    pushRule(classes, "text-align", "center");
+    return;
+  }
+  if (token === "overflow-hidden") {
+    pushRule(classes, "overflow", "hidden");
+    return;
+  }
+  if (token === "shadow-lg") {
+    pushRule(classes, "box-shadow", "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)");
+    return;
+  }
+  if (token === "space-y-2") {
+    pushRule(classes, "--tw-space-y-reverse", "0");
+    pushRule(classes, "margin-top", "calc(0.5rem * calc(1 - var(--tw-space-y-reverse)))");
+    pushRule(classes, "margin-bottom", "calc(0.5rem * var(--tw-space-y-reverse))");
+    return;
+  }
+  if (token.startsWith("max-w-")) {
+    const size = token.slice(7);
+    const sizeMap: Record<string, string> = {
+      "2xl": "42rem",
+      xl: "36rem",
+      lg: "32rem",
+      md: "28rem",
+      sm: "24rem",
+    };
+    const val = sizeMap[size] || size;
+    pushRule(classes, "max-width", val);
+    return;
+  }
+  if (token.startsWith("min-h-")) {
+    const size = token.slice(7);
+    const val = size === "screen" ? "100vh" : size;
+    pushRule(classes, "min-height", val);
+    return;
+  }
+  if (token === "mx-auto") {
+    pushRule(classes, "margin-left", "auto");
+    pushRule(classes, "margin-right", "auto");
     return;
   }
 
@@ -438,25 +768,92 @@ function buildCnClasses(args: CnArg[]): string[] {
 
 /**
  * cn(...args) builds Tailwind-like classes (with arbitrary values support) and applies them.
- * Accepts strings, numbers, arrays, and object conditionals similarly to classnames/clsx.
- * Examples:
+ * Accepts strings, numbers, arrays, functions, and object conditionals similarly to classnames/clsx.
+ * 
+ * For dynamic styling, pass functions that return class arguments:
+ *  - cn(() => isActive ? "bg-blue" : "bg-gray") 
+ *  - cn("w-[100px]", () => ({ "rounded": isRounded }))
+ * 
+ * Static examples:
  *  - cn("w-[100px]", "h-[200px]", "bg-blue")
  *  - cn(["px-4", "py-2", { "rounded": isActive }])
  */
-export function cn(...args: CnArg[]): NodeModFn<any> {
-  // Support cn([ ... ]) as well as cn(a,b,c)
-  const normalized = args.length === 1 && Array.isArray(args[0]) ? (args[0] as any[]) : args;
-  const classes = buildCnClasses(normalized);
+export function cn(...args: (CnArg | (() => CnArg) | (() => CnArg[]))[]): NodeModFn<any> {
+  // Check if any argument is a function (dynamic)
+  const hasFunctions = args.some(arg => typeof arg === "function");
+  
+  if (!hasFunctions) {
+    // Static case - compute classes once
+    const normalized = args.length === 1 && Array.isArray(args[0]) ? (args[0] as any[]) : args;
+    const classes = buildCnClasses(normalized as CnArg[]);
+    return (parent: ExpandedElement<any>) => {
+      if (!parent || classes.length === 0) return;
+      try {
+        if ((parent as any).classList && typeof (parent as any).classList.add === "function") {
+          (parent as any).classList.add(...classes);
+        } else {
+          const existing = ((parent as any).className ?? "").toString().trim();
+          const merged = (existing ? existing.split(/\s+/) : []).concat(classes);
+          const unique = Array.from(new Set(merged)).join(" ").trim();
+          (parent as any).className = unique;
+        }
+      } catch {
+        // ignore
+      }
+    };
+  }
+
+  // Dynamic case - create a reactive className updater
+  let lastClasses: string[] = [];
+  
   return (parent: ExpandedElement<any>) => {
-    if (!parent || classes.length === 0) return;
+    if (!parent) return;
+    
     try {
-      if ((parent as any).classList && typeof (parent as any).classList.add === "function") {
-        (parent as any).classList.add(...classes);
-      } else {
-        const existing = ((parent as any).className ?? "").toString().trim();
-        const merged = (existing ? existing.split(/\s+/) : []).concat(classes);
-        const unique = Array.from(new Set(merged)).join(" ").trim();
-        (parent as any).className = unique;
+      // Evaluate functions and resolve all arguments
+      const resolvedArgs: CnArg[] = [];
+      for (const arg of args) {
+        if (typeof arg === "function") {
+          try {
+            const result = (arg as () => CnArg | CnArg[])();
+            if (Array.isArray(result)) {
+              resolvedArgs.push(...result);
+            } else {
+              resolvedArgs.push(result);
+            }
+          } catch (error) {
+            // Ignore function evaluation errors
+            continue;
+          }
+        } else {
+          resolvedArgs.push(arg as CnArg);
+        }
+      }
+      
+      const newClasses = buildCnClasses(resolvedArgs);
+      
+      // Only update if classes changed
+      if (JSON.stringify(newClasses) !== JSON.stringify(lastClasses)) {
+        // Remove old classes
+        if (lastClasses.length > 0 && (parent as any).classList?.remove) {
+          (parent as any).classList.remove(...lastClasses);
+        }
+        
+        // Add new classes
+        if (newClasses.length > 0) {
+          if ((parent as any).classList?.add) {
+            (parent as any).classList.add(...newClasses);
+          } else {
+            // Fallback without classList
+            const existing = ((parent as any).className ?? "").toString().trim();
+            const existingClasses = existing ? existing.split(/\s+/) : [];
+            const filteredExisting = existingClasses.filter((cls: string) => !lastClasses.includes(cls));
+            const unique = Array.from(new Set([...filteredExisting, ...newClasses])).join(" ").trim();
+            (parent as any).className = unique;
+          }
+        }
+        
+        lastClasses = newClasses;
       }
     } catch {
       // ignore
