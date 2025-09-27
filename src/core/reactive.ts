@@ -27,7 +27,7 @@ interface ReactiveNodeModFnInfo<TTagName extends ElementTagName = ElementTagName
 
 const reactiveTextNodes = new Map<Text, ReactiveTextNodeInfo>();
 const reactiveElements = new Map<Element, ReactiveElementInfo>();
-const reactiveNodeModFns = new Map<Element, ReactiveNodeModFnInfo[]>();
+const reactiveNodeModFns = new Map<Element, ReactiveNodeModFnInfo<any>[]>();
 
 function ensureElementInfo(el: Element): ReactiveElementInfo {
   let info = reactiveElements.get(el);
@@ -91,8 +91,8 @@ export function createReactiveNodeModFn<TTagName extends ElementTagName>(
     };
 
     const parentElement = parent as Element;
-    const existing = reactiveNodeModFns.get(parentElement) || [];
-    existing.push(info);
+    const existing = reactiveNodeModFns.get(parentElement) || ([] as ReactiveNodeModFnInfo<any>[]);
+    existing.push(info as ReactiveNodeModFnInfo<any>);
     reactiveNodeModFns.set(parentElement, existing);
 
     // Return null since NodeModFn like cn() doesn't produce a new node
