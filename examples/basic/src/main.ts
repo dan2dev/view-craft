@@ -67,19 +67,23 @@ function filteredTodos(): Todo[] {
   if (filter === "completed") return todos.filter((t) => t.done);
   return todos;
 }
+//
+
+// w("200px");
 
 // UI
 const root = document.getElementById("app") as HTMLElement;
 console.time("render");
 const app = div(
   {
-    className:
-      "min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4",
+    className: "min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4",
   },
+  h1("this is a header", {
+    className: "dynamic-header",
+  }),
   div(
     {
-      className:
-        "max-w-2xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden",
+      className: "max-w-2xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden",
     },
 
     // Header
@@ -94,8 +98,7 @@ const app = div(
           {
             type: "text",
             placeholder: "What needs to be done?",
-            className:
-              "flex-1 px-4 py-2 rounded-lg border-2 border-transparent focus:border-white focus:outline-none",
+            className: "flex-1 px-4 py-2 rounded-lg border-2 border-transparent focus:border-white focus:outline-none",
             value: () => newTitle,
           },
           on("input", (e) => {
@@ -135,12 +138,7 @@ const app = div(
         // Left counters
         div(
           { className: "flex items-center gap-3 text-sm text-gray-600" },
-          div(
-            () =>
-              `${remainingCount()} item${
-                remainingCount() === 1 ? "" : "s"
-              } left`,
-          ),
+          div(() => `${remainingCount()} item${remainingCount() === 1 ? "" : "s"} left`),
           div("•"),
           div(() => `${completedCount()} completed`),
         ),
@@ -151,9 +149,7 @@ const app = div(
             {
               className: () =>
                 "px-3 py-1 rounded-md text-sm font-medium transition-colors " +
-                (filter === "all"
-                  ? "bg-indigo-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"),
+                (filter === "all" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"),
             },
             "All",
             on("click", () => setFilter("all")),
@@ -162,9 +158,7 @@ const app = div(
             {
               className: () =>
                 "px-3 py-1 rounded-md text-sm font-medium transition-colors " +
-                (filter === "active"
-                  ? "bg-indigo-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"),
+                (filter === "active" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"),
             },
             "Active",
             on("click", () => setFilter("active")),
@@ -173,9 +167,7 @@ const app = div(
             {
               className: () =>
                 "px-3 py-1 rounded-md text-sm font-medium transition-colors " +
-                (filter === "completed"
-                  ? "bg-indigo-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"),
+                (filter === "completed" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"),
             },
             "Completed",
             on("click", () => setFilter("completed")),
@@ -186,8 +178,7 @@ const app = div(
           () => completedCount() > 0,
           button(
             {
-              className:
-                "px-3 py-1 text-sm text-red-600 hover:text-red-700 font-medium",
+              className: "px-3 py-1 text-sm text-red-600 hover:text-red-700 font-medium",
             },
             "Clear completed",
             on("click", clearCompleted),
@@ -208,14 +199,12 @@ const app = div(
             (todo, index) =>
               div(
                 {
-                  className:
-                    "flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors",
+                  className: "flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors",
                 },
                 input(
                   {
                     type: "checkbox",
-                    className:
-                      "w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500",
+                    className: "w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500",
                     checked: () => !!todo.done,
                   },
                   on("change", (e: any) => {
@@ -225,11 +214,7 @@ const app = div(
                 ),
                 div(
                   {
-                    className: () =>
-                      "flex-1 " +
-                      (todo.done
-                        ? "line-through text-gray-400"
-                        : "text-gray-800"),
+                    className: () => "flex-1 " + (todo.done ? "line-through text-gray-400" : "text-gray-800"),
                     title: () => todo.title,
                   },
                   () => `${index + 1}`,
@@ -237,8 +222,7 @@ const app = div(
                 ),
                 button(
                   {
-                    className:
-                      "px-3 py-1 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors",
+                    className: "px-3 py-1 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors",
                     title: "Delete todo",
                   },
                   "Delete",
@@ -247,12 +231,7 @@ const app = div(
               ),
           ),
         ),
-      ).else(
-        div(
-          { className: "text-center py-12 text-gray-400" },
-          "No todos yet. Add one above!",
-        ),
-      ),
+      ).else(div({ className: "text-center py-12 text-gray-400" }, "No todos yet. Add one above!")),
     ),
   ),
 )(root, 0);
