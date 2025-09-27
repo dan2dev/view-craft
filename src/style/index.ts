@@ -8,7 +8,7 @@
  * - No duplicate CSS rules: each (property,value) pair produces a single class in a shared stylesheet
  *
  * Implementation notes:
- * - Utilities generate deterministic class names (based on hashed "prop:value") and insert rules via CSSStyleSheet.insertRule.
+ * - Utilities generate deterministic class names (property + value, no hashes) and insert rules via CSSStyleSheet.insertRule.
  * - The chain applies classes via element.classList.add to avoid clobbering other classes.
  */
 
@@ -36,13 +36,16 @@ function getOrCreateStyleSheet(): CSSStyleSheet | null {
   return styleEl.sheet as CSSStyleSheet;
 }
 
-function hash(input: string): string {
-  // djb2 variant (xor) -> base36
-  let h = 5381;
-  for (let i = 0; i < input.length; i += 1) {
-    h = ((h << 5) + h) ^ input.charCodeAt(i);
-  }
-  return (h >>> 0).toString(36);
+function slugify(input: string): string {
+  return input
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/%/g, "pct")
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9_-]+/gi, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
 function propAbbrev(prop: string): string {
@@ -65,8 +68,11 @@ function ensureCssRule(property: string, value: string): string {
   const isPseudo = property.includes(':');
   const baseProp = isPseudo ? property.split(':')[0] : property;
   const pseudoClass = isPseudo ? property.split(':')[1] : '';
-  
-  const cls = `${CLASS_PREFIX}-${propAbbrev(baseProp)}-${hash(key)}`;
+
+  const propSlug = propAbbrev(baseProp);
+  const valueSlug = slugify(value);
+  const pseudoPrefix = pseudoClass ? `${pseudoClass}-` : '';
+  const cls = `${CLASS_PREFIX}-${pseudoPrefix}${propSlug}-${valueSlug}`;
   const sheet = getOrCreateStyleSheet();
 
   // Insert the rule if possible (browser); on SSR we just cache the class for later use.
