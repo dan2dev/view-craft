@@ -70,7 +70,7 @@ function filteredTodos(): Todo[] {
 
 // UI
 const root = document.getElementById("app") as HTMLElement;
-
+console.time("render");
 const app = div(
   {
     className:
@@ -259,3 +259,4 @@ const app = div(
   ),
 )(root, 0);
 root.appendChild(app as Node);
+console.timeEnd("render");
