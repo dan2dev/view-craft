@@ -7,6 +7,7 @@ import "./features/list";
 import "./features/when";
 import "./features/update";
 import "./features/on";
+import "./features/styles";
 
 // Re-export on() helper for module-style consumers (import { on } from "view-craft")
 export function on<K extends keyof HTMLElementEventMap>(

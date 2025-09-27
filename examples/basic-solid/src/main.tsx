@@ -29,8 +29,8 @@ function App() {
   };
 
   const toggleTodo = (id: number, done?: boolean) => {
-    setTodos(prev => prev.map(t => 
-      t.id === id 
+    setTodos(prev => prev.map(t =>
+      t.id === id
         ? { ...t, done: typeof done === "boolean" ? done : !t.done }
         : t
     ));
@@ -42,7 +42,7 @@ function App() {
 
   const remainingCount = createMemo(() => todos().filter(t => !t.done).length);
   const completedCount = createMemo(() => todos().filter(t => t.done).length);
-  
+
   const filteredTodos = createMemo(() => {
     const currentFilter = filter();
     if (currentFilter === "active") return todos().filter(t => !t.done);
@@ -60,9 +60,9 @@ function App() {
 
   return (
     <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
-      <h1 class="dynamic-header">this is a header</h1>
+      <h1 class="text-4xl text-blue-700 text-center">SOLID</h1>
       <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-        
+
         {/* Header */}
         <div class="bg-gradient-to-r from-blue-500 to-indigo-600 p-6">
           <h1 class="text-3xl font-bold text-white text-center mb-4">Todo List</h1>
@@ -98,13 +98,13 @@ function App() {
               <div>•</div>
               <div>{completedCount()} completed</div>
             </div>
-            
+
             {/* Middle: filters */}
             <div class="flex gap-2">
               <button
                 class={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                  filter() === "all" 
-                    ? "bg-indigo-600 text-white" 
+                  filter() === "all"
+                    ? "bg-indigo-600 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
                 onClick={() => setFilter("all")}
@@ -113,8 +113,8 @@ function App() {
               </button>
               <button
                 class={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                  filter() === "active" 
-                    ? "bg-indigo-600 text-white" 
+                  filter() === "active"
+                    ? "bg-indigo-600 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
                 onClick={() => setFilter("active")}
@@ -123,8 +123,8 @@ function App() {
               </button>
               <button
                 class={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                  filter() === "completed" 
-                    ? "bg-indigo-600 text-white" 
+                  filter() === "completed"
+                    ? "bg-indigo-600 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
                 onClick={() => setFilter("completed")}
@@ -132,7 +132,7 @@ function App() {
                 Completed
               </button>
             </div>
-            
+
             {/* Right: clear completed */}
             <Show when={completedCount() > 0}>
               <button
