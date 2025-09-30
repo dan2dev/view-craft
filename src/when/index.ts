@@ -33,10 +33,11 @@ interface WhenRuntime<TTagName extends ElementTagName = ElementTagName> {
 
 const activeWhenRuntimes = new Set<WhenRuntime<any>>();
 
-function renderWhenContent<TTagName extends ElementTagName>(runtime: WhenRuntime<TTagName>): void {
+function renderWhenContent<TTagName extends ElementTagName>(
+  runtime: WhenRuntime<TTagName>
+): void {
   const { groups, elseContent, host, index, endMarker } = runtime;
 
-  // Determine which branch (if any) should be active now
   let newActive: number | -1 | null = null;
   for (let i = 0; i < groups.length; i++) {
     if (resolveCondition(groups[i].condition)) {
@@ -48,56 +49,47 @@ function renderWhenContent<TTagName extends ElementTagName>(runtime: WhenRuntime
     newActive = -1;
   }
 
-  // If the active branch hasn't changed, we skip re-rendering to preserve
-  // any existing structural runtimes (like list) inside the branch.
-  if (newActive === runtime.activeIndex) {
-    return;
-  }
+  if (newActive === runtime.activeIndex) return;
 
-  // Branch changed – clear old content
   clearBetweenMarkers(runtime.startMarker, runtime.endMarker);
   runtime.activeIndex = newActive;
 
-  // Nothing to render
   if (newActive === null) return;
 
   const nodes: Node[] = [];
 
-  const renderItems = (items: ReadonlyArray<WhenContent<TTagName>>) => {
+  const renderItems = (items: ReadonlyArray<WhenContent<TTagName>>): void => {
     for (const item of items) {
       if (isFunction(item)) {
         if ((item as Function).length === 0) {
-          // Zero-arg reactive function (reactive text)
-            modifierProbeCache.delete(item as Function);
-            const node = applyNodeModifier(host, item, index);
-            if (node) nodes.push(node);
-            continue;
+          modifierProbeCache.delete(item as Function);
+          const node = applyNodeModifier(host, item, index);
+          if (node) nodes.push(node);
+          continue;
         }
-        // Structural NodeModFn (list, nested when, tag builders returning functions, etc.)
+
         const realHost = host as unknown as Element & {
-          appendChild: (n: Node) => any;
-          insertBefore: (n: Node, ref: Node | null) => any;
+          appendChild: (n: Node) => Node;
+          insertBefore: (n: Node, ref: Node | null) => Node;
         };
         const originalAppend = realHost.appendChild;
-        (realHost as any).appendChild = function(n: Node) {
-          return (realHost as any).insertBefore(n, endMarker);
+        (realHost as unknown as Record<string, Function>).appendChild = function (n: Node) {
+          return (realHost as unknown as Record<string, Function>).insertBefore(
+            n,
+            endMarker
+          ) as Node;
         };
         try {
-          // Invoke the NodeModFn. It may either:
-          //  1. Return a node that is NOT yet in the DOM (simple element factory)
-          //  2. Self-append its own markers/content (structural runtime like list / nested when)
           const maybeNode = applyNodeModifier(host, item, index);
           if (maybeNode && !maybeNode.parentNode) {
-            // Not in DOM yet => treat as simple element factory result; queue for insertion
             nodes.push(maybeNode);
           }
         } finally {
-          (realHost as any).appendChild = originalAppend;
+          (realHost as unknown as Record<string, Function>).appendChild = originalAppend;
         }
         continue;
       }
 
-      // Plain content (primitive, Node, attribute object)
       const node = applyNodeModifier(host, item, index);
       if (node) nodes.push(node);
     }
@@ -131,12 +123,10 @@ class WhenBuilderImpl<TTagName extends ElementTagName = ElementTagName> {
   }
 
   render(host: ExpandedElement<TTagName>, index: number): Node | null {
-    if (!isBrowser) {
-      return document.createComment("when-ssr");
-    }
+    if (!isBrowser) return document.createComment("when-ssr");
 
     const { start: startMarker, end: endMarker } = createMarkerPair("when");
-    
+
     const runtime: WhenRuntime<TTagName> = {
       startMarker,
       endMarker,
@@ -145,15 +135,15 @@ class WhenBuilderImpl<TTagName extends ElementTagName = ElementTagName> {
       groups: [...this.groups],
       elseContent: [...this.elseContent],
       activeIndex: null,
-      update: () => renderWhenContent(runtime)
+      update: () => renderWhenContent(runtime),
     };
 
     activeWhenRuntimes.add(runtime);
-    
+
     const parent = host as unknown as Node & ParentNode;
     parent.appendChild(startMarker);
     parent.appendChild(endMarker);
-    
+
     renderWhenContent(runtime);
 
     return startMarker;
@@ -180,11 +170,10 @@ function createWhenBuilderFunction<TTagName extends ElementTagName>(
 }
 
 export function updateWhenRuntimes(): void {
-  activeWhenRuntimes.forEach(runtime => {
+  activeWhenRuntimes.forEach((runtime) => {
     try {
       runtime.update();
     } catch (error) {
-      // Remove runtime if it errors (likely due to cleanup)
       activeWhenRuntimes.delete(runtime);
     }
   });
@@ -195,7 +184,7 @@ export function clearWhenRuntimes(): void {
 }
 
 export function when<TTagName extends ElementTagName = ElementTagName>(
-  condition: WhenCondition, 
+  condition: WhenCondition,
   ...content: WhenContent<TTagName>[]
 ): WhenBuilder<TTagName> {
   const builder = new WhenBuilderImpl<TTagName>(condition, ...content);

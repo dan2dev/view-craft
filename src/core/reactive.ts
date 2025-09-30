@@ -4,16 +4,18 @@ import { isNodeConnected } from "../utility/dom";
 type TextResolver = () => Primitive;
 type AttributeResolver = () => unknown;
 
+interface AttributeResolverRecord {
+  resolver: AttributeResolver;
+  applyValue: (value: unknown) => void;
+}
+
 interface ReactiveTextNodeInfo {
   resolver: TextResolver;
   lastValue: string;
 }
 
 interface ReactiveElementInfo {
-  attributeResolvers: Map<string, {
-    resolver: AttributeResolver;
-    applyValue: (value: unknown) => void;
-  }>;
+  attributeResolvers: Map<string, AttributeResolverRecord>;
   updateListener?: EventListener;
 }
 
@@ -30,9 +32,9 @@ function ensureElementInfo(el: Element): ReactiveElementInfo {
 }
 
 function applyAttributeResolvers(el: Element, info: ReactiveElementInfo): void {
-  info.attributeResolvers.forEach((r, key) => {
+  info.attributeResolvers.forEach(({ resolver, applyValue }, key) => {
     try {
-      r.applyValue(safeExecute(r.resolver));
+      applyValue(safeExecute(resolver));
     } catch (e) {
       logError(`Failed to update reactive attribute: ${key}`, e);
     }
@@ -40,14 +42,15 @@ function applyAttributeResolvers(el: Element, info: ReactiveElementInfo): void {
 }
 
 export function createReactiveTextNode(resolver: TextResolver, preEvaluated?: unknown): Text {
-  const txt = document.createTextNode("");
   if (typeof resolver !== "function") {
     logError("Invalid resolver provided to createReactiveTextNode");
-    return txt;
+    return document.createTextNode("");
   }
+
   const initial = arguments.length > 1 ? preEvaluated : safeExecute(resolver, "");
   const str = initial === undefined ? "" : String(initial);
-  txt.textContent = str;
+  const txt = document.createTextNode(str);
+
   reactiveTextNodes.set(txt, { resolver, lastValue: str });
   return txt;
 }

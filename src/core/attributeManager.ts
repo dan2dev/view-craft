@@ -14,12 +14,11 @@ function applySingleAttribute<TTagName extends ElementTagName>(
   if (raw == null) return;
 
   if (key === "style") {
-    // Cast to any to avoid complex conditional expansion for style union types
-    applyStyleAttribute(el, raw as any);
+    applyStyleAttribute(el, raw as ExpandedElementAttributes<TTagName>["style"]);
     return;
   }
 
-  const setValue = (v: unknown) => {
+  const setValue = (v: unknown): void => {
     if (v == null) return;
     if (key in el) {
       (el as Record<string, unknown>)[key as string] = v;
@@ -29,28 +28,20 @@ function applySingleAttribute<TTagName extends ElementTagName>(
   };
 
   if (isFunction(raw) && (raw as Function).length === 0) {
-    registerAttributeResolver(
-      el,
-      String(key),
-      raw as () => unknown,
-      setValue
-    );
+    registerAttributeResolver(el, String(key), raw as () => unknown, setValue);
   } else {
     setValue(raw);
   }
 }
 
-/**
- * Applies attribute candidates to the provided element (reactive + static).
- */
 export function applyAttributes<TTagName extends ElementTagName>(
   element: ExpandedElement<TTagName>,
   attributes: ExpandedElementAttributes<TTagName>,
 ): void {
   if (!attributes) return;
   for (const k of Object.keys(attributes) as Array<AttributeKey<TTagName>>) {
-    // Access through loose map to reduce union complexity for TS
-    const value = (attributes as Record<string, unknown>)[k as string] as AttributeCandidate<TTagName> | undefined;
+    const value = (attributes as Record<string, unknown>)[k as string] as
+      AttributeCandidate<TTagName> | undefined;
     applySingleAttribute(element, k, value);
   }
 }

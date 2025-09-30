@@ -35,18 +35,15 @@ export const SELF_CLOSING_TAGS = [
 ] as const satisfies ReadonlyArray<ElementTagName>;
 
 function registerHtmlTag(target: Record<string, unknown>, tagName: ElementTagName): void {
-  // Only create the builder if it doesn't already exist (idempotent registration)
   if (!(tagName in target)) {
     target[tagName] = createTagBuilder(tagName);
   }
 }
 
-/**
- * Registers all HTML tag builders on the provided target (defaults to the global object).
- */
 export function registerGlobalTagBuilders(target: Record<string, unknown> = globalThis): void {
   const marker = "__vc_tags_registered";
-  if ((target as any)[marker]) return;
+  if ((target as Record<string, boolean>)[marker]) return;
+
   HTML_TAGS.forEach((tagName) => registerHtmlTag(target, tagName));
-  (target as any)[marker] = true;
+  (target as Record<string, boolean>)[marker] = true;
 }

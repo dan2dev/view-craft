@@ -1,10 +1,5 @@
 import { isBrowser } from "./environment";
 
-/**
- * Consolidated DOM utilities - simplified for better performance and smaller bundle size
- */
-
-// Basic DOM operations with minimal error handling
 function safeAppendChild(parent: Element | Node, child: Node): boolean {
   if (!parent || !child) return false;
   try {
@@ -53,17 +48,22 @@ function createCommentSafely(text: string): Comment | null {
   }
 }
 
-// Consolidated marker utilities
 export function createMarkerComment(prefix: string): Comment {
-  if (!isBrowser) throw new Error("Cannot create comment in non-browser environment");
+  if (!isBrowser) {
+    throw new Error("Cannot create comment in non-browser environment");
+  }
   const comment = createCommentSafely(`${prefix}-${Math.random().toString(36).slice(2)}`);
-  if (!comment) throw new Error("Failed to create comment");
+  if (!comment) {
+    throw new Error("Failed to create comment");
+  }
   return comment;
 }
 
 export function createMarkerPair(prefix: string): { start: Comment; end: Comment } {
   const endComment = createCommentSafely(`${prefix}-end`);
-  if (!endComment) throw new Error("Failed to create end comment");
+  if (!endComment) {
+    throw new Error("Failed to create end comment");
+  }
   return {
     start: createMarkerComment(`${prefix}-start`),
     end: endComment
@@ -86,18 +86,23 @@ export function insertNodesBefore(nodes: Node[], referenceNode: Node): void {
   }
 }
 
-// Child management
-export function appendChildren(parent: Element | Node, ...children: Array<Element | Node | string | null | undefined>): Element | Node {
+export function appendChildren(
+  parent: Element | Node,
+  ...children: Array<Element | Node | string | null | undefined>
+): Element | Node {
   if (!parent) return parent;
-  
-  children.forEach(child => {
+
+  children.forEach((child) => {
     if (child != null) {
       let nodeToAppend: Node;
-      
+
       if (typeof child === "string") {
         const textNode = createTextNodeSafely(child);
-        if (textNode) nodeToAppend = textNode;
-        else return;
+        if (textNode) {
+          nodeToAppend = textNode;
+        } else {
+          return;
+        }
       } else {
         nodeToAppend = child as Node;
       }
@@ -109,7 +114,6 @@ export function appendChildren(parent: Element | Node, ...children: Array<Elemen
   return parent;
 }
 
-// Utility functions
 export function isNodeConnected(node: Node | null | undefined): boolean {
   if (!node) return false;
   return typeof node.isConnected === "boolean" ? node.isConnected : document.contains(node);
