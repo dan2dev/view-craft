@@ -1,276 +1,509 @@
 # view-craft
 
-A lightweight, declarative DOM micro‑view layer with:
-- Global tag builders
-- Fine‑grained conditional rendering (`when`)
-- Diff–free list synchronization (`list`)
-- Reactive text / attributes
-- Explicit `update()` loop (you stay in control)
+**Lightweight, declarative DOM library with explicit control.**
+
+Build reactive UIs without the magic. Just functions, mutations, and a single `update()` call.
+
+```ts
+import 'view-craft';
+
+let count = 0;
+
+const counter = div(
+  h1(() => `Count: ${count}`),
+  button('Increment', on('click', () => {
+    count++;
+    update();
+  }))
+)(document.body, 0);
+```
+
+## Why view-craft?
+
+- **Zero magic** – You control when updates happen
+- **No virtual DOM** – Direct DOM manipulation, no diffing overhead
+- **Tiny footprint** – Core features in a few KB
+- **Global tag builders** – Write `div()`, `h1()`, `button()` without imports
+- **TypeScript-first** – Full type safety for all HTML/SVG tags
+- **Real reactivity** – Fine-grained updates only where data changed
 
 ---
 
-# Installation
+## Installation
+
 ```bash
 npm install view-craft
 ```
 
-## Setup
+### TypeScript Setup
 
-Add the following to your TypeScript configuration types:
-```
+Add to your `tsconfig.json`:
+
+```json
 {
   "compilerOptions": {
-    "types": [
-      "view-craft/types"
-    ]
+    "types": ["view-craft/types"]
   }
 }
 ```
-Alternatively, you can add the following on `vite-env.d.ts`
-```typescript
-/// <reference types="vite/client" />
+
+Or in your `vite-env.d.ts`:
+
+```ts
 /// <reference types="view-craft/types" />
 ```
 
-# Quick Start
-```ts
-import { initializeRuntime, update, list, when } from 'view-craft';
-
-initializeRuntime();
-
-let items = [1, 2, 3];
-let show = true;
-
-const ui = div(
-  when(() => show,
-    h1('Numbers'),
-    list(
-      () => items,
-      n => div(`Item: ${n}`, { className: 'row' })
-    ),
-    h2('End')
-  ).else(
-    h1('Hidden')
-  )
-);
-
-ui(document.body, 0);
-
-// mutate data then
-items.push(4);
-update();
-```
-
-All HTML tag builders become globals once initialized and you can also import helpers directly.
-
 ---
 
-## Conditional Rendering with `when`
+## Quick Examples
 
-`when` lets you declaratively define prioritized branches:
+### Counter
 
 ```ts
-const view = when(
-  () => user.role === 'admin',
-  h1('Admin'), h2('Dashboard')
-)
-.when(
-  () => user.role === 'user',
-  h1('User'), h2('Home')
-)
-.else(
-  h1('Guest'), h2('Sign in required')
-);
+import { update, on } from 'view-craft';
 
-view(container, 0);
-update(); // if conditions rely on reactive sources
+let count = 0;
+
+div(
+  h1(() => `Count: ${count}`),
+  button('Increment', on('click', () => { count++; update(); })),
+  button('Reset', on('click', () => { count = 0; update(); }))
+)(document.body, 0);
 ```
 
-### Multiple content items
-Each branch (`when(...)` / `.else(...)`) can contain any number of modifiers:
-- Primitive values
-- Element factory NodeModFns (e.g. `h1(...)`)
-- Attribute objects
-- Zero‑arg reactive functions (returning primitives)
-- Structural modifiers (`list`, nested `when`)
-
-### Branch evaluation rules
-1. Branches are checked in the order they were declared.
-2. First truthy `when` branch wins.
-3. If none match and an `else` branch exists, it renders.
-4. When the active branch does not change between updates:
-   - Existing DOM is preserved
-   - Reactive text / attribute nodes still update via the global `update()` cycle
-   - Structural runtimes (like `list`) are not destroyed/recreated
-
----
-
-## Structural vs Simple Modifiers (Important Concept)
-
-Inside a `when` branch, modifiers fall into two categories:
-
-| Kind          | Example                          | How it behaves internally                                 |
-|---------------|----------------------------------|-----------------------------------------------------------|
-| Simple        | `h1('Title')`                    | Returns a detached element; `when` inserts it             |
-| Reactive text | `() => count` (returns primitive)| Becomes a tracked text node; updates on `update()`        |
-| Structural    | `list(...)`, another `when(...)` | Creates its own markers & manages its internal DOM region |
-
-You do not need to distinguish them manually. The runtime detects whether a returned node is already in the DOM:
-- If NOT in the DOM → queued and inserted between the `when` markers
-- If ALREADY in the DOM → treated as self‑managed (no duplicate insertion)
-
-This allows mixing:
+### Todo List
 
 ```ts
-when(
-  () => color === 'blue',
-  h1('Blue Mode'),
-  list(() => items, v => div(v)),
-  h2('Footer')
-).else(
-  h1('Not Blue')
-);
-```
+import { update, list, when, on } from 'view-craft';
 
----
+type Todo = { id: number; text: string; done: boolean };
 
-## Lists Inside `when`
+let todos: Todo[] = [];
+let nextId = 1;
+let input = '';
 
-Lists are preserved while the branch stays active:
+function addTodo() {
+  if (!input.trim()) return;
+  todos.push({ id: nextId++, text: input, done: false });
+  input = '';
+  update();
+}
 
-```ts
-let visible = true;
-let items = [{ id: 1 }, { id: 2 }, { id: 3 }];
+div(
+  { className: 'todo-app' },
 
-const block = when(
-  () => visible,
-  list(
-    () => items,
-    item => div(`ID: ${item.id}`, { 'data-id': item.id })
-  )
-).else(
-  h1('Nothing here')
-);
-
-block(container, 0);
-update();
-
-// Reorder / mutate items
-items.reverse();
-update(); // elements reused – identity preserved
-
-// Hide branch
-visible = false;
-update();
-
-// Show again – list is recreated fresh
-visible = true;
-update();
-```
-
----
-
-## Nested `when`
-
-```ts
-let outer = true;
-let inner = false;
-
-const nested = when(
-  () => outer,
+  // Input
   div(
-    { id: 'outer' },
-    when(
-      () => inner,
-      span('Inner ON')
-    ).else(
-      span('Inner OFF')
+    input({ value: () => input },
+      on('input', e => { input = e.target.value; update(); }),
+      on('keydown', e => e.key === 'Enter' && addTodo())
+    ),
+    button('Add', on('click', addTodo))
+  ),
+
+  // List
+  when(() => todos.length > 0,
+    list(() => todos, (todo) =>
+      div(
+        { className: () => todo.done ? 'done' : '' },
+        input({ type: 'checkbox', checked: () => todo.done },
+          on('change', () => { todo.done = !todo.done; update(); })
+        ),
+        span(() => todo.text),
+        button('×', on('click', () => {
+          todos = todos.filter(t => t.id !== todo.id);
+          update();
+        }))
+      )
     )
+  ).else(
+    p('No todos yet!')
   )
-).else(
-  div('Outer hidden')
-);
+)(document.body, 0);
+```
 
-nested(container, 0);
-update();
+### Real-time Search Filter
 
-inner = true;
-update(); // Only inner content changes, outer element preserved
+```ts
+import { update, list, when, on } from 'view-craft';
+
+const users = [
+  { id: 1, name: 'Alice Johnson', email: 'alice@example.com' },
+  { id: 2, name: 'Bob Smith', email: 'bob@example.com' },
+  { id: 3, name: 'Charlie Brown', email: 'charlie@example.com' }
+];
+
+let searchQuery = '';
+
+function filteredUsers() {
+  const q = searchQuery.toLowerCase();
+  return users.filter(u =>
+    u.name.toLowerCase().includes(q) ||
+    u.email.toLowerCase().includes(q)
+  );
+}
+
+div(
+  h1('User Directory'),
+
+  input(
+    {
+      type: 'search',
+      placeholder: 'Search users...',
+      value: () => searchQuery
+    },
+    on('input', e => {
+      searchQuery = e.target.value;
+      update();
+    })
+  ),
+
+  when(() => filteredUsers().length > 0,
+    list(() => filteredUsers(), user =>
+      div(
+        { className: 'user-card' },
+        h3(user.name),
+        p(user.email)
+      )
+    )
+  ).else(
+    p(() => `No users found for "${searchQuery}"`)
+  )
+)(document.body, 0);
+```
+
+### Loading States & Async
+
+```ts
+import { update, when } from 'view-craft';
+
+type State = { status: 'idle' | 'loading' | 'error'; data: any[]; error?: string };
+
+let state: State = { status: 'idle', data: [] };
+
+async function fetchData() {
+  state.status = 'loading';
+  update();
+
+  try {
+    const response = await fetch('/api/data');
+    state.data = await response.json();
+    state.status = 'idle';
+  } catch (err) {
+    state.status = 'error';
+    state.error = err.message;
+  }
+  update();
+}
+
+div(
+  button('Load Data', on('click', fetchData)),
+
+  when(() => state.status === 'loading',
+    div('Loading...')
+  ).when(() => state.status === 'error',
+    div({ className: 'error' }, () => `Error: ${state.error}`)
+  ).when(() => state.data.length > 0,
+    list(() => state.data, item => div(item.name))
+  ).else(
+    div('No data loaded')
+  )
+)(document.body, 0);
 ```
 
 ---
 
-## Reactive Text & Attributes
+## Core Concepts
 
-Any zero‑arg function returning a primitive inside `when` becomes reactive:
+### 1. **Explicit Updates**
+
+Unlike React or Vue, view-craft doesn't auto-detect changes. You call `update()` when ready:
+
+```ts
+let name = 'World';
+
+// Mutate freely
+name = 'Alice';
+name = name.toUpperCase();
+
+// Update once
+update();
+```
+
+### 2. **Reactive Functions**
+
+Zero-arg functions become reactive:
 
 ```ts
 let count = 0;
-const view = when(
-  () => true,
-  h1(() => `Count: ${count}`)
-);
 
-view(container, 0);
-update();
-
-count = 5;
-update(); // text updates without re-rendering the branch
+div(
+  () => `Count: ${count}`,  // Updates when update() is called
+  { title: () => `Current: ${count}` }  // Attributes too
+)
 ```
 
----
+### 3. **Conditional Rendering with `when`**
 
-## Performance Notes
-
-- Branch change ⇒ old DOM cleared, new branch rendered.
-- Branch unchanged ⇒ no DOM diffing performed for simple content; structural runtimes internally sync (e.g. `list`).
-- Call `update()` after state mutations to propagate:
-  - list synchronization
-  - conditional evaluation
-  - reactive text / attributes
-
-For extremely frequent updates you can batch mutations before calling `update()`.
-
----
-
-## API Summary (Condensed)
+First matching condition wins:
 
 ```ts
-when(condition, ...content)
-  .when(conditionB, ...contentB)
-  .else(...elseContent)
+when(() => user.isAdmin,
+  div('Admin Panel')
+).when(() => user.isLoggedIn,
+  div('User Dashboard')
+).else(
+  div('Please log in')
+)
+```
 
-list(() => items, (item, index) => /* element | NodeModFn */)
+DOM is preserved if the active branch doesn't change.
 
-update(); // triggers all runtime synchronizations
+### 4. **List Synchronization**
+
+Lists use object identity (not keys) to track items:
+
+```ts
+list(() => items, (item, index) =>
+  div(() => `${index}: ${item.name}`)
+)
+```
+
+Mutate the array (push, splice, reverse), then call `update()`. Elements are reused if the item reference is the same.
+
+## API Reference
+
+### Core Functions
+
+#### `update()`
+
+Triggers all reactive updates. Call this after mutating state:
+
+```ts
+count++;
+items.push(newItem);
+update();
+```
+
+#### `list(provider, renderer)`
+
+Synchronizes an array to DOM elements:
+
+```ts
+list(
+  () => items,           // Provider function
+  (item, index) => div(  // Renderer
+    () => `${index}: ${item.name}`
+  )
+)
+```
+
+Items are tracked by object identity. Mutate the array and call `update()` to sync.
+
+#### `when(condition, ...content)`
+
+Conditional rendering with chaining:
+
+```ts
+when(() => count > 10,
+  div('High')
+).when(() => count > 0,
+  div('Low')
+).else(
+  div('Zero')
+)
+```
+
+First matching condition wins. DOM is preserved if the active branch doesn't change.
+
+#### `on(event, handler, options?)`
+
+Attach event listeners:
+
+```ts
+button('Click me',
+  on('click', () => console.log('clicked')),
+  on('mouseenter', handleHover, { passive: true })
+)
+```
+
+### Tag Builders
+
+All HTML and SVG tags are available globally:
+
+```ts
+div(), span(), button(), input(), h1(), p(), ul(), li()
+svg(), circle(), path(), rect(), g()
+// ... and 140+ more
+```
+
+### Attributes
+
+Pass attributes as objects:
+
+```ts
+div('Hello', {
+  className: 'container',
+  id: 'main',
+  'data-test': 'value',
+  style: { color: 'red', fontSize: '16px' }
+})
+```
+
+Reactive attributes use functions:
+
+```ts
+div({
+  className: () => isActive ? 'active' : '',
+  disabled: () => !isValid,
+  style: () => ({ opacity: isVisible ? 1 : 0 })
+})
 ```
 
 ---
 
 ## Best Practices
 
-- Keep conditions pure (avoid side effects).
-- Reuse object references for list item identity (e.g., mutate arrays, not objects, if you want element reuse).
-- Prefer a single `update()` call after a batch of mutations.
-- Use `.else()` even if initially unnecessary—it documents intent and simplifies future expansion.
+### Batch Updates
+
+Mutate multiple times, then update once:
+
+```ts
+// Good
+items.push(item1);
+items.push(item2);
+items.sort();
+update();
+
+// Less efficient
+items.push(item1);
+update();
+items.push(item2);
+update();
+```
+
+### Object Identity for Lists
+
+Lists track items by reference. Keep object references stable:
+
+```ts
+// Good - reuses DOM elements
+todos[0].done = true;
+update();
+
+// Bad - replaces entire object, destroys DOM element
+todos[0] = { ...todos[0], done: true };
+update();
+```
+
+### Use `.else()` for Clarity
+
+Even if not initially needed:
+
+```ts
+when(() => isLoading,
+  div('Loading...')
+).else(
+  div('Ready')  // Clear intent
+)
+```
 
 ---
 
-## Debug Tips
+## Advanced Patterns
 
-- Use browser devtools to inspect comment markers:
-  - `when-start-*` / `when-end`
-  - `list-start-*` / `list-end`
-- If content seems missing, confirm that `update()` is being called after changing underlying data.
+### Nested Structures
+
+Combine `when` and `list`:
+
+```ts
+when(() => user.isLoggedIn,
+  div(
+    h1(() => `Welcome, ${user.name}`),
+    list(() => user.notifications, n =>
+      div(n.message, { className: () => n.read ? 'read' : 'unread' })
+    )
+  )
+).else(
+  div('Please log in')
+)
+```
+
+### Component-like Functions
+
+```ts
+function UserCard(user: User) {
+  return div(
+    { className: 'user-card' },
+    img({ src: user.avatar }),
+    h3(user.name),
+    p(user.bio)
+  );
+}
+
+list(() => users, user => UserCard(user))
+```
+
+### Computed Values
+
+```ts
+function activeCount() {
+  return todos.filter(t => !t.done).length;
+}
+
+div(
+  () => `${activeCount()} remaining`
+)
+```
 
 ---
 
-## Roadmap (Potential Enhancements)
+## Performance
+
+- **No virtual DOM diffing** – Direct mutations
+- **Fine-grained updates** – Only changed text/attributes update
+- **Element reuse** – Lists preserve DOM when items move
+- **Branch preservation** – `when` keeps DOM when branch is stable
+
+For high-frequency updates (e.g., animations), batch mutations before calling `update()`.
+
+---
+
+## Debugging
+
+### Inspect Markers
+
+View structural boundaries in DevTools:
+
+```html
+<!-- when-start-1 -->
+<div>Content</div>
+<!-- when-end -->
+
+<!-- list-start-2 -->
+<div>Item 1</div>
+<div>Item 2</div>
+<!-- list-end -->
+```
+
+### Common Issues
+
+**Content not updating?**
+- Did you call `update()` after mutations?
+- Are your conditions/functions returning the expected values?
+
+**List items not reusing elements?**
+- Are you replacing objects instead of mutating them?
+- Check that item references are stable.
+
+---
+
+## Roadmap
 
 - Keyed list variant
-- Async / deferred branch hydration
-- Dev mode diagnostics overlay
-- Built‑in transition helpers
+- Transition/animation helpers
+- Dev mode diagnostics
+- SSR support
 
 ---
 
