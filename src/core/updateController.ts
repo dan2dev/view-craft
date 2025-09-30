@@ -1,5 +1,5 @@
 import { updateListRuntimes } from "../list/runtime";
-import { notifyReactiveElements, notifyReactiveTextNodes, notifyReactiveNodeModFns } from "./reactive";
+import { notifyReactiveElements, notifyReactiveTextNodes } from "./reactive";
 import { updateWhenRuntimes } from "../when";
 import { updateConditionalElements } from "./conditionalUpdater";
 import { dispatchGlobalUpdateEvent } from "../utility/events";
@@ -10,7 +10,6 @@ const updaters = [
   updateConditionalElements,
   notifyReactiveElements,
   notifyReactiveTextNodes,
-  notifyReactiveNodeModFns,
   dispatchGlobalUpdateEvent,
 ] as const;
 

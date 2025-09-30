@@ -1,5 +1,5 @@
 import { applyAttributes } from "./attributeManager";
-import { createReactiveTextNode, createReactiveNodeModFn } from "./reactive";
+import { createReactiveTextNode } from "./reactive";
 import { logError } from "../utility/errorHandler";
 import { isFunction, isNode, isObject, isPrimitive } from "../utility/typeGuards";
 import { modifierProbeCache } from "../utility/modifierPredicates";
@@ -41,20 +41,9 @@ export function applyNodeModifier<TTagName extends ElementTagName>(
         }
         if (record.error) return createReactiveTextNode(() => "");
         const v = record.value;
-        
-        // Handle reactive text (primitives)
-        if (isPrimitive(v) && v != null) {
-          return createReactiveTextNode(modifier as () => Primitive, v);
-        }
-        
-        // Handle reactive NodeModFn (like () => cn("classes"))
-        if (isFunction(v)) {
-          // NodeModFn typically has length >= 1 (parent, index parameters)
-          // Create a reactive wrapper that re-invokes the NodeModFn on updates
-          return createReactiveNodeModFn(modifier as () => NodeModFn<TTagName>, parent, index);
-        }
-        
-        return null;
+        return (isPrimitive(v) && v != null)
+          ? createReactiveTextNode(modifier as () => Primitive, v)
+          : null;
       } catch (error) {
         modifierProbeCache.set(modifier as Function, { value: undefined, error: true });
         logError("Error evaluating reactive text function:", error);
