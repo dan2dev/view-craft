@@ -26,11 +26,11 @@ declare global {
    * @param options Native addEventListener options.
    */
   function on<
-    K extends keyof HTMLElementEventMap,
-    TTagName extends ElementTagName = ElementTagName
+    TTagName extends ElementTagName = ElementTagName,
+    K extends keyof HTMLElementEventMap = keyof HTMLElementEventMap,
   >(
     type: K,
-    listener: (ev: HTMLElementEventMap[K]) => any,
+    listener: (this: HTMLElementTagNameMap[TTagName], ev: HTMLElementEventMap[K] & { currentTarget: HTMLElementTagNameMap[TTagName] }) => any,
     options?: boolean | AddEventListenerOptions
   ): NodeModFn<TTagName>;
 
@@ -46,7 +46,7 @@ declare global {
     TTagName extends ElementTagName = ElementTagName
   >(
     type: K,
-    listener: (ev: E) => any,
+    listener: (this: HTMLElementTagNameMap[TTagName], ev: E & { currentTarget: HTMLElementTagNameMap[TTagName] }) => any,
     options?: boolean | AddEventListenerOptions
   ): NodeModFn<TTagName>;
 }

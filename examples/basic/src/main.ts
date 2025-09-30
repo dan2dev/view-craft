@@ -102,14 +102,17 @@ const app = div(
             value: () => newTitle,
           },
           on("input", (e) => {
-            newTitle = (e.target as HTMLInputElement).value ?? "";
+            newTitle = e.currentTarget.value;
             update();
           }),
-          on("keydown", (e: any) => {
-            const ke = e as KeyboardEvent;
-            if (ke.key === "Enter") {
+          on("change", (e) => {
+            newTitle = e.currentTarget.value;
+            update();
+          }),
+          on("keydown", (e) => {
+            if (e.key === "Enter") {
               addTodo(newTitle);
-            } else if (ke.key === "Escape") {
+            } else if (e.key === "Escape") {
               newTitle = "";
               update();
             }
@@ -207,8 +210,8 @@ const app = div(
                     className: "w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500",
                     checked: () => !!todo.done,
                   },
-                  on("change", (e: any) => {
-                    const checked = (e.target as HTMLInputElement).checked;
+                  on("change", (e) => {
+                    const checked = e.currentTarget.checked;
                     toggleTodo(todo.id, checked);
                   }),
                 ),
