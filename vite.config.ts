@@ -1,8 +1,10 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from "vite";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  base: '/view-craft/',
+  plugins: [tailwindcss()],
+  base: "/view-craft/",
   build: {
-    outDir: 'docs'
-  }
-})
+    outDir: "docs",
+  },
+});
