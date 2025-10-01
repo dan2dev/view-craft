@@ -9,11 +9,13 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@types/prismjs": "^1.26.5",
     "typescript": "~5.8.3",
     "vite": "^7.1.7"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.13",
+    "prismjs": "^1.30.0",
     "tailwindcss": "^4.1.13",
     "view-craft": "^0.1.18"
   }
