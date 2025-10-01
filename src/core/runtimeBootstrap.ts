@@ -3,9 +3,10 @@ import { list } from "../list";
 import { update } from "./updateController";
 import { when } from "../when";
 import { on } from "../utility/on";
+import { render } from "../utility/render";
 
 /**
- * Initializes the View Craft runtime by exposing tag builders and list utilities.
+ * Initializes the View Craft runtime by exposing tag builders and utilities.
  */
 export function initializeRuntime(): void {
   registerGlobalTagBuilders();
@@ -16,6 +17,7 @@ export function initializeRuntime(): void {
     registry.update = update;
     registry.when = when;
     registry.on = on;
+    registry.render = render;
   }
 }
 

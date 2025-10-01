@@ -15,7 +15,9 @@ const counter = div(
     count++;
     update();
   }))
-)(document.body, 0);
+);
+
+render(counter);
 ```
 
 ## Why view-craft?
@@ -23,7 +25,7 @@ const counter = div(
 - **Zero magic** – You control when updates happen
 - **No virtual DOM** – Direct DOM manipulation, no diffing overhead
 - **Tiny footprint** – Core features in a few KB
-- **Global tag builders** – Write `div()`, `h1()`, `button()` without imports
+- **Global API** – Just `import 'view-craft'` and use `div()`, `update()`, `on()`, etc.
 - **TypeScript-first** – Full type safety for all HTML/SVG tags
 - **Real reactivity** – Fine-grained updates only where data changed
 
@@ -33,6 +35,22 @@ const counter = div(
 
 ```bash
 npm install view-craft
+```
+
+### Usage
+
+Simply import once to register all global functions:
+
+```ts
+import 'view-craft';
+
+// Now use div(), update(), on(), list(), when(), render(), etc. globally
+let count = 0;
+const app = div(
+  h1(() => `Count: ${count}`),
+  button('Click', on('click', () => { count++; update(); }))
+);
+render(app);
 ```
 
 ### TypeScript Setup
@@ -60,21 +78,23 @@ Or in your `vite-env.d.ts`:
 ### Counter
 
 ```ts
-import { update, on } from 'view-craft';
+import 'view-craft';
 
 let count = 0;
 
-div(
+const app = div(
   h1(() => `Count: ${count}`),
   button('Increment', on('click', () => { count++; update(); })),
   button('Reset', on('click', () => { count = 0; update(); }))
-)(document.body, 0);
+);
+
+render(app);
 ```
 
 ### Todo List
 
 ```ts
-import { update, list, when, on } from 'view-craft';
+import 'view-craft';
 
 type Todo = { id: number; text: string; done: boolean };
 
@@ -89,7 +109,7 @@ function addTodo() {
   update();
 }
 
-div(
+const app = div(
   { className: 'todo-app' },
 
   // Input
@@ -119,13 +139,15 @@ div(
   ).else(
     p('No todos yet!')
   )
-)(document.body, 0);
+);
+
+render(app);
 ```
 
 ### Real-time Search Filter
 
 ```ts
-import { update, list, when, on } from 'view-craft';
+import 'view-craft';
 
 const users = [
   { id: 1, name: 'Alice Johnson', email: 'alice@example.com' },
@@ -143,7 +165,7 @@ function filteredUsers() {
   );
 }
 
-div(
+const app = div(
   h1('User Directory'),
 
   input(
@@ -169,13 +191,15 @@ div(
   ).else(
     p(() => `No users found for "${searchQuery}"`)
   )
-)(document.body, 0);
+);
+
+render(app);
 ```
 
 ### Loading States & Async
 
 ```ts
-import { update, when } from 'view-craft';
+import 'view-craft';
 
 type State = { status: 'idle' | 'loading' | 'error'; data: any[]; error?: string };
 
@@ -196,7 +220,7 @@ async function fetchData() {
   update();
 }
 
-div(
+const app = div(
   button('Load Data', on('click', fetchData)),
 
   when(() => state.status === 'loading',
@@ -208,7 +232,9 @@ div(
   ).else(
     div('No data loaded')
   )
-)(document.body, 0);
+);
+
+render(app);
 ```
 
 ---
