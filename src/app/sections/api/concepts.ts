@@ -1,9 +1,9 @@
 export function conceptsSection() {
   return section(
     { className: 'space-y-6' },
-    h2({ className: 'text-3xl font-semibold text-slate-50' }, 'Core concepts'),
+    h2({ className: 'text-3xl font-semibold', style: 'color: var(--text-primary);' }, 'Core concepts'),
     ul(
-      { className: 'grid gap-4 text-base text-slate-300 md:grid-cols-2' },
+      { className: 'grid gap-4 text-base md:grid-cols-2', style: 'color: var(--text-secondary);' },
       li(
         strong('Explicit updates · '),
         'Mutate everything you need, then call update() once for deterministic rendering.'

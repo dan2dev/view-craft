@@ -32,10 +32,11 @@ export function codeBlock(language: string, snippet: string) {
     : escapeHtml(content);
 
   return pre(
-    { className: 'w-full overflow-x-auto rounded-xl bg-slate-950/70 p-4 ring-1 ring-slate-800/60 backdrop-blur' },
+    { className: 'w-full overflow-x-auto rounded-xl p-4 ring-1 backdrop-blur transition-colors', style: 'background-color: var(--code-bg); border-color: var(--border-color);' },
     code(
       {
-        className: `block w-full text-sm leading-relaxed text-slate-200 language-${normalized}`,
+        className: `block w-full text-sm leading-relaxed language-${normalized}`,
+        style: 'color: var(--code-text);',
         innerHTML: highlighted,
       }
     )

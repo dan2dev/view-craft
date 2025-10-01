@@ -1,14 +1,16 @@
 import { routes } from '../routes';
+import { themeToggle } from '../ui/theme-toggle';
 
 export function navigation(getPath: () => string, onNavigate: (path: string) => void) {
   return nav(
-    { className: 'sticky top-0 z-50 border-b border-slate-800/60 bg-slate-950/80 backdrop-blur' },
+    { className: 'sticky top-0 z-50 border-b backdrop-blur transition-colors', style: 'border-color: var(--nav-border); background-color: var(--nav-bg);' },
     div(
       { className: 'mx-auto flex max-w-6xl items-center justify-between px-6 py-4' },
       a(
         {
           href: '#overview',
-          className: 'text-lg font-semibold text-slate-100 transition hover:text-white',
+          className: 'text-lg font-semibold transition-colors duration-200 cursor-pointer hover:opacity-80',
+          style: 'color: var(--text-primary);',
         },
         on('click', event => {
           event.preventDefault();
@@ -18,15 +20,20 @@ export function navigation(getPath: () => string, onNavigate: (path: string) => 
       ),
       div(
         { className: 'flex flex-wrap items-center gap-2' },
+        themeToggle(),
         ...routes.map(({ path, label }) => {
-          const activeClass = 'rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-slate-950 shadow-lg shadow-emerald-600/20 transition';
-          const idleClass = 'rounded-full px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-emerald-950/40 hover:text-emerald-300';
+          const activeClass = 'rounded-full px-4 py-2 text-sm font-medium shadow-md transition-all duration-200 cursor-pointer';
+          const idleClass = 'rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 cursor-pointer hover:scale-105';
+          const activeStyle = 'background-color: var(--button-primary-bg); color: var(--button-primary-text);';
+          const idleStyle = 'color: var(--text-secondary); background-color: transparent;';
 
           return a(
             {
               href: `#${path}`,
               className: () =>
                 getPath() === path ? activeClass : idleClass,
+              style: () =>
+                getPath() === path ? activeStyle : idleStyle,
             },
             on('click', event => {
               event.preventDefault();
