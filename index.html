@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>view-craft - A DOM library for people who peaked in the jQuery era</title>
+  <meta name="description" content="Build reactive UIs without the magic tricks. Just functions, mutations, and a single update() call when you feel like it.">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white min-h-screen">
+
+  <!-- Hero Section -->
+  <header class="container mx-auto px-4 py-16 text-center">
+    <h1 class="text-6xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+      view-craft
+    </h1>
+    <p class="text-2xl mb-2 text-gray-300">
+      A DOM library for people who peaked in the jQuery era and never looked back.
+    </p>
+    <p class="text-lg mb-8 text-gray-400 italic">
+      Yes, this is yet another JavaScript library. We're sorry. Or you're welcome? We're still figuring it out.
+    </p>
+
+    <div class="flex gap-4 justify-center mb-8">
+      <a href="#demo" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-semibold transition-all">
+        Try Demo
+      </a>
+      <a href="https://github.com/dan2dev/view-craft" class="bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded-lg font-semibold transition-all">
+        GitHub
+      </a>
+      <a href="https://www.npmjs.com/package/view-craft" class="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg font-semibold transition-all">
+        npm
+      </a>
+    </div>
+
+    <div class="inline-block bg-slate-800 p-1 rounded-lg">
+      <code class="text-sm text-green-400">npm install view-craft</code>
+    </div>
+  </header>
+
+  <!-- Quick Example -->
+  <section class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto bg-slate-800 rounded-xl p-8 shadow-2xl">
+      <h2 class="text-2xl font-bold mb-4">Quick Example</h2>
+      <pre><code class="language-typescript">import 'view-craft';
+
+let count = 0;
+
+const counter = div(
+  h1(() => `Count: ${count}`),
+  button('Increment', on('click', () => {
+    count++;
+    update();
+  }))
+);
+
+render(counter);</code></pre>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="container mx-auto px-4 py-16">
+    <h2 class="text-4xl font-bold text-center mb-12">Why view-craft?</h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+
+      <div class="bg-slate-800 p-6 rounded-xl">
+        <div class="text-4xl mb-4">🎯</div>
+        <h3 class="text-xl font-bold mb-2">Zero magic</h3>
+        <p class="text-gray-400">Like a microwave with just one button. You press <code class="text-blue-400">update()</code>, stuff happens.</p>
+      </div>
+
+      <div class="bg-slate-800 p-6 rounded-xl">
+        <div class="text-4xl mb-4">🚀</div>
+        <h3 class="text-xl font-bold mb-2">No virtual DOM</h3>
+        <p class="text-gray-400">Why simulate the DOM when you can just... use the DOM? <em>*taps forehead*</em></p>
+      </div>
+
+      <div class="bg-slate-800 p-6 rounded-xl">
+        <div class="text-4xl mb-4">📦</div>
+        <h3 class="text-xl font-bold mb-2">Tiny footprint</h3>
+        <p class="text-gray-400">Smaller than your average React component's prop types</p>
+      </div>
+
+      <div class="bg-slate-800 p-6 rounded-xl">
+        <div class="text-4xl mb-4">🌍</div>
+        <h3 class="text-xl font-bold mb-2">Global API</h3>
+        <p class="text-gray-400"><code class="text-blue-400">div()</code> is everywhere, like that one friend who shows up uninvited but makes everything fun</p>
+      </div>
+
+      <div class="bg-slate-800 p-6 rounded-xl">
+        <div class="text-4xl mb-4">💎</div>
+        <h3 class="text-xl font-bold mb-2">TypeScript-first</h3>
+        <p class="text-gray-400">All 140+ tags typed. Yes, even <code class="text-blue-400">&lt;bdi&gt;</code>. You're welcome.</p>
+      </div>
+
+      <div class="bg-slate-800 p-6 rounded-xl">
+        <div class="text-4xl mb-4">⚡</div>
+        <h3 class="text-xl font-bold mb-2">Real reactivity</h3>
+        <p class="text-gray-400">Updates only what changed. Your browser's repaint budget will thank you.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Live Demo -->
+  <section id="demo" class="container mx-auto px-4 py-16">
+    <h2 class="text-4xl font-bold text-center mb-12">Interactive Demo</h2>
+    <div class="max-w-4xl mx-auto">
+      <div id="demo-app"></div>
+    </div>
+  </section>
+
+  <!-- Installation -->
+  <section class="container mx-auto px-4 py-16">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-4xl font-bold mb-8">Installation</h2>
+
+      <div class="bg-slate-800 rounded-xl p-8 mb-8">
+        <pre><code class="language-bash">npm install view-craft</code></pre>
+      </div>
+
+      <h3 class="text-2xl font-bold mb-4">Usage</h3>
+      <div class="bg-slate-800 rounded-xl p-8 mb-8">
+        <pre><code class="language-typescript">import 'view-craft';
+
+// Now use div(), update(), on(), list(), when(), render(), etc. globally
+let count = 0;
+const app = div(
+  h1(() => `Count: ${count}`),
+  button('Click', on('click', () => { count++; update(); }))
+);
+render(app);</code></pre>
+      </div>
+
+      <h3 class="text-2xl font-bold mb-4">TypeScript Setup</h3>
+      <p class="mb-4 text-gray-400">Add to your <code class="text-blue-400">tsconfig.json</code>:</p>
+      <div class="bg-slate-800 rounded-xl p-8">
+        <pre><code class="language-json">{
+  "compilerOptions": {
+    "types": ["view-craft/types"]
+  }
+}</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Core Concepts -->
+  <section class="container mx-auto px-4 py-16 bg-slate-800/50">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-4xl font-bold mb-8">Core Concepts</h2>
+
+      <div class="space-y-8">
+        <div>
+          <h3 class="text-2xl font-bold mb-4">1. Explicit Updates</h3>
+          <p class="text-gray-400 mb-4">Unlike React or Vue, view-craft doesn't auto-detect changes. You call <code class="text-blue-400">update()</code> when ready:</p>
+          <div class="bg-slate-900 rounded-xl p-6">
+            <pre><code class="language-typescript">let name = 'World';
+
+// Mutate freely
+name = 'Alice';
+name = name.toUpperCase();
+
+// Update once when ready
+update();</code></pre>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-2xl font-bold mb-4">2. Reactive Functions</h3>
+          <p class="text-gray-400 mb-4">Zero-arg functions become reactive:</p>
+          <div class="bg-slate-900 rounded-xl p-6">
+            <pre><code class="language-typescript">let count = 0;
+
+div(
+  () => `Count: ${count}`,  // Updates when update() is called
+  { title: () => `Current: ${count}` }  // Attributes too
+)</code></pre>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-2xl font-bold mb-4">3. Conditional Rendering</h3>
+          <p class="text-gray-400 mb-4">First matching condition wins:</p>
+          <div class="bg-slate-900 rounded-xl p-6">
+            <pre><code class="language-typescript">when(() => user.isAdmin,
+  div('Admin Panel')
+).when(() => user.isLoggedIn,
+  div('User Dashboard')
+).else(
+  div('Please log in')
+)</code></pre>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-2xl font-bold mb-4">4. List Synchronization</h3>
+          <p class="text-gray-400 mb-4">Lists use object identity to track items:</p>
+          <div class="bg-slate-900 rounded-xl p-6">
+            <pre><code class="language-typescript">list(() => items, (item, index) =>
+  div(() => `${index}: ${item.name}`)
+)</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="container mx-auto px-4 py-16 text-center text-gray-400">
+    <p class="mb-4">
+      <a href="https://github.com/dan2dev/view-craft" class="text-blue-400 hover:text-blue-300">GitHub</a>
+      •
+      <a href="https://www.npmjs.com/package/view-craft" class="text-blue-400 hover:text-blue-300">npm</a>
+      •
+      <a href="https://github.com/dan2dev/view-craft/blob/main/LICENSE.md" class="text-blue-400 hover:text-blue-300">MIT License</a>
+    </p>
+    <p>Made with view-craft (obviously)</p>
+  </footer>
+
+  <script type="module" src="demo.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>
