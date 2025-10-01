@@ -5,7 +5,7 @@ export function footerSection() {
       { className: 'mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-sm text-slate-500 sm:flex-row' },
       span(() => `© ${new Date().getFullYear()} view-craft by Danilo Celestino de Castro. MIT licensed.`),
       span(
-        'Built with view-craft and Vite · ',
+        'Built with view-craft · ',
         a(
           {
             href: 'https://github.com/dan2dev/view-craft',
