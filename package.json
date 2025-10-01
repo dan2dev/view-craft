@@ -44,5 +44,13 @@
     "vitest": "^3.2.4"
   },
   "packageManager": "pnpm@10.17.1",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dan2dev/view-craft.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dan2dev/view-craft/issues"
+  },
+  "homepage": "https://dan2dev.github.io/view-craft/",
   "dependencies": {}
 }
