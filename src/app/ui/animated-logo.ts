@@ -69,70 +69,63 @@ export function animatedLogo() {
     },
     (parent) => {
       const container = parent as unknown as HTMLElement;
-      const svgElement = container.querySelector('svg') as SVGSVGElement;
-      if (!svgElement) return;
 
-      // Local state for this instance
-      let mouseX = 0.5;
-      let mouseY = 0.5;
-      let targetMouseX = 0.5;
-      let targetMouseY = 0.5;
-      let time = 0;
-      let animationId: number;
-      let isActive = true;
+      // Use setTimeout to ensure DOM is fully parsed
+      setTimeout(() => {
+        const svgElement = container.querySelector('svg') as SVGSVGElement;
+        if (!svgElement) return;
 
-      function animate() {
-        if (!isActive) return;
+        // Local state for this instance
+        let mouseX = 0.5;
+        let mouseY = 0.5;
+        let targetMouseX = 0.5;
+        let targetMouseY = 0.5;
+        let time = 0;
+        let animationId: number | null = null;
 
-        // Smooth mouse movement
-        const ease = 0.08;
-        mouseX += (targetMouseX - mouseX) * ease;
-        mouseY += (targetMouseY - mouseY) * ease;
-
-        // Calculate mouse influence
-        const mouseInfluence = Math.abs(mouseY - 0.5) * 2;
-
-        // Update each wave path
-        waves.forEach(wave => {
-          const pathElement = svgElement.querySelector(`#${wave.id}`) as SVGPathElement;
-          if (pathElement) {
-            pathElement.setAttribute('d', generateWavePath(wave, mouseInfluence, mouseX, mouseY, time));
-          }
-        });
-
-        time++;
-        animationId = requestAnimationFrame(animate);
-      }
-
-      function handleMouseMove(event: MouseEvent) {
-        const rect = container.getBoundingClientRect();
-        targetMouseX = (event.clientX - rect.left) / rect.width;
-        targetMouseY = (event.clientY - rect.top) / rect.height;
-      }
-
-      // Start animation
-      animate();
-
-      // Add mouse move listener
-      document.addEventListener('mousemove', handleMouseMove);
-
-      // Cleanup when element is removed
-      const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          mutation.removedNodes.forEach((node) => {
-            if (node === container || container.contains(node as Node)) {
-              isActive = false;
+        function animate() {
+          // Check if element is still in the DOM
+          if (!container.isConnected) {
+            if (animationId !== null) {
               cancelAnimationFrame(animationId);
-              document.removeEventListener('mousemove', handleMouseMove);
-              observer.disconnect();
+              animationId = null;
+            }
+            document.removeEventListener('mousemove', handleMouseMove);
+            return;
+          }
+
+          // Smooth mouse movement
+          const ease = 0.08;
+          mouseX += (targetMouseX - mouseX) * ease;
+          mouseY += (targetMouseY - mouseY) * ease;
+
+          // Calculate mouse influence
+          const mouseInfluence = Math.abs(mouseY - 0.5) * 2;
+
+          // Update each wave path
+          waves.forEach(wave => {
+            const pathElement = svgElement.querySelector(`#${wave.id}`) as SVGPathElement;
+            if (pathElement) {
+              pathElement.setAttribute('d', generateWavePath(wave, mouseInfluence, mouseX, mouseY, time));
             }
           });
-        });
-      });
 
-      if (container.parentNode) {
-        observer.observe(container.parentNode, { childList: true, subtree: true });
-      }
+          time++;
+          animationId = requestAnimationFrame(animate);
+        }
+
+        function handleMouseMove(event: MouseEvent) {
+          const rect = container.getBoundingClientRect();
+          targetMouseX = (event.clientX - rect.left) / rect.width;
+          targetMouseY = (event.clientY - rect.top) / rect.height;
+        }
+
+        // Add mouse move listener
+        document.addEventListener('mousemove', handleMouseMove);
+
+        // Start animation
+        animate();
+      }, 0);
     }
   );
 }
