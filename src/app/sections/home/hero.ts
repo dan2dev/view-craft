@@ -15,8 +15,8 @@ export function heroSection(navigate: (path: string) => void) {
       ),
       h1(
         { className: 'text-4xl font-semibold tracking-tight text-slate-50 sm:text-6xl' },
-        'Stop chasing reactivity. ',
-        span({ className: 'text-emerald-400' }, 'Just call update()')
+        'Finally, a framework that ',
+        span({ className: 'text-emerald-400' }, 'doesn\'t update behind your back')
       ),
       p(
         { className: 'max-w-2xl text-base text-slate-300 sm:text-lg' },
