@@ -1,34 +1,45 @@
-Copyright (c) 2025, Danilo Celestino de Castro
+# MIT License
 
-All rights reserved.
+Copyright (c) 2025 Danilo Celestino de Castro
 
-This framework is the proprietary and source-available property of Danilo Celestino de Castro ("Licensor"). The source code is provided for transparency and evaluation purposes only — not for free use.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this library and associated documentation files (the "Library"), to deal
+in the Library without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Library, and to permit persons to whom the Library is
+furnished to do so, subject to the following conditions:
 
-Permission is granted to the recipient ("Licensee") to **view the source code**, but **not to use, modify, copy, or distribute** the framework in any project without first obtaining a **paid license** from the Licensor.
+**The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Library.**
 
-1. **Source Availability**
-   - The full source code is provided for review and transparency.
-   - This does not grant permission to use the framework in any form unless licensed.
+THE LIBRARY IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE LIBRARY OR THE USE OR OTHER DEALINGS IN THE
+LIBRARY.
 
-2. **License Requirement**
-   - Any use of this framework (commercial or non-commercial) requires purchasing a valid license from the Licensor.
-   - Without a valid license, use of the framework is strictly prohibited.
+---
 
-3. **Prohibited Actions**
-   - Redistribution, sublicensing, or modification of the framework is not allowed without prior written permission from the Licensor.
-   - Using the source code to create derivative works or unauthorized implementations is strictly prohibited.
-   - Removal, alteration, or obscuring of proprietary notices, trademarks, or attributions within the framework is strictly prohibited.
+## Attribution Requirement
 
-4. **Termination**
-   This license terminates automatically if any term is violated. Upon termination, all copies must be destroyed.
+When using this library, please include attribution in one of the following ways:
 
-5. **Disclaimer of Warranty**
-   This framework is provided "as is" without warranty of any kind. The Licensor is not liable for any damages resulting from its use.
+### In Your Documentation or README:
+```
+Built with view-craft by Danilo Celestino de Castro
+https://github.com/dan2dev/view-craft
+```
 
-6. **Jurisdiction and Governing Law**
-   - This license is governed by and construed in accordance with the laws of the jurisdiction of the Licensor's residence, unless otherwise agreed upon in writing.
+### In Your Application (e.g., About page, credits, footer):
+```
+Powered by view-craft
+```
 
-7. **License Updates**
-   - The Licensor reserves the right to update the terms of this license at any time. Any changes will be communicated to existing Licensees via the contact information provided during the licensing process. Continued use of the framework after such updates constitutes acceptance of the new terms.
+### In Source Code (if distributing modified versions):
+Retain the original copyright notice and license text in the source files.
 
-To purchase a license or for commercial inquiries, contact: dan2dev@outlook.com
+---
+
+**Thank you for using view-craft!** Your attribution helps support continued development and lets others discover this library.

@@ -561,4 +561,8 @@ These comment markers are your breadcrumbs. Follow them to victory.
 
 ## License
 
-MIT
+MIT License - see [LICENSE.md](LICENSE.md) for details.
+
+This library is free and open source. When using view-craft, please include attribution in your documentation, application, or source code. See the [LICENSE.md](LICENSE.md) file for attribution examples.
+
+**TL;DR:** Use it freely, just give credit. It helps others discover this library!
