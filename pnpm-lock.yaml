@@ -14,6 +14,9 @@ importers:
       tailwindcss:
         specifier: ^4.1.13
         version: 4.1.13
+      view-craft:
+        specifier: ^0.1.18
+        version: 0.1.18
     devDependencies:
       typescript:
         specifier: ~5.8.3
@@ -561,6 +564,9 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
+  view-craft@0.1.18:
+    resolution: {integrity: sha512-KHpIF5ULB3WH2Cm1c5FOjxVVj8lRJIe0P7FWgOlr/7LbkWUKI6ZiqL3knOHbIhMWWgpDsVGbffvtkBukLsYUAA==}
+
   vite@7.1.7:
     resolution: {integrity: sha512-VbA8ScMvAISJNJVbRDTJdCwqQoAareR/wutevKanhR2/1EkoXVZVkkORaYm/tNVCjP/UDTKtcw3bAkwOUdedmA==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -1011,6 +1017,8 @@ snapshots:
       picomatch: 4.0.3
 
   typescript@5.8.3: {}
+
+  view-craft@0.1.18: {}
 
   vite@7.1.7(jiti@2.6.0)(lightningcss@1.30.1):
     dependencies:

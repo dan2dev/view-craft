@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.13",
-    "tailwindcss": "^4.1.13"
+    "tailwindcss": "^4.1.13",
+    "view-craft": "^0.1.18"
   }
 }
