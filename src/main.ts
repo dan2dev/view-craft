@@ -12,6 +12,19 @@ type Example = {
   code: string;
 };
 
+type ApiItem = {
+  name: string;
+  signature: string;
+  description: string;
+  notes?: string;
+};
+
+type Pattern = {
+  title: string;
+  description: string;
+  code: string;
+};
+
 const highlights: Feature[] = [
   {
     title: 'Zero magic',
@@ -124,6 +137,90 @@ render(app);
   },
 ];
 
+const coreFunctions: ApiItem[] = [
+  {
+    name: 'update()',
+    signature: 'update(): void',
+    description: 'Flushes every reactive function registered in the tree. Call after mutating state.',
+    notes: 'Batch several mutations and call update() once for predictable performance.',
+  },
+  {
+    name: 'render()',
+    signature: 'render(node: NodeChild, target?: HTMLElement): void',
+    description: 'Mounts a node into the DOM. Defaults to #app when no target is supplied.',
+    notes: 'Call once at startup; the returned tree stays live and responds to update().',
+  },
+  {
+    name: 'list()',
+    signature: 'list(provider, renderer)',
+    description: 'Keeps DOM nodes in sync with an array based on object identity.',
+    notes: 'Mutate the original array (push, splice, sort) and call update().',
+  },
+  {
+    name: 'when()',
+    signature: 'when(condition, ...content).when(...).else(...)',
+    description: 'Declarative branching that only swaps DOM when the active branch changes.',
+    notes: 'Perfect for loading + empty + ready states without unmount jitter.',
+  },
+  {
+    name: 'on()',
+    signature: "on(event: string, handler: (ev: Event) => void, options?)",
+    description: 'Attaches listeners while preserving context and teardown automatically.',
+    notes: 'Supports native options like passive or capture.',
+  },
+];
+
+const advancedPatterns: Pattern[] = [
+  {
+    title: 'Nested structures',
+    description: 'Compose layouts with when() and list() to keep DOM reuse automatic.',
+    code: String.raw`
+when(() => user.isLoggedIn,
+  div(
+    h1(() => \`Welcome, \${user.name}\`),
+    list(() => user.notifications, n =>
+      div(
+        { className: () => n.read ? 'read' : '' },
+        span(() => n.message)
+      )
+    )
+  )
+).else(
+  div('Please log in')
+);
+`,
+  },
+  {
+    title: 'Component helpers',
+    description: 'Extract reusable functions that return nodes—no classes or hooks required.',
+    code: String.raw`
+function UserCard(user: User) {
+  return div(
+    { className: 'user-card' },
+    img({ src: user.avatar }),
+    h3(user.name),
+    p(user.bio)
+  );
+}
+
+list(() => users, user => UserCard(user));
+`,
+  },
+  {
+    title: 'Computed helpers',
+    description: 'Derive values with plain functions and re-run them whenever update() fires.',
+    code: String.raw`
+function activeCount() {
+  return todos.filter(todo => !todo.done).length;
+}
+
+div(
+  () => \`\${activeCount()} remaining\`
+);
+`,
+  },
+];
+
 function codeBlock(language: string, snippet: string) {
   const content = snippet.trim();
 
@@ -131,104 +228,114 @@ function codeBlock(language: string, snippet: string) {
     { className: 'overflow-x-auto rounded-xl bg-slate-950/70 p-4 ring-1 ring-slate-800/60 backdrop-blur' },
     code(
       {
-        className: `block text-sm text-slate-200 language-${language}`,
+        className: `block text-sm leading-relaxed text-slate-200 language-${language}`,
       },
       content
     )
   );
 }
 
-const heroSection = header(
-  { className: 'relative isolate overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-6 py-24 sm:py-32' },
-  div(
-    { className: 'mx-auto flex max-w-4xl flex-col items-center text-center gap-6' },
-    span({ className: 'rounded-full border border-slate-700/70 px-4 py-1 text-sm text-slate-300' }, 'View Craft · DOM-first UI library'),
-    h1(
-      { className: 'text-4xl font-semibold tracking-tight text-slate-50 sm:text-6xl' },
-      'Build reactive UIs the explicit way'
-    ),
-    p(
-      { className: 'max-w-2xl text-base text-slate-300 sm:text-lg' },
-      'Use view-craft to assemble fast, reactive interfaces without a virtual DOM. Mutate state, call update(), and keep shipping.'
-    ),
+function heroSection() {
+  return header(
+    { className: 'relative isolate overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-6 py-24 sm:py-32' },
     div(
-      { className: 'flex flex-wrap items-center gap-4' },
-      a(
-        {
-          className: 'rounded-full bg-slate-50 px-5 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-white/80',
-          href: '#installation',
-        },
-        'Get started'
+      { className: 'mx-auto flex max-w-4xl flex-col items-center gap-6 text-center' },
+      span(
+        { className: 'rounded-full border border-slate-700/70 px-4 py-1 text-sm text-slate-300' },
+        'view-craft · DOM-first UI library'
       ),
-      a(
-        {
-          className: 'rounded-full border border-slate-700 px-5 py-2 text-sm font-semibold text-slate-200 transition hover:border-slate-500 hover:text-white',
-          href: 'https://github.com/dan2dev/view-craft',
-          target: '_blank',
-          rel: 'noreferrer',
-        },
-        'Source on GitHub'
-      )
-    )
-  )
-);
-
-const highlightSection = section(
-  { id: 'why', className: 'px-6 py-20' },
-  div(
-    { className: 'mx-auto grid max-w-5xl gap-10 md:grid-cols-2' },
-    div(
-      { className: 'space-y-4' },
-      h2({ className: 'text-3xl font-semibold text-slate-50' }, 'Why view-craft?'),
+      h1(
+        { className: 'text-4xl font-semibold tracking-tight text-slate-50 sm:text-6xl' },
+        'Build reactive UIs the explicit way'
+      ),
       p(
-        { className: 'text-base text-slate-300' },
-        'Cut through framework ceremony and talk to the DOM directly. view-craft keeps your mental model inline with browser APIs while staying productive.'
-      )
-    ),
-    div(
-      { className: 'grid gap-6' },
-      ...highlights.map(({ title, description }) =>
-        article(
-          { className: 'rounded-2xl border border-slate-800/60 bg-slate-900/60 p-6 shadow-lg shadow-black/10 transition hover:border-slate-700' },
-          h3({ className: 'text-lg font-semibold text-slate-50' }, title),
-          p({ className: 'mt-2 text-sm text-slate-300' }, description)
+        { className: 'max-w-2xl text-base text-slate-300 sm:text-lg' },
+        'Mutate state, call update(), and ship interfaces without a virtual DOM in sight. view-craft keeps you close to browser primitives while staying productive.'
+      ),
+      div(
+        { className: 'flex flex-wrap items-center justify-center gap-4' },
+        a(
+          {
+            className: 'rounded-full bg-slate-50 px-5 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-white/80',
+            href: '#overview',
+          },
+          on('click', event => {
+            event.preventDefault();
+            navigateTo('overview');
+          }),
+          'Overview'
+        ),
+        a(
+          {
+            className: 'rounded-full border border-slate-700 px-5 py-2 text-sm font-semibold text-slate-200 transition hover:border-slate-500 hover:text-white',
+            href: '#api',
+          },
+          on('click', event => {
+            event.preventDefault();
+            navigateTo('api');
+          }),
+          'API reference'
+        ),
+        a(
+          {
+            className: 'rounded-full border border-slate-700 px-5 py-2 text-sm font-semibold text-slate-200 transition hover:border-slate-500 hover:text-white',
+            href: '#examples',
+          },
+          on('click', event => {
+            event.preventDefault();
+            navigateTo('examples');
+          }),
+          'Examples'
         )
       )
     )
-  )
-);
+  );
+}
 
-const installationSection = section(
-  { id: 'installation', className: 'px-6 py-20' },
-  div(
-    { className: 'mx-auto max-w-4xl space-y-8' },
-    h2({ className: 'text-3xl font-semibold text-slate-50' }, 'Installation'),
-    p({ className: 'text-base text-slate-300' }, 'Install the package once, then import it globally to register every helper.'),
+function highlightSection() {
+  return section(
+    { className: 'grid gap-6 md:grid-cols-2' },
+    ...highlights.map(({ title, description }) =>
+      article(
+        { className: 'rounded-2xl border border-slate-800/60 bg-slate-900/60 p-6 shadow-lg shadow-black/10 transition hover:border-slate-700' },
+        h3({ className: 'text-lg font-semibold text-slate-50' }, title),
+        p({ className: 'mt-2 text-sm text-slate-300' }, description)
+      )
+    )
+  );
+}
+
+function installationSection() {
+  return section(
+    { className: 'space-y-6' },
+    h2({ className: 'text-3xl font-semibold text-slate-50' }, 'Install & register globals'),
+    p({ className: 'text-base text-slate-300' }, 'Install view-craft once, then import it in your entry file to register every tag helper.'),
     codeBlock('bash', 'pnpm add view-craft'),
-    p({ className: 'text-base text-slate-300' }, 'Need npm instead? Swap pnpm with your package manager of choice.'),
-    h3({ className: 'text-xl font-semibold text-slate-200' }, 'Register globals'),
+    p({ className: 'text-base text-slate-300' }, 'Need npm instead? Swap pnpm for your package manager of choice.'),
+    h3({ className: 'text-xl font-semibold text-slate-200' }, 'Bootstrap your app'),
     codeBlock(
       'ts',
       String.raw`
 import 'view-craft';
 
-const counter = div(
-  h1(() => 'Count: 0'),
-  button('Increment', on('click', () => update()))
+let count = 0;
+
+const app = div(
+  h1(() => \`Count: \${count}\`),
+  button('Increment', on('click', () => { count++; update(); }))
 );
 
-render(counter);
+render(app);
 `
     )
-  )
-);
+  );
+}
 
-const typesSection = section(
-  { id: 'typescript', className: 'px-6 py-20' },
-  div(
-    { className: 'mx-auto max-w-4xl space-y-6' },
-    h2({ className: 'text-3xl font-semibold text-slate-50' }, 'TypeScript setup'),
-    p({ className: 'text-base text-slate-300' }, 'Enable intellisense for every tag and helper by extending your compiler settings.'),
+function typeSystemSection() {
+  return section(
+    { className: 'space-y-6' },
+    h2({ className: 'text-3xl font-semibold text-slate-50' }, 'TypeScript integration'),
+    p({ className: 'text-base text-slate-300' }, 'Enable IDE hints for all 140+ tags by extending your compiler configuration.'),
     codeBlock(
       'json',
       String.raw`
@@ -239,19 +346,71 @@ const typesSection = section(
 }
 `
     ),
-    p(
-      { className: 'text-base text-slate-300' },
-      'Alternatively, add /// <reference types="view-craft/types" /> to your vite-env.d.ts file.'
-    )
-  )
-);
+    p({ className: 'text-base text-slate-300' }, 'Alternatively, add /// <reference types="view-craft/types" /> to vite-env.d.ts.'),
+    p({ className: 'text-base text-slate-300' }, 'Strict mode is fully supported; lean on it when extending DOM helpers or creating custom utilities.')
+  );
+}
 
-const examplesSection = section(
-  { id: 'examples', className: 'px-6 py-20' },
-  div(
-    { className: 'mx-auto max-w-5xl space-y-8' },
+function conceptsSection() {
+  return section(
+    { className: 'space-y-6' },
+    h2({ className: 'text-3xl font-semibold text-slate-50' }, 'Core concepts'),
+    ul(
+      { className: 'grid gap-4 text-base text-slate-300 md:grid-cols-2' },
+      li(
+        strong('Explicit updates · '),
+        'Mutate everything you need, then call update() once for deterministic rendering.'
+      ),
+      li(
+        strong('Reactive functions · '),
+        'Wrap text or attributes in zero-arg functions so they recompute every update().' 
+      ),
+      li(
+        strong('when() · '),
+        'Chain when(...).else(...) blocks to express state machines without remount churn.'
+      ),
+      li(
+        strong('list() · '),
+        'Render arrays by identity and reuse DOM nodes; mutate in place to keep references stable.'
+      )
+    )
+  );
+}
+
+function bestPracticesSection() {
+  return section(
+    { className: 'space-y-6' },
+    h2({ className: 'text-3xl font-semibold text-slate-50' }, 'Best practices'),
+    ul(
+      { className: 'space-y-3 text-base text-slate-300' },
+      li('Batch work, then call update() once. It keeps repaint budgets happy.'),
+      li('Prefer mutating existing objects in lists so view-craft can reuse DOM nodes.'),
+      li('Use .else() clauses to keep control flow obvious for future maintainers.'),
+      li('Drop debug breakpoints right before update() to inspect state transitions.'),
+      li('Tailwind utilities work inline—no extra macros or compile steps needed.'),
+    )
+  );
+}
+
+function debuggingSection() {
+  return section(
+    { className: 'space-y-6' },
+    h2({ className: 'text-3xl font-semibold text-slate-50' }, 'Debugging and diagnostics'),
+    ul(
+      { className: 'space-y-3 text-base text-slate-300' },
+      li('Inspect the DOM markers like <!-- list-start --> when debugging list() behaviour.'),
+      li('Console.log inside reactive functions to confirm when updates execute.'),
+      li('Keep a breakpoint at update() to freeze-frame the state you are about to paint.'),
+      li('If content is stale, confirm update() actually fires after your mutations.'),
+    )
+  );
+}
+
+function quickExamplesSection() {
+  return section(
+    { className: 'space-y-6' },
     h2({ className: 'text-3xl font-semibold text-slate-50' }, 'Quick examples'),
-    p({ className: 'text-base text-slate-300' }, 'Every example keeps state as plain data and schedules a single update() call to reflect changes.'),
+    p({ className: 'text-base text-slate-300' }, 'Every snippet keeps state as plain data and schedules a single update() call to reflect changes.'),
     div(
       { className: 'grid gap-8 lg:grid-cols-3' },
       ...quickExamples.map(({ title, summary, code }) =>
@@ -266,57 +425,224 @@ const examplesSection = section(
         )
       )
     )
-  )
-);
+  );
+}
 
-const conceptsSection = section(
-  { id: 'concepts', className: 'px-6 py-20' },
-  div(
-    { className: 'mx-auto max-w-4xl space-y-6' },
-    h2({ className: 'text-3xl font-semibold text-slate-50' }, 'Core concepts'),
-    ul(
-      { className: 'grid gap-4 text-base text-slate-300 md:grid-cols-2' },
-      li(
-        strong('Explicit updates: '),
-        'Mutate all the things, then call update() once. Perfect for async flows or large batch changes.'
-      ),
-      li(
-        strong('Reactive functions: '),
-        'Wrap text or attributes in zero-arg functions so they run again whenever update() executes.'
-      ),
-      li(
-        strong('when(): '),
-        'Chain when(...).else(...) blocks for concise branching without remounting preserved DOM.'
-      ),
-      li(
-        strong('list(): '),
-        'Render arrays by identity to keep elements stable—mutate the original objects for instant DOM sync.'
+function advancedPatternsSection() {
+  return section(
+    { className: 'space-y-6' },
+    h2({ className: 'text-3xl font-semibold text-slate-50' }, 'Advanced patterns'),
+    p({ className: 'text-base text-slate-300' }, 'Build richer UIs by composing helpers—no components or memo hoops required.'),
+    div(
+      { className: 'grid gap-8 md:grid-cols-2' },
+      ...advancedPatterns.map(({ title, description, code }) =>
+        article(
+          { className: 'flex flex-col gap-4 rounded-2xl border border-slate-800/60 bg-slate-900/60 p-6 shadow-lg shadow-black/10' },
+          div(
+            { className: 'space-y-2' },
+            h3({ className: 'text-lg font-semibold text-slate-50' }, title),
+            p({ className: 'text-sm text-slate-300' }, description)
+          ),
+          codeBlock('ts', code)
+        )
       )
     )
-  )
-);
+  );
+}
 
-const bestPracticesSection = section(
-  { id: 'practices', className: 'px-6 py-20' },
+function apiReferenceSection() {
+  return section(
+    { className: 'space-y-6' },
+    h2({ className: 'text-3xl font-semibold text-slate-50' }, 'Core API surface'),
+    p({ className: 'text-base text-slate-300' }, 'The essentials you will use every day. Each helper is globally registered after importing view-craft.'),
+    div(
+      { className: 'grid gap-6 md:grid-cols-2' },
+      ...coreFunctions.map(({ name, signature, description, notes }) =>
+        article(
+          { className: 'space-y-3 rounded-2xl border border-slate-800/60 bg-slate-900/60 p-6 shadow-lg shadow-black/10' },
+          h3({ className: 'text-lg font-semibold text-slate-50' }, name),
+          codeBlock('ts', signature),
+          p({ className: 'text-sm text-slate-300' }, description),
+          notes
+            ? p({ className: 'text-sm text-slate-400' }, notes)
+            : null
+        )
+      )
+    )
+  );
+}
+
+function overviewPage() {
+  return div(
+    heroSection(),
+    div(
+      { className: 'mx-auto flex max-w-6xl flex-col gap-16 px-6 py-16' },
+      highlightSection(),
+      installationSection(),
+      bestPracticesSection()
+    )
+  );
+}
+
+function apiPage() {
+  return div(
+    { className: 'mx-auto flex max-w-6xl flex-col gap-16 px-6 py-24' },
+    typeSystemSection(),
+    apiReferenceSection(),
+    conceptsSection(),
+    debuggingSection()
+  );
+}
+
+function examplesPage() {
+  return div(
+    { className: 'mx-auto flex max-w-6xl flex-col gap-16 px-6 py-24' },
+    quickExamplesSection(),
+    advancedPatternsSection()
+  );
+}
+
+function notFoundPage() {
+  return div(
+    { className: 'mx-auto flex max-w-4xl flex-col items-center gap-6 px-6 py-32 text-center' },
+    h2({ className: 'text-4xl font-semibold text-slate-50' }, 'Page not found'),
+    p({ className: 'text-base text-slate-300' }, 'We could not find that section. Try heading back to the overview.'),
+    a(
+      {
+        href: '#overview',
+        className: 'rounded-full bg-slate-50 px-5 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-white/80',
+      },
+      on('click', event => {
+        event.preventDefault();
+        navigateTo('overview');
+      }),
+      'Return to overview'
+    )
+  );
+}
+
+type Route = {
+  path: string;
+  label: string;
+  render: () => NodeModFn;
+};
+
+const routes: Route[] = [
+  { path: 'overview', label: 'Overview', render: overviewPage },
+  { path: 'api', label: 'API Reference', render: apiPage },
+  { path: 'examples', label: 'Examples', render: examplesPage },
+];
+
+function resolveHash(hash: string) {
+  const cleaned = hash.replace(/^#/, '').replace(/^\/+/, '');
+  return cleaned || 'overview';
+}
+
+function setHash(path: string) {
+  const formatted = `#${path}`;
+  if (window.location.hash !== formatted) {
+    window.location.hash = formatted;
+  }
+}
+
+function applyDocumentTitle(path: string) {
+  const match = routes.find(route => route.path === path);
+  if (match) {
+    document.title = `view-craft · ${match.label}`;
+  } else {
+    document.title = 'view-craft · Not found';
+  }
+}
+
+let currentPath = resolveHash(window.location.hash);
+
+if (!window.location.hash) {
+  setHash(currentPath);
+}
+
+applyDocumentTitle(currentPath);
+
+window.addEventListener('hashchange', () => {
+  const nextPath = resolveHash(window.location.hash);
+  if (nextPath === currentPath) {
+    return;
+  }
+
+  currentPath = nextPath;
+  applyDocumentTitle(currentPath);
+  update();
+});
+
+function navigateTo(target: string) {
+  const nextPath = resolveHash(target.startsWith('#') ? target : `#${target}`);
+
+  if (nextPath === currentPath) {
+    applyDocumentTitle(currentPath);
+    setHash(currentPath);
+    update();
+    return;
+  }
+
+  currentPath = nextPath;
+  applyDocumentTitle(currentPath);
+  setHash(currentPath);
+  update();
+}
+
+function routingOutlet() {
+  return when(
+    () => currentPath === 'overview',
+    overviewPage()
+  )
+    .when(() => currentPath === 'api', apiPage())
+    .when(() => currentPath === 'examples', examplesPage())
+    .else(notFoundPage());
+}
+
+const navigation = nav(
+  { className: 'sticky top-0 z-50 border-b border-slate-800/60 bg-slate-950/80 backdrop-blur' },
   div(
-    { className: 'mx-auto max-w-4xl space-y-6' },
-    h2({ className: 'text-3xl font-semibold text-slate-50' }, 'Best practices'),
-    ul(
-      { className: 'space-y-3 text-base text-slate-300' },
-      li('Batch work, then call update() once. It keeps repaint budgets happy.'),
-      li('Prefer mutating existing objects in lists so view-craft can reuse DOM nodes.'),
-      li('Use .else() clauses to keep control flow obvious for future maintainers.'),
-      li('Drop debug breakpoints right before update() to inspect state transitions.'),
-      li('Need to integrate Tailwind utilities? Apply className strings—no build-time macros required.'),
+    { className: 'mx-auto flex max-w-6xl items-center justify-between px-6 py-4' },
+    a(
+      {
+        href: '#overview',
+        className: 'text-lg font-semibold text-slate-100 transition hover:text-white',
+      },
+      on('click', event => {
+        event.preventDefault();
+        navigateTo('overview');
+      }),
+      'view-craft'
+    ),
+    div(
+      { className: 'flex flex-wrap items-center gap-2' },
+      ...routes.map(({ path, label }) => {
+        const activeClass = 'rounded-full bg-slate-800 px-4 py-2 text-sm font-medium text-white shadow transition';
+        const idleClass = 'rounded-full px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800/60 hover:text-white';
+
+        const linkClass = () => (currentPath === path ? activeClass : idleClass);
+
+        return a(
+          {
+            href: `#${path}`,
+            className: linkClass,
+          },
+          on('click', event => {
+            event.preventDefault();
+            navigateTo(path);
+          }),
+          label
+        );
+      })
     )
   )
 );
 
 const footerSection = footer(
-  { className: 'px-6 pb-16 pt-10' },
+  { className: 'border-t border-slate-800/60 px-6 py-10' },
   div(
-    { className: 'mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 text-sm text-slate-500 sm:flex-row' },
-    span('© ', new Date().getFullYear().toString(), ' view-craft. MIT licensed.'),
+    { className: 'mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-sm text-slate-500 sm:flex-row' },
+    span(() => `© ${new Date().getFullYear()} view-craft. MIT licensed.`),
     span(
       'Built with view-craft and Vite · ',
       a(
@@ -335,16 +661,8 @@ const footerSection = footer(
 render(
   div(
     { className: 'min-h-screen bg-slate-950 text-slate-100' },
-    heroSection,
-    main(
-      { className: 'space-y-12' },
-      highlightSection,
-      installationSection,
-      typesSection,
-      examplesSection,
-      conceptsSection,
-      bestPracticesSection
-    ),
+    navigation,
+    main({ className: 'min-h-[calc(100vh-200px)] pb-20' }, routingOutlet()),
     footerSection
   )
 );
