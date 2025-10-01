@@ -10,7 +10,7 @@ export function typeSystemSection() {
       String.raw`
 {
   "compilerOptions": {
-    "types": ["vite/client", "view-craft/types"]
+    "types": ["view-craft/types"]
   }
 }
 `

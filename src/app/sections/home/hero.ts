@@ -1,3 +1,5 @@
+import { animatedLogo } from '../../ui/animated-logo';
+
 export function heroSection(navigate: (path: string) => void) {
   const makeHandler = (path: string) =>
     on('click', (event: Event) => {
@@ -7,6 +9,7 @@ export function heroSection(navigate: (path: string) => void) {
 
   return header(
     { className: 'relative isolate overflow-hidden bg-gradient-to-br from-slate-950 via-emerald-950/20 to-slate-950 px-6 py-24 sm:py-32' },
+    animatedLogo(),
     div(
       { className: 'mx-auto flex max-w-4xl flex-col items-center gap-6 text-center' },
       span(
