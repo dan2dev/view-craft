@@ -2,6 +2,8 @@
 
 **A DOM library for people who peaked in the jQuery era and never looked back.**
 
+_Yes, this is yet another JavaScript library. We're aware. The ecosystem now has more libraries than actual developers. We're sorry. Or you're welcome? We're still figuring it out._
+
 Build reactive UIs without the magic tricks. Just functions, mutations, and a single `update()` call when you feel like it.
 
 ```ts
