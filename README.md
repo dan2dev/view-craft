@@ -1,8 +1,8 @@
 # view-craft
 
-**Lightweight, declarative DOM library with explicit control.**
+**A DOM library for people who peaked in the jQuery era and never looked back.**
 
-Build reactive UIs without the magic. Just functions, mutations, and a single `update()` call.
+Build reactive UIs without the magic tricks. Just functions, mutations, and a single `update()` call when you feel like it.
 
 ```ts
 import 'view-craft';
@@ -22,12 +22,12 @@ render(counter);
 
 ## Why view-craft?
 
-- **Zero magic** – You control when updates happen
-- **No virtual DOM** – Direct DOM manipulation, no diffing overhead
-- **Tiny footprint** – Core features in a few KB
-- **Global API** – Just `import 'view-craft'` and use `div()`, `update()`, `on()`, etc.
-- **TypeScript-first** – Full type safety for all HTML/SVG tags
-- **Real reactivity** – Fine-grained updates only where data changed
+- **Zero magic** – Like a microwave with just one button. You press `update()`, stuff happens.
+- **No virtual DOM** – Why simulate the DOM when you can just... use the DOM? *taps forehead*
+- **Tiny footprint** – Smaller than your average React component's prop types
+- **Global API** – `div()` is everywhere, like that one friend who shows up uninvited but makes everything fun
+- **TypeScript-first** – All 140+ tags typed. Yes, even `<bdi>`. You're welcome.
+- **Real reactivity** – Updates only what changed. Your browser's repaint budget will thank you.
 
 ---
 
@@ -252,8 +252,32 @@ let name = 'World';
 name = 'Alice';
 name = name.toUpperCase();
 
-// Update once
+// Update once when ready
 update();
+```
+
+**Advantages of explicit `update()`:**
+
+- **Performance**: Batch mutations like a responsible adult. One `update()` > ten thousand proxy getters watching your every variable assignment like helicopter parents.
+- **Control**: You're the boss of when pixels change. Perfect for animations, async chaos, or coordinating changes without asking a framework permission.
+- **Predictability**: Zero surprise re-renders. No "why did this component update 47 times?!" sessions in DevTools.
+- **Simplicity**: No proxies, no dependency graphs, no PhD required. Just objects and a function named `update()`. Revolutionary, we know.
+- **Debugging**: Put a breakpoint at `update()`. That's it. That's the whole debugging strategy.
+
+```ts
+// Example: Batch updates for better performance
+items.push(item1);
+items.push(item2);
+items.sort();
+user.name = 'Alice';
+update();  // One update for all changes
+
+// vs. automatic tracking (hypothetical)
+items.push(item1);  // triggers update
+items.push(item2);  // triggers update
+items.sort();       // triggers update
+user.name = 'Alice'; // triggers update
+// 4 updates instead of 1!
 ```
 
 ### 2. **Reactive Functions**
@@ -392,16 +416,16 @@ div({
 
 ### Batch Updates
 
-Mutate multiple times, then update once:
+Mutate like you're stress-testing the array, then update once like you meant to do that:
 
 ```ts
-// Good
+// Galaxy brain
 items.push(item1);
 items.push(item2);
 items.sort();
 update();
 
-// Less efficient
+// Smooth brain (but hey, it works)
 items.push(item1);
 update();
 items.push(item2);
@@ -410,14 +434,14 @@ update();
 
 ### Object Identity for Lists
 
-Lists track items by reference. Keep object references stable:
+Lists track items by reference. Mutate the object, not your soul:
 
 ```ts
-// Good - reuses DOM elements
+// The way
 todos[0].done = true;
 update();
 
-// Bad - replaces entire object, destroys DOM element
+// The dark side (RIP that DOM element, we hardly knew ye)
 todos[0] = { ...todos[0], done: true };
 update();
 ```
@@ -486,12 +510,12 @@ div(
 
 ## Performance
 
-- **No virtual DOM diffing** – Direct mutations
-- **Fine-grained updates** – Only changed text/attributes update
-- **Element reuse** – Lists preserve DOM when items move
-- **Branch preservation** – `when` keeps DOM when branch is stable
+- **No virtual DOM diffing** – We skip the middle-manager and talk directly to the DOM
+- **Fine-grained updates** – Only updates what changed. Like a surgeon, not a bulldozer.
+- **Element reuse** – Lists are smart enough to move elements instead of yeeting them into the void
+- **Branch preservation** – `when` branches stay alive unless conditions change. Low-key immortal.
 
-For high-frequency updates (e.g., animations), batch mutations before calling `update()`.
+For high-frequency updates (animations, game loops, existential crises), batch mutations before calling `update()`.
 
 ---
 
@@ -499,7 +523,7 @@ For high-frequency updates (e.g., animations), batch mutations before calling `u
 
 ### Inspect Markers
 
-View structural boundaries in DevTools:
+Open DevTools, stare at the DOM like it owes you money:
 
 ```html
 <!-- when-start-1 -->
@@ -512,24 +536,26 @@ View structural boundaries in DevTools:
 <!-- list-end -->
 ```
 
+These comment markers are your breadcrumbs. Follow them to victory.
+
 ### Common Issues
 
 **Content not updating?**
-- Did you call `update()` after mutations?
-- Are your conditions/functions returning the expected values?
+- Did you call `update()`? (Asking because 80% of the time, you didn't)
+- Are your conditions/functions returning what you think they are? `console.log()` is your friend.
 
 **List items not reusing elements?**
-- Are you replacing objects instead of mutating them?
-- Check that item references are stable.
+- Stop spreading objects like it's 2018. Mutate them.
+- Item references need to be stable, not having an identity crisis on every render.
 
 ---
 
 ## Roadmap
 
-- Keyed list variant
-- Transition/animation helpers
-- Dev mode diagnostics
-- SSR support
+- Keyed list variant (for when object identity isn't your thing)
+- Transition/animation helpers (make things swoosh)
+- Dev mode diagnostics (we'll yell at you when you forget `update()`)
+- SSR support (because apparently servers need to render HTML now)
 
 ---
 
