@@ -1,48 +1,15 @@
 {
-  "name": "view-craft",
-  "private": false,
-  "version": "0.1.18",
+  "name": "gh-pages",
+  "private": true,
+  "version": "0.0.0",
   "type": "module",
-  "main": "./dist/view-craft.cjs",
-  "module": "./dist/view-craft.js",
-  "browser": "./dist/view-craft.umd.js",
-  "types": "./types/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/view-craft.js",
-      "require": "./dist/view-craft.cjs"
-    },
-    "./types": {
-      "types": "./types/index.d.ts"
-    }
-  },
-  "files": [
-    "dist",
-    "types"
-  ],
   "scripts": {
-    "build": "rm -rf dist && rollup -c && tsc --emitDeclarationOnly",
-    "dev": "rm -rf dist && rollup -c -w & tsc --emitDeclarationOnly --watch",
-    "dev:all": "pnpm dev & cd examples/basic && npm run dev",
-    "build:watch": "rm -rf dist && rollup -c -w & tsc --emitDeclarationOnly --watch",
-    "build:rollup": "rollup -c",
-    "build:types": "tsc --emitDeclarationOnly",
-    "clean": "rm -rf dist *.tsbuildinfo",
-    "test": "vitest run --coverage",
-    "test:watch": "vitest --watch"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
   },
   "devDependencies": {
-    "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-typescript": "^12.1.4",
-    "@types/node": "^24.5.2",
-    "@vitest/coverage-v8": "3.2.4",
-    "jsdom": "^27.0.0",
-    "rollup": "^4.52.2",
-    "tslib": "^2.8.1",
-    "typescript": "^5.9.2",
-    "vitest": "^3.2.4"
-  },
-  "packageManager": "pnpm@10.17.1",
-  "dependencies": {}
+    "typescript": "~5.8.3",
+    "vite": "^7.1.7"
+  }
 }
