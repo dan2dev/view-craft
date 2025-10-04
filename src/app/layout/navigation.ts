@@ -2,6 +2,49 @@ import { routes } from "../routes";
 import { themeToggle } from "../ui/theme-toggle";
 
 export function navigation(_getPath: () => string, onNavigate: (path: string) => void) {
+  let isMenuOpen = false;
+
+  const pages = routes.filter((item) => item.path !== "get-started");
+
+  function closeMenu() {
+    if (!isMenuOpen) {
+      return;
+    }
+
+    isMenuOpen = false;
+    update();
+  }
+
+  function handleNavigate(event: Event, path: string) {
+    event.preventDefault();
+    closeMenu();
+    onNavigate(path);
+  }
+
+  function createNpmLink() {
+    return a({
+      href: "https://www.npmjs.com/package/view-craft",
+      target: "_blank",
+      rel: "noreferrer",
+      title: "View on npm",
+      className: "text-vc-secondary hover:text-vc-primary transition-colors",
+      innerHTML:
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H5.334v-4H3.999v4H1.335V8.667h5.331v5.331zm4 0v1.336H8.001V8.667h5.334v5.332h-2.669v-.001zm12.001 0h-1.33v-4h-1.336v4h-1.335v-4h-1.33v4h-2.671V8.667h8.002v5.331zM10.665 10H12v2.667h-1.335V10z"/></svg>',
+    });
+  }
+
+  function createGithubLink() {
+    return a({
+      href: "https://github.com/dan2dev/view-craft",
+      target: "_blank",
+      rel: "noreferrer",
+      title: "View on GitHub",
+      className: "text-vc-secondary hover:text-vc-primary transition-colors",
+      innerHTML:
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>',
+    });
+  }
+
   return nav(
     {
       className: "sticky top-0 z-50 bg-vc-bgCard border-b border-vc-border",
@@ -16,8 +59,7 @@ export function navigation(_getPath: () => string, onNavigate: (path: string) =>
           className: "flex items-center gap-2 text-vc-primary hover:text-vc-accent transition-colors",
         },
         on("click", (event) => {
-          event.preventDefault();
-          onNavigate("overview");
+          handleNavigate(event, "overview");
         }),
         img({
           src: "/view-craft/view-craft-logo-1.png",
@@ -30,52 +72,100 @@ export function navigation(_getPath: () => string, onNavigate: (path: string) =>
       ),
       div(
         {
-          className: "flex items-center gap-8",
+          className: "flex items-center gap-3 md:gap-6",
         },
-        ...routes.filter((item) => item.path !== "get-started").map(({ path, label }) => {
-          return a(
+        button(
+          {
+            type: "button",
+            className:
+              "md:hidden p-2 rounded-vc-button border border-transparent text-vc-secondary hover:text-vc-primary hover:border-vc-border transition-colors",
+            ariaLabel: () => (isMenuOpen ? "Close menu" : "Open menu"),
+            ariaExpanded: () => (isMenuOpen ? "true" : "false"),
+            innerHTML: () =>
+              isMenuOpen
+                ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+                : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>',
+          },
+          on("click", () => {
+            isMenuOpen = !isMenuOpen;
+            update();
+          })
+        ),
+        div(
+          {
+            className: "hidden md:flex items-center gap-8",
+          },
+          ...pages.map(({ path, label }) =>
+            a(
+              {
+                href: `#${path}`,
+                className: "text-sm text-vc-secondary hover:text-vc-primary transition-colors",
+              },
+              on("click", (event) => {
+                handleNavigate(event, path);
+              }),
+              label,
+            )
+          ),
+          a(
             {
-              href: `#${path}`,
-              className: "text-sm text-vc-secondary hover:text-vc-primary transition-colors",
+              href: "#get-started",
+              className: "btn-primary",
             },
             on("click", (event) => {
-              event.preventDefault();
-              onNavigate(path);
+              handleNavigate(event, "get-started");
+            }),
+            "Get Started"
+          ),
+          themeToggle(),
+          createNpmLink(),
+          createGithubLink(),
+        )
+      )
+    ),
+    div(
+      {
+        className: () =>
+          `md:hidden border-t border-vc-border bg-vc-bgCard mobile-menu ${
+            isMenuOpen ? "mobile-menu--open" : ""
+          }`,
+        ariaHidden: () => (isMenuOpen ? "false" : "true"),
+      },
+      div(
+        {
+          className: "container flex flex-col gap-3 py-4",
+        },
+        ...pages.map(({ path, label }) =>
+          a(
+            {
+              href: `#${path}`,
+              className: "text-base text-vc-secondary hover:text-vc-primary transition-colors",
+            },
+            on("click", (event) => {
+              handleNavigate(event, path);
             }),
             label,
-          );
-        }),
+          )
+        ),
         a(
           {
             href: "#get-started",
-            className: "btn-primary",
+            className: "btn-primary text-center",
           },
           on("click", (event) => {
-            event.preventDefault();
-            onNavigate("get-started");
+            handleNavigate(event, "get-started");
           }),
           "Get Started"
         ),
-        themeToggle(),
-        a({
-          href: "https://www.npmjs.com/package/view-craft",
-          target: "_blank",
-          rel: "noreferrer",
-          title: "View on npm",
-          className: "text-vc-secondary hover:text-vc-primary transition-colors",
-          innerHTML:
-            '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H5.334v-4H3.999v4H1.335V8.667h5.331v5.331zm4 0v1.336H8.001V8.667h5.334v5.332h-2.669v-.001zm12.001 0h-1.33v-4h-1.336v4h-1.335v-4h-1.33v4h-2.671V8.667h8.002v5.331zM10.665 10H12v2.667h-1.335V10z"/></svg>',
-        }),
-        a({
-          href: "https://github.com/dan2dev/view-craft",
-          target: "_blank",
-          rel: "noreferrer",
-          title: "View on GitHub",
-          className: "text-vc-secondary hover:text-vc-primary transition-colors",
-          innerHTML:
-            '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>',
-        }),
-      ),
-    ),
+        div(
+          {
+            className: "flex items-center gap-4 border-t border-vc-border pt-3",
+          },
+          themeToggle(),
+          createNpmLink(),
+          createGithubLink(),
+        )
+      )
+    )
   );
 }
