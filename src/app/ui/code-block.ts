@@ -24,7 +24,7 @@ function escapeHtml(value: string) {
 }
 
 export function codeBlock(language: string, snippet: string) {
-  const content = snippet.trim();
+  const content = snippet.trim().replaceAll(/\\/g, "");
   const normalized = languageAliases[language] ?? language;
   const grammar = Prism.languages[normalized];
   const highlighted = grammar
