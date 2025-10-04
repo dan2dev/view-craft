@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Build and Deploy to GitHub Pages
 
 on:
   release:
@@ -8,7 +8,7 @@ on:
       - gh-pages
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  build-and-commit:
     runs-on: ubuntu-latest
 
     steps:
@@ -41,6 +41,14 @@ jobs:
       - name: Disable Jekyll
         run: touch docs/.nojekyll
 
+      - name: Commit and push built files
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add docs/
+          git diff --staged --quiet || git commit -m "chore: update build artifacts"
+          git push
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -51,7 +59,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-and-commit
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
