@@ -1,7 +1,7 @@
-import { getTheme, toggleTheme, subscribeToTheme } from '../state/theme';
+import { getTheme, toggleTheme } from '../state/theme';
 
 export function themeToggle() {
-  const buttonEl = button(
+  return button(
     {
       title: () => `Switch to ${getTheme() === 'light' ? 'dark' : 'light'} mode`,
       className: "p-2 rounded-vc-button hover:bg-vc-bg transition-colors text-vc-secondary hover:text-vc-primary",
@@ -16,11 +16,4 @@ export function themeToggle() {
       toggleTheme();
     })
   );
-
-  // Subscribe to theme changes to update the button UI
-  subscribeToTheme(() => {
-    buttonEl.update();
-  });
-
-  return buttonEl;
 }
