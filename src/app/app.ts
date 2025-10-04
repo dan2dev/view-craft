@@ -33,9 +33,8 @@ function routingOutlet() {
 
 export function appShell() {
   return div(
-    { className: 'min-h-screen transition-colors' },
     navigation(() => getCurrentPath(), navigateTo),
-    main({ className: 'min-h-[calc(100vh-200px)] pb-20' }, routingOutlet()),
+    main(routingOutlet()),
     footerSection()
   );
 }

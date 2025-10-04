@@ -1,24 +1,26 @@
 export function footerSection() {
   return footer(
     {
-      className: 'border-t px-6 py-10 transition-colors',
-      style: 'border-color: var(--border-color);'
+      className: "bg-vc-primary text-white py-12 border-t border-vc-border",
     },
     div(
       {
-        className: 'mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-sm',
-        style: 'color: var(--text-tertiary);'
+        className: "container flex flex-col md:flex-row justify-between items-center gap-4",
       },
-      span(() => `© ${new Date().getFullYear()} view-craft by Danilo Celestino de Castro. MIT licensed.`),
+      span({
+        className: "text-vc-light text-sm",
+      }, () => `© ${new Date().getFullYear()} ViewCraft by Danilo Celestino de Castro. MIT licensed.`),
       span(
-        'Built with view-craft · ',
+        {
+          className: "text-vc-light text-sm",
+        },
+        'Built with ViewCraft · ',
         a(
           {
             href: 'https://github.com/dan2dev/view-craft',
-            className: 'underline-offset-4 hover:underline cursor-pointer transition-colors duration-200',
-            style: 'color: var(--vc-color-primary-strong);',
             target: '_blank',
             rel: 'noreferrer',
+            className: "text-white hover:text-vc-accent transition-colors underline",
           },
           'Contribute on GitHub'
         )

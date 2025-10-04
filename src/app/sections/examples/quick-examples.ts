@@ -6,18 +6,18 @@ function exampleCard(example = getExamples()[0]) {
 
   return article(
     {
-      className: 'flex w-full flex-col gap-4 border-2 p-7 transition-all duration-300',
-      style: `
-        background-color: var(--section-card-bg);
-        border-color: var(--vc-accent-seafoam);
-        border-radius: var(--vc-radius-xl);
-        box-shadow: var(--vc-shadow-1);
-      `
+      className: "bg-vc-bg rounded-vc-card p-6 border border-vc-border",
     },
     div(
-      { className: 'space-y-2' },
-      h3({ className: 'text-xl font-bold', style: 'color: var(--vc-color-primary-strong);' }, title),
-      p({ className: 'text-sm leading-relaxed', style: 'color: var(--text-secondary);' }, summary)
+      {
+        className: "mb-6",
+      },
+      h3({
+        className: "text-xl mb-3 font-semibold",
+      }, title),
+      p({
+        className: "text-sm text-vc-secondary",
+      }, summary)
     ),
     codeBlock('ts', code)
   );
@@ -26,15 +26,6 @@ function exampleCard(example = getExamples()[0]) {
 function activeExampleView(examples = getExamples()) {
   if (examples.length === 0) {
     return div(
-      {
-        className: 'border p-6 text-sm',
-        style: `
-          background-color: var(--section-card-bg);
-          border-color: var(--section-card-border);
-          color: var(--text-secondary);
-          border-radius: var(--vc-radius-lg);
-        `
-      },
       'Examples coming soon.'
     );
   }
@@ -55,59 +46,70 @@ export function quickExamplesSection() {
   const examples = getExamples();
 
   return section(
-    { className: 'space-y-6' },
-    h2({ className: 'text-3xl font-semibold', style: 'color: var(--text-primary);' }, 'Quick examples'),
-    p({ className: 'text-base', style: 'color: var(--text-secondary);' }, 'Every snippet keeps state as plain data and schedules a single update() call to reflect changes.'),
+    {
+      className: "py-20 bg-white border-t border-vc-border",
+    },
     div(
-      { className: 'flex flex-col gap-6 lg:flex-row lg:gap-8' },
+      {
+        className: "container max-w-6xl",
+      },
+      h2({
+        className: "mb-4",
+      }, 'Quick examples'),
+      p({
+        className: "mb-12 text-base text-vc-secondary",
+      }, 'Every snippet keeps state as plain data and schedules a single update() call to reflect changes.'),
       div(
         {
-          className: 'flex shrink-0 flex-col gap-3 border-2 p-4 lg:w-64',
-          style: `
-            background: var(--vc-grad-panel);
-            border-color: var(--vc-accent-mint);
-            border-radius: var(--vc-radius-xl);
-            box-shadow: var(--vc-shadow-1);
-          `
+          className: "grid grid-cols-1 lg:grid-cols-12 gap-8",
         },
-        ...examples.map(({ title }, index) => {
-          const buttonColors = [
-            'var(--vc-accent-mint)',
-            'var(--vc-accent-seafoam)',
-            'var(--vc-accent-sky)',
-            'var(--vc-accent-peach)',
-            'var(--vc-accent-coral)',
-            'var(--vc-accent-teal)'
-          ];
-          const accentColor = buttonColors[index % buttonColors.length];
+        div(
+          {
+            className: "lg:col-span-3 flex flex-col gap-3",
+          },
+          ...examples.map(({ title }, index) => {
+            const buttonColors = [
+              'var(--vc-accent-mint)',
+              'var(--vc-accent-seafoam)',
+              'var(--vc-accent-sky)',
+              'var(--vc-accent-peach)',
+              'var(--vc-accent-coral)',
+              'var(--vc-accent-teal)'
+            ];
+            const accentColor = buttonColors[index % buttonColors.length];
 
-          return button(
-            {
-              type: 'button',
-              className: () => `w-full px-4 py-3 text-left text-sm font-semibold transition-all cursor-pointer border-2 ${getActiveExampleIndex() === index ? 'scale-105' : 'hover:scale-102'}`,
-              style: () => {
-                const isActive = getActiveExampleIndex() === index;
-                return `
-                  background: ${isActive ? `linear-gradient(135deg, ${accentColor}40, ${accentColor}20)` : 'transparent'};
-                  color: ${isActive ? 'var(--text-primary)' : 'var(--text-secondary)'};
-                  border-color: ${isActive ? accentColor : 'transparent'};
-                  border-radius: var(--vc-radius-md);
-                  ${isActive ? 'box-shadow: var(--vc-shadow-1);' : ''}
-                `;
+            return button(
+              {
+                type: 'button',
+                className: "text-left px-4 py-3 rounded-vc-sm border-2 transition-all duration-200 flex items-center gap-3",
+                style: () => {
+                  const isActive = getActiveExampleIndex() === index;
+                  return `
+                    background: ${isActive ? `linear-gradient(135deg, ${accentColor}40, ${accentColor}20)` : 'white'};
+                    border-color: ${isActive ? accentColor : 'transparent'};
+                  `;
+                },
               },
-            },
-            on('click', () => selectExample(index)),
-            span(
-              { className: 'block text-xs font-bold uppercase tracking-wide', style: `color: ${accentColor};` },
-              `0${index + 1}`
-            ),
-            span({ className: 'mt-1 block text-base' }, title)
-          );
-        })
-      ),
-      div(
-        { className: 'flex-1 min-w-0' },
-        activeExampleView(examples)
+              on('click', () => selectExample(index)),
+              span(
+                {
+                  className: "font-mono font-bold",
+                  style: `color: ${accentColor};`
+                },
+                `0${index + 1}`
+              ),
+              span({
+                className: "font-medium text-vc-ink",
+              }, title)
+            );
+          })
+        ),
+        div(
+          {
+            className: "lg:col-span-9",
+          },
+          activeExampleView(examples)
+        )
       )
     )
   );

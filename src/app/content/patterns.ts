@@ -10,7 +10,6 @@ when(() => user.isLoggedIn,
     h1(() => \`Welcome, \${user.name}\`),
     list(() => user.notifications, n =>
       div(
-        { className: () => n.read ? 'read' : '' },
         span(() => n.message)
       )
     )
@@ -26,7 +25,6 @@ when(() => user.isLoggedIn,
     code: String.raw`
 function UserCard(user: User) {
   return div(
-    { className: 'user-card' },
     img({ src: user.avatar }),
     h3(user.name),
     p(user.bio)

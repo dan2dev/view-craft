@@ -7,93 +7,61 @@ export function heroSection(navigate: (path: string) => void) {
 
   return header(
     {
-      className: "relative isolate overflow-hidden px-6 py-24 sm:py-32 transition-colors",
-      style: "background: var(--vc-grad-panel);",
+      className: "pt-20 pb-24 bg-white",
     },
     div(
-      { className: "mx-auto flex max-w-4xl flex-col items-center gap-6 text-center" },
+      {
+        className: "container max-w-4xl text-center",
+      },
       div(
         {
-          className: "relative mb-4 transition-transform duration-300 hover:scale-110",
-          style: "animation: float 3s ease-in-out infinite;"
+          className: "mb-12 flex justify-center",
         },
         img({
           src: '/view-craft/view-craft-logo.png',
-          alt: 'View-Craft Cyclops Robot',
-          className: 'w-32 h-32 drop-shadow-2xl',
-          style: `
-            filter: drop-shadow(0 10px 30px rgba(91, 165, 160, 0.4));
-          `
+          alt: 'ViewCraft Robot',
+          className: "w-32 h-32 md:w-40 md:h-40",
         })
       ),
       h1(
-        { className: "font-semibold tracking-tight", style: "color: var(--text-primary);" },
-        "Finally, a framework that ",
-        span({ style: "color: var(--vc-color-primary-strong);" }, "doesn't update behind your back"),
+        {
+          className: "mb-6 text-vc-primary max-w-3xl mx-auto",
+        },
+        "The Composability Framework for Next-Gen Web Editors"
       ),
       p(
-        { className: "max-w-2xl text-base sm:text-lg", style: "color: var(--text-secondary);" },
-        "Mutate state, call ",
-        code(
-          {
-            className: "px-2 py-1 font-mono text-sm",
-            style: `
-              background-color: var(--vc-elev-1);
-              color: var(--vc-color-primary-strong);
-              border-radius: var(--vc-radius-sm);
-              box-shadow: var(--vc-inner-hi), var(--vc-inner-sh);
-            `,
-          },
-          "update()",
-        ),
-        ", and ship. No virtual DOM, no build-time wizardry, just vibes and vanilla browser APIs with a productivity twist.",
+        {
+          className: "text-lg text-vc-secondary mb-10 max-w-2xl mx-auto",
+        },
+        "Stop building headaches, build ViewCraft dev-ship foundation. You trust a platform, high performance, type-safety and it feels just… fun. "
       ),
       div(
-        { className: "flex flex-wrap items-center justify-center gap-4 mt-2" },
+        {
+          className: "flex flex-wrap gap-3 justify-center items-center mb-8",
+        },
         a(
           {
-            className: "px-6 py-3 text-sm font-semibold transition-all duration-200 cursor-pointer hover:scale-105",
-            style: `
-              background: var(--vc-grad-brand);
-              color: var(--button-primary-text);
-              border-radius: var(--vc-radius-md);
-              box-shadow: var(--vc-shadow-1), var(--vc-inner-hi), var(--vc-inner-sh);
-            `,
-            href: "#overview",
-          },
-          makeHandler("overview"),
-          "Overview",
-        ),
-        a(
-          {
-            className: "px-6 py-3 text-sm font-semibold border-2 transition-all duration-200 cursor-pointer hover:scale-105",
-            style: `
-              background-color: var(--button-secondary-bg);
-              border-color: var(--button-secondary-border);
-              color: var(--button-secondary-text);
-              border-radius: var(--vc-radius-md);
-              box-shadow: var(--vc-inner-hi), var(--vc-inner-sh);
-            `,
             href: "#api",
+            className: "btn-primary",
           },
           makeHandler("api"),
-          "API reference",
+          "Start Building Now",
         ),
         a(
           {
-            className: "px-6 py-3 text-sm font-semibold border transition-all duration-200 cursor-pointer hover:scale-105",
-            style: `
-              background-color: transparent;
-              border-color: color-mix(in oklab, var(--vc-color-primary) 50%, white);
-              color: var(--vc-color-primary-strong);
-              border-radius: var(--vc-radius-md);
-            `,
             href: "#examples",
+            className: "btn-secondary",
           },
           makeHandler("examples"),
-          "Examples",
+          "Learn what is great [↗]",
         ),
       ),
+      div(
+        {
+          className: "inline-block bg-vc-primary text-white text-xs px-3 py-1.5 rounded-full font-mono",
+        },
+        "import { ViewCraftApp } from './examples/editor'"
+      )
     ),
   );
 }

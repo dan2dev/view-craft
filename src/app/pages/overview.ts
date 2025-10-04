@@ -8,7 +8,6 @@ export function overviewPage() {
   return div(
     heroSection(navigateTo),
     div(
-      { className: 'mx-auto flex max-w-6xl flex-col gap-16 px-6 py-16' },
       highlightSection(),
       installationSection(),
       bestPracticesSection()

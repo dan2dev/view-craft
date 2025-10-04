@@ -1,10 +1,10 @@
 export function animatedLogo() {
-  // Wave configuration
+  // Wave configuration - Sage green theme
   const waves = [
-    { amplitude: 40, frequency: 0.015, speed: 0.02, offset: 0, color: 'rgba(52, 211, 153, 0.3)', id: 'wave-0' },
-    { amplitude: 30, frequency: 0.02, speed: 0.025, offset: 50, color: 'rgba(16, 185, 129, 0.25)', id: 'wave-1' },
-    { amplitude: 35, frequency: 0.018, speed: 0.015, offset: 100, color: 'rgba(52, 211, 153, 0.2)', id: 'wave-2' },
-    { amplitude: 25, frequency: 0.022, speed: 0.03, offset: 150, color: 'rgba(16, 185, 129, 0.15)', id: 'wave-3' }
+    { amplitude: 40, frequency: 0.015, speed: 0.02, offset: 0, color: 'rgba(156, 189, 175, 0.3)', id: 'wave-0' },
+    { amplitude: 30, frequency: 0.02, speed: 0.025, offset: 50, color: 'rgba(168, 197, 184, 0.25)', id: 'wave-1' },
+    { amplitude: 35, frequency: 0.018, speed: 0.015, offset: 100, color: 'rgba(127, 168, 154, 0.2)', id: 'wave-2' },
+    { amplitude: 25, frequency: 0.022, speed: 0.03, offset: 150, color: 'rgba(86, 122, 107, 0.15)', id: 'wave-3' }
   ];
 
   const points = 200;
@@ -50,7 +50,7 @@ export function animatedLogo() {
 
   return div(
     {
-      className: 'pointer-events-none absolute inset-0 h-full w-full overflow-hidden opacity-30',
+      className: "w-full h-full overflow-hidden",
       innerHTML: `
         <svg viewBox="0 0 ${viewBoxWidth} ${viewBoxHeight}" preserveAspectRatio="xMidYMid slice" style="width: 100%; height: 100%;">
           ${waves.map(wave => `

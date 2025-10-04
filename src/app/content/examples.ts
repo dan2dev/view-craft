@@ -83,7 +83,7 @@ const app = div(
   }, on('input', e => { searchQuery = e.target.value; update(); })),
   when(() => filteredUsers().length > 0,
     list(() => filteredUsers(), user =>
-      div({ className: 'user-card' }, h3(user.name), p(user.email))
+      div(h3(user.name), p(user.email))
     )
   ).else(p(() => \`No users found for "\${searchQuery}"\`))
 );

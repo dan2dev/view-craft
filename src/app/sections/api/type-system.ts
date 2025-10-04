@@ -2,20 +2,35 @@ import { codeBlock } from '../../ui/code-block';
 
 export function typeSystemSection() {
   return section(
-    { className: 'space-y-6' },
-    h2({ className: 'text-3xl font-semibold', style: 'color: var(--text-primary);' }, 'TypeScript integration'),
-    p({ className: 'text-base', style: 'color: var(--text-secondary);' }, 'Enable IDE hints for all 140+ tags by extending your compiler configuration.'),
-    codeBlock(
-      'json',
-      String.raw`
+    {
+      className: "py-20 bg-white border-t border-vc-border",
+    },
+    div(
+      {
+        className: "container max-w-4xl",
+      },
+      h2({
+        className: "mb-4",
+      }, 'TypeScript integration'),
+      p({
+        className: "mb-8 text-base text-vc-secondary",
+      }, 'Enable IDE hints for all 140+ tags by extending your compiler configuration.'),
+      codeBlock(
+        'json',
+        String.raw`
 {
   "compilerOptions": {
     "types": ["view-craft/types"]
   }
 }
 `
-    ),
-    p({ className: 'text-base', style: 'color: var(--text-secondary);' }, 'Alternatively, add /// <reference types="view-craft/types" /> to vite-env.d.ts.'),
-    p({ className: 'text-base', style: 'color: var(--text-secondary);' }, 'Strict mode is fully supported; lean on it when extending DOM helpers or creating custom utilities.')
+      ),
+      p({
+        className: "mb-4 text-sm text-vc-secondary",
+      }, 'Alternatively, add /// <reference types="view-craft/types" /> to vite-env.d.ts.'),
+      p({
+        className: "text-sm text-vc-muted",
+      }, 'Strict mode is fully supported; lean on it when extending DOM helpers or creating custom utilities.')
+    )
   );
 }

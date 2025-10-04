@@ -3,26 +3,39 @@ import { codeBlock } from '../../ui/code-block';
 
 export function apiReferenceSection() {
   return section(
-    { className: 'space-y-6' },
-    h2({ className: 'text-3xl font-semibold', style: 'color: var(--text-primary);' }, 'Core API surface'),
-    p({ className: 'text-base', style: 'color: var(--text-secondary);' }, 'The essentials you will use every day. Each helper is globally registered after importing view-craft.'),
+    {
+      className: "py-20 bg-vc-bg border-t border-vc-border",
+    },
     div(
-      { className: 'grid gap-6 md:grid-cols-2' },
-      ...coreFunctions.map(({ name, signature, description, notes }) =>
-        article(
-          {
-            className: 'space-y-3 border p-6 transition-all duration-300 hover:scale-[1.01]',
-            style: `
-              background-color: var(--section-card-bg);
-              border-color: var(--section-card-border);
-              border-radius: var(--vc-radius-lg);
-              box-shadow: var(--vc-shadow-1);
-            `
-          },
-          h3({ className: 'text-lg font-semibold', style: 'color: var(--text-primary);' }, name),
-          codeBlock('ts', signature),
-          p({ className: 'text-sm leading-relaxed', style: 'color: var(--text-secondary);' }, description),
-          notes ? p({ className: 'text-sm leading-relaxed', style: 'color: var(--text-tertiary);' }, notes) : null
+      {
+        className: "container max-w-6xl",
+      },
+      h2({
+        className: "mb-4",
+      }, 'Core API surface'),
+      p({
+        className: "mb-12 text-base text-vc-secondary",
+      }, 'The essentials you will use every day. Each helper is globally registered after importing view-craft.'),
+      div(
+        {
+          className: "grid grid-cols-1 lg:grid-cols-2 gap-6",
+        },
+        ...coreFunctions.map(({ name, signature, description, notes }) =>
+          article(
+            {
+              className: "bg-white rounded-vc-card p-6 border border-vc-border",
+            },
+            h3({
+              className: "mb-4 text-lg font-semibold",
+            }, name),
+            codeBlock('ts', signature),
+            p({
+              className: "mt-4 text-sm text-vc-secondary",
+            }, description),
+            notes ? p({
+              className: "mt-2 text-xs text-vc-muted italic",
+            }, notes) : null
+          )
         )
       )
     )
