@@ -81,25 +81,27 @@ export function quickExamplesSection() {
             return button(
               {
                 type: 'button',
-                className: "text-left px-4 py-3 rounded-vc-sm border-2 transition-all duration-200 flex items-center gap-3",
+                className: "text-left px-4 py-3 rounded-lg border-2 transition-all duration-200 flex items-center gap-3 hover:shadow-md",
                 style: () => {
                   const isActive = getActiveExampleIndex() === index;
                   return `
-                    background: ${isActive ? `linear-gradient(135deg, ${accentColor}40, ${accentColor}20)` : 'var(--vc-bgCard)'};
-                    border-color: ${isActive ? accentColor : 'transparent'};
+                    background: ${isActive ? `linear-gradient(135deg, ${accentColor}30, ${accentColor}10)` : 'var(--vc-bgCard)'};
+                    border-color: ${isActive ? accentColor : 'var(--color-vc-border)'};
+                    box-shadow: ${isActive ? `0 4px 12px ${accentColor}25` : 'none'};
+                    transform: ${isActive ? 'translateX(4px)' : 'translateX(0)'};
                   `;
                 },
               },
               on('click', () => selectExample(index)),
               span(
                 {
-                  className: "font-mono font-bold",
+                  className: "font-mono font-bold text-lg",
                   style: `color: ${accentColor};`
                 },
                 `0${index + 1}`
               ),
               span({
-                className: "font-medium text-vc-ink",
+                className: () => `font-medium transition-colors ${getActiveExampleIndex() === index ? 'text-vc-primary' : 'text-vc-secondary'}`,
               }, title)
             );
           })

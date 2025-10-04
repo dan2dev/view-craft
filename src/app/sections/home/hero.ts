@@ -7,7 +7,7 @@ export function heroSection(navigate: (path: string) => void) {
 
   return header(
     {
-      className: "pt-20 pb-24 bg-vc-bgCard",
+      className: "pt-20 pb-24 bg-vc-hero-bg",
     },
     div(
       {
