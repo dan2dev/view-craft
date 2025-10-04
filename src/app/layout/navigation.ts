@@ -47,12 +47,12 @@ export function navigation(_getPath: () => string, onNavigate: (path: string) =>
         }),
         a(
           {
-            href: "#overview",
+            href: "#get-started",
             className: "btn-primary",
           },
           on("click", (event) => {
             event.preventDefault();
-            onNavigate("overview");
+            onNavigate("get-started");
           }),
           "Get Started"
         ),
