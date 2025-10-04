@@ -32,7 +32,7 @@ export function navigation(_getPath: () => string, onNavigate: (path: string) =>
         {
           className: "flex items-center gap-8",
         },
-        ...routes.map(({ path, label }) => {
+        ...routes.filter((item) => item.path !== "get-started").map(({ path, label }) => {
           return a(
             {
               href: `#${path}`,
