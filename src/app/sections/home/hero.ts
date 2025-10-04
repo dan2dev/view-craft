@@ -18,7 +18,7 @@ export function heroSection(navigate: (path: string) => void) {
           className: "mb-12 flex justify-center",
         },
         img({
-          src: '/view-craft/view-craft-logo.png',
+          src: '/view-craft/view-craft-logo-3.png',
           alt: 'ViewCraft Robot',
           className: "w-32 h-32 md:w-40 md:h-40",
         })
