@@ -1,107 +1,58 @@
-name: Build and Commit Docs (gh-pages self-build)
-
-# This workflow:
-# - Runs ONLY on pushes to the gh-pages branch (plus manual dispatch)
-# - Builds the site (Vite output -> docs/)
-# - Commits the generated docs/ back into gh-pages with a skip marker to prevent loops
-# - Uses both:
-#     * paths-ignore for docs/** (so generated commit doesn't retrigger)
-#     * a commit message marker [skip-pages] as a secondary guard
-#
-# Prerequisites:
-# - gh-pages branch holds the site source (package.json, vite.config.ts, etc.)
-# - GitHub Pages Settings: Branch = gh-pages, Folder = /docs
-# - vite.config.ts build.outDir = "docs"
-# - docs/ is in .gitignore (we force-add it)
-#
-# If you ever want to rebuild without source changes, use the manual dispatch.
-# If you need to force a rebuild of docs content, delete it first or make a trivial source edit.
+name: Build and Deploy to GitHub Pages
 
 on:
+  release:
+    types: [published]
   push:
     branches:
       - gh-pages
-    paths-ignore:
-      - 'docs/**'
-  workflow_dispatch:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
-  group: gh-pages-self-build
-  cancel-in-progress: true
-
-env:
-  NODE_VERSION: '20'
-  BUILD_DIR: docs
-  SKIP_MARKER: '[skip-pages]'
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
-  build-docs:
-    name: Build and commit docs
+  build-and-commit:
     runs-on: ubuntu-latest
-    if: ${{ !contains(github.event.head_commit.message, '[skip-pages]') }}
+
     steps:
-      - name: Checkout (gh-pages)
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-            fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
+          node-version: '20'
 
-      - name: Setup pnpm
+      - name: Install pnpm
         uses: pnpm/action-setup@v4
-        with:
-          run_install: false
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
-      - name: Clean previous build (if present)
-        run: |
-          rm -rf "${BUILD_DIR}"
-          mkdir -p "${BUILD_DIR}"
-
-      - name: Build site (Vite -> ${{ env.BUILD_DIR }})
+      - name: Build
         run: pnpm run build
 
-      - name: Add .nojekyll
-        run: touch "${BUILD_DIR}/.nojekyll"
+      - name: Disable Jekyll
+        run: touch docs/.nojekyll
 
-      - name: Show build output (debug)
-        run: |
-          echo "Built files:"
-          find "${BUILD_DIR}" -maxdepth 4 -type f | sed 's/^/  /'
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./docs
 
-      - name: Commit docs (force include ignored)
-        env:
-          SKIP_MARKER: ${{ env.SKIP_MARKER }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # Force-add ignored build dir
-          git add -f "${BUILD_DIR}"
-          if git diff --cached --quiet; then
-            echo "No changes to commit in ${BUILD_DIR}; skipping commit."
-            exit 0
-          fi
-          TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-            git commit -m "build(docs): update static site ${SKIP_MARKER} (${TS})"
-          git push origin HEAD:gh-pages
-
-      - name: Post-commit note
-        run: |
-          echo "Docs committed with skip marker ${SKIP_MARKER}."
-          echo "GitHub Pages should be configured to serve: branch=gh-pages, folder=/docs"
-          echo "If Pages shows a build error about missing /docs, ensure first commit included the built folder."
-
-# Notes:
-# - The skip marker prevents this job from executing on its own generated commit.
-# - paths-ignore ensures pushes that ONLY modify docs/** do not trigger the workflow.
-# - To force a full rebuild, make a non-docs change or run manually (workflow_dispatch).
-# - If you later decide to build from main instead, revert to a two-branch model (source->deploy).
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build-and-commit
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
