@@ -6,6 +6,36 @@ _Yes, this is yet another JavaScript library. We're aware. The ecosystem now has
 
 Build reactive UIs without the magic tricks. Just functions, mutations, and a single `update()` call when you feel like it.
 
+## Development & Deployment
+
+### Local Development
+
+```bash
+pnpm install    # Install dependencies
+pnpm dev        # Start dev server with HMR
+pnpm build      # Build for production
+pnpm preview    # Preview production build
+```
+
+### Deploy to GitHub Pages
+
+Build and deploy locally to GitHub Pages:
+
+```bash
+pnpm deploy
+```
+
+This will:
+1. Build the project locally with `pnpm build`
+2. Switch to the `gh-pages` branch
+3. Replace content with the new build
+4. Commit and push to GitHub
+5. Return you to your original branch
+
+For more details, see [`scripts/README.md`](scripts/README.md).
+
+---
+
 ```ts
 import 'view-craft';
 
