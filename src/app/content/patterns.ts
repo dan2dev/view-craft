@@ -3,7 +3,7 @@ import type { Pattern } from '../types/content';
 export const advancedPatterns: Pattern[] = [
   {
     title: 'Nested structures',
-    description: 'Combine when() and list() like you\'re building with LEGO blocks. DOM reuse happens automatically.',
+    description: 'Compose when() and list() to model nested data flows while ViewCraft reuses DOM nodes for you.',
     code: String.raw`
 when(() => user.isLoggedIn,
   div(
@@ -21,7 +21,7 @@ when(() => user.isLoggedIn,
   },
   {
     title: 'Component-like functions',
-    description: 'Just functions that return DOM nodes. No classes, no hooks, no existential crisis.',
+    description: 'Write plain functions that return DOM nodes, keeping behavior and markup close without extra abstractions.',
     code: String.raw`
 function UserCard(user: User) {
   return div(
@@ -36,7 +36,7 @@ list(() => users, user => UserCard(user));
   },
   {
     title: 'Computed values',
-    description: 'Plain functions that compute things. They run when update() fires. Mind-blowing stuff.',
+    description: 'Keep derived data in pure functions. They run as part of update() so your view stays in sync.',
     code: String.raw`
 function activeCount() {
   return todos.filter(todo => !todo.done).length;
@@ -49,7 +49,7 @@ div(
   },
   {
     title: 'Loading states & async',
-    description: 'Mark as loading, await your async chaos, update when done. You\'re the orchestrator of this symphony.',
+    description: 'Track async progress with simple state flags, then render loading and error paths with when().',
     code: String.raw`
 let state = { status: 'idle', data: [] };
 

@@ -16,7 +16,7 @@ export function quickStartSection() {
         {
           className: "mb-8 text-base text-vc-secondary",
         },
-        "Import once to register all global functions, then start building reactive UIs. That's literally it. No bootstrapping, no configuration files, no existential dread.",
+        "Import ViewCraft once to register the global helpers, then build reactive interfaces with plain functions. No generators, no boilerplate, just elements and state you understand.",
       ),
       codeBlock(
         "ts",
@@ -41,11 +41,11 @@ render(app);
         {
           className: "list-disc pl-6 space-y-3 text-vc-secondary text-sm",
         },
-        li("Import 'view-craft' once to register 140+ global functions (all HTML/SVG tags). Yes, even <bdi>."),
-        li("Build your UI using familiar tag functions: div(), h1(), button(). Like the good old days."),
-        li("Use zero-arg functions for reactive content: () => `Count: ${count}`"),
-        li("Call update() when you're ready to sync changes. You're the boss."),
-        li("That's it! No virtual DOM, no proxies, no magic. Just you, the DOM, and a function called update().")
+        li("Import 'view-craft' once to register more than 140 HTML and SVG helpers globally."),
+        li("Compose interfaces with familiar tag functions like div(), h1(), and button()."),
+        li("Wrap reactive bits in zero-argument functions, for example () => `Count: ${count}`."),
+        li("Call update() when your mutations are ready to sync with the DOM."),
+        li("Skip the virtual DOM and unnecessary proxies—ViewCraft works directly with real nodes.")
       )
     ),
   );

@@ -27,13 +27,13 @@ export function heroSection(navigate: (path: string) => void) {
         {
           className: "mb-6 text-vc-primary max-w-3xl mx-auto",
         },
-        "A DOM library for people who peaked in the jQuery era and never looked back"
+        "A lightweight reactive DOM library for developers who prefer control"
       ),
       p(
         {
           className: "text-lg text-vc-secondary mb-10 max-w-2xl mx-auto",
         },
-        "Yes, this is yet another JavaScript library. We're aware. The ecosystem now has more libraries than actual developers. We're sorry. Or you're welcome? We're still figuring it out."
+        "ViewCraft keeps the DOM within reach: import once, compose real elements with readable helpers, mutate state with plain objects, then call update() when you want changes on screen. No virtual layers, no unwelcome surprises."
       ),
       div(
         {

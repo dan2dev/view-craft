@@ -2,27 +2,27 @@ import type { Feature } from '../types/content';
 
 export const highlights: Feature[] = [
   {
-    title: 'Zero magic',
-    description: 'Like a microwave with just one button. You press update(), stuff happens. No surprise re-renders at 3am.',
+    title: 'Explicit updates',
+    description: 'Mutate state, call update(), and know exactly when the DOM changes—no surprise renders, ever.',
   },
   {
-    title: 'No virtual DOM',
-    description: 'Why simulate the DOM when you can just... use the DOM? *taps forehead*',
+    title: 'Native DOM',
+    description: 'Compose real elements with fluent helpers. ViewCraft talks to the platform directly instead of simulating it.',
   },
   {
     title: 'Tiny footprint',
-    description: 'Smaller than your average component\'s prop types. Won\'t bloat your bundle like it ate Thanksgiving dinner.',
+    description: 'Stay lightweight. ViewCraft delivers a compact runtime that fits into performance-focused bundles.',
   },
   {
     title: 'Global API',
-    description: 'div() is everywhere, like that one friend who shows up uninvited but makes everything fun.',
+    description: 'Import once to register 140+ HTML and SVG tag helpers globally. They are ready wherever you build.',
   },
   {
     title: 'TypeScript-first',
-    description: 'All 140+ tags typed. Yes, even <bdi>. You\'re welcome.',
+    description: 'Tag helpers, attributes, and events ship with deep TypeScript definitions so your editor guides every step.',
   },
   {
     title: 'Real reactivity',
-    description: 'Updates only what changed. Your browser\'s repaint budget will thank you.',
+    description: 'Fine-grained diffing ensures only changed nodes update, keeping interaction costs low and predictable.',
   },
 ];

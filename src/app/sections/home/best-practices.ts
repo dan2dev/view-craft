@@ -14,7 +14,7 @@ export function bestPracticesSection() {
         {
           className: "mb-8 text-base text-vc-secondary",
         },
-        "A few tips to keep your code happy and your browser from having an existential crisis."
+        "Keep ViewCraft fast and maintainable with a handful of habits that make updates predictable and easy to reason about."
       ),
       div(
         {
@@ -29,7 +29,7 @@ export function bestPracticesSection() {
           }, 'Batch Updates'),
           p({
             className: "text-sm text-vc-secondary mb-2",
-          }, 'Mutate like you\'re stress-testing the array, then update once like you meant to do that:'),
+          }, 'Group related mutations, then call update() once. The DOM syncs in a single pass:'),
           div({
             className: "text-xs text-vc-muted font-mono bg-vc-bg p-3 rounded",
           }, '// Galaxy brain\nitems.push(item1);\nitems.push(item2);\nitems.sort();\nupdate();')
@@ -43,7 +43,7 @@ export function bestPracticesSection() {
           }, 'Object Identity for Lists'),
           p({
             className: "text-sm text-vc-secondary",
-          }, 'Lists track items by reference. Mutate the object, not your soul. Spreading objects creates new references and kills your DOM elements.')
+          }, 'list() reuses DOM nodes by object identity. Mutate existing items instead of recreating them so bindings stay intact.')
         ),
         div(
           {
@@ -54,7 +54,7 @@ export function bestPracticesSection() {
           }, 'Use .else() for Clarity'),
           p({
             className: "text-sm text-vc-secondary",
-          }, 'Even if not initially needed, it makes your intent crystal clear. Future you will thank present you.')
+          }, '.else() completes the story of your conditional logic. Add it even when you only expect one branch so future states stay obvious.')
         ),
       )
     ),

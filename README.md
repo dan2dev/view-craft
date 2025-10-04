@@ -1,10 +1,8 @@
 # view-craft
 
-**A DOM library for people who peaked in the jQuery era and never looked back.**
+**A lightweight reactive DOM library for developers who prefer control.**
 
-_Yes, this is yet another JavaScript library. We're aware. The ecosystem now has more libraries than actual developers. We're sorry. Or you're welcome? We're still figuring it out._
-
-Build reactive UIs without the magic tricks. Just functions, mutations, and a single `update()` call when you feel like it.
+ViewCraft keeps the DOM close to the surface: import once, mutate state with plain objects, call `update()` when you're ready, and let the library synchronize your UI without hidden layers.
 
 ## Development & Deployment
 
@@ -54,12 +52,12 @@ render(counter);
 
 ## Why view-craft?
 
-- **Zero magic** – Like a microwave with just one button. You press `update()`, stuff happens.
-- **No virtual DOM** – Why simulate the DOM when you can just... use the DOM? *taps forehead*
-- **Tiny footprint** – Smaller than your average React component's prop types
-- **Global API** – `div()` is everywhere, like that one friend who shows up uninvited but makes everything fun
-- **TypeScript-first** – All 140+ tags typed. Yes, even `<bdi>`. You're welcome.
-- **Real reactivity** – Updates only what changed. Your browser's repaint budget will thank you.
+- **Explicit updates** – Call `update()` after state changes and decide exactly when the DOM synchronizes.
+- **Native DOM** – Compose real elements with fluent helpers; there is no virtual DOM layer to manage.
+- **Tiny footprint** – A compact runtime that keeps performance-sensitive bundles lean.
+- **Global API** – Import once to register 140+ HTML and SVG helpers globally across your project.
+- **TypeScript-first** – Comprehensive type coverage for tags, attributes, and events ensures confident refactors.
+- **Real reactivity** – Only changed nodes update, keeping interactions smooth without extra bookkeeping.
 
 ---
 
@@ -275,7 +273,7 @@ render(app);
 
 ### 1. **Explicit Updates**
 
-Unlike React or Vue, view-craft doesn't auto-detect changes. You call `update()` when ready:
+ViewCraft relies on explicit updates. Mutate state however you need, then call `update()` once to flush the changes:
 
 ```ts
 let name = 'World';
@@ -290,11 +288,11 @@ update();
 
 **Advantages of explicit `update()`:**
 
-- **Performance**: Batch mutations like a responsible adult. One `update()` > ten thousand proxy getters watching your every variable assignment like helicopter parents.
-- **Control**: You're the boss of when pixels change. Perfect for animations, async chaos, or coordinating changes without asking a framework permission.
-- **Predictability**: Zero surprise re-renders. No "why did this component update 47 times?!" sessions in DevTools.
-- **Simplicity**: No proxies, no dependency graphs, no PhD required. Just objects and a function named `update()`. Revolutionary, we know.
-- **Debugging**: Put a breakpoint at `update()`. That's it. That's the whole debugging strategy.
+- **Performance**: Batch multiple mutations and flush once to minimize DOM work.
+- **Control**: Decide exactly when pixels change—ideal for coordinating animations and async workflows.
+- **Predictability**: No implicit re-renders; the DOM changes only when you call `update()`.
+- **Simplicity**: No proxies or dependency graphs—just state and a single entry point for synchronization.
+- **Debugging**: Set a breakpoint on `update()` to observe precisely when the view syncs.
 
 ```ts
 // Example: Batch updates for better performance
@@ -542,12 +540,12 @@ div(
 
 ## Performance
 
-- **No virtual DOM diffing** – We skip the middle-manager and talk directly to the DOM
-- **Fine-grained updates** – Only updates what changed. Like a surgeon, not a bulldozer.
-- **Element reuse** – Lists are smart enough to move elements instead of yeeting them into the void
-- **Branch preservation** – `when` branches stay alive unless conditions change. Low-key immortal.
+- **No virtual DOM diffing** – ViewCraft interacts with the platform directly, reducing overhead.
+- **Fine-grained updates** – Only bindings touched by your mutations re-render, keeping work minimal.
+- **Element reuse** – list() reuses existing DOM nodes when item references stay stable.
+- **Branch preservation** – `when` maintains inactive branches until conditions change for smooth toggles.
 
-For high-frequency updates (animations, game loops, existential crises), batch mutations before calling `update()`.
+For high-frequency scenarios such as animations or data streams, group your mutations and call `update()` once per frame.
 
 ---
 
@@ -555,7 +553,7 @@ For high-frequency updates (animations, game loops, existential crises), batch m
 
 ### Inspect Markers
 
-Open DevTools, stare at the DOM like it owes you money:
+Open DevTools and inspect the DOM tree:
 
 ```html
 <!-- when-start-1 -->
@@ -568,26 +566,26 @@ Open DevTools, stare at the DOM like it owes you money:
 <!-- list-end -->
 ```
 
-These comment markers are your breadcrumbs. Follow them to victory.
+These comment markers outline conditional and list boundaries so you can trace exactly what rendered.
 
 ### Common Issues
 
 **Content not updating?**
-- Did you call `update()`? (Asking because 80% of the time, you didn't)
-- Are your conditions/functions returning what you think they are? `console.log()` is your friend.
+- Confirm `update()` runs after your state changes.
+- Log reactive functions to ensure they return the values you expect.
 
 **List items not reusing elements?**
-- Stop spreading objects like it's 2018. Mutate them.
-- Item references need to be stable, not having an identity crisis on every render.
+- Mutate existing objects so their references remain stable.
+- Keep list data in a shared array instance instead of replacing it each render.
 
 ---
 
 ## Roadmap
 
-- Keyed list variant (for when object identity isn't your thing)
-- Transition/animation helpers (make things swoosh)
-- Dev mode diagnostics (we'll yell at you when you forget `update()`)
-- SSR support (because apparently servers need to render HTML now)
+- Keyed list variant for data that cannot preserve object references
+- Transition and animation helpers for orchestrated UI feedback
+- Dev-mode diagnostics that flag missing `update()` calls
+- Server-side rendering support
 
 ---
 

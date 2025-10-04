@@ -26,7 +26,7 @@ export function highlightSection() {
         {
           className: "text-center text-vc-secondary mb-16 max-w-2xl mx-auto",
         },
-        "Build reactive UIs without the magic tricks. Just functions, mutations, and a single update() call when you feel like it."
+        "Build reactive UIs with direct DOM control. Mutate state in plain objects, call update(), and let ViewCraft handle the rest."
       ),
       div(
         {

@@ -16,12 +16,12 @@ export function installationSection() {
         {
           className: "mb-8 text-base text-vc-secondary",
         },
-        "One import to rule them all. Seriously, just one line and you get 140+ global functions. It's like Christmas morning for your code editor.",
+        "Install once to unlock 140+ typed DOM helpers and a lean reactive runtime. Every tag you expect is ready the moment the package lands in your project.",
       ),
       codeBlock("bash", "npm install view-craft"),
       p({
         className: "mt-4 mb-8 text-sm text-vc-muted",
-      }, "Team pnpm? Team yarn? Team bun? We don't judge. Swap npm for whatever brings you joy."),
+      }, "Prefer pnpm, yarn, or bun? Swap the command and go—ViewCraft plays nicely with every modern package manager."),
       h3({
         className: "mb-4 mt-12",
       }, "Usage"),
@@ -29,7 +29,7 @@ export function installationSection() {
         {
           className: "mb-8 text-base text-vc-secondary",
         },
-        "Simply import once to register all global functions. Then start using div(), update(), on(), list(), when(), render(), etc. globally. Like they're part of the language. Which they basically are now.",
+        "Import the library once to register global helpers like div(), update(), list(), and when(). From there you build with real DOM nodes, not abstractions, and decide exactly when updates flush.",
       ),
       codeBlock(
         "ts",

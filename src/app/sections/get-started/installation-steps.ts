@@ -16,12 +16,12 @@ export function installationStepsSection() {
         {
           className: "mb-8 text-base text-vc-secondary",
         },
-        "Ready to join the dozens of developers who peaked in the jQuery era? Just one command:",
+        "Kick off your project with a single install command. ViewCraft keeps setup simple so you can move straight to building.",
       ),
       codeBlock("bash", "npm install view-craft"),
       p({
         className: "mt-4 text-sm text-vc-muted",
-      }, "Works with pnpm, yarn, bun, or whatever package manager brings you joy. We're not here to judge your life choices.")
+      }, "Prefer pnpm, yarn, or bun? Swap the executable and install—each manager is supported.")
     ),
   );
 }

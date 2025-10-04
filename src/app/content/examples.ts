@@ -3,7 +3,7 @@ import type { Example } from '../types/content';
 export const quickExamples: Example[] = [
   {
     title: 'Counter',
-    summary: 'The obligatory counter example. Because it\'s not a real framework without one.',
+    summary: 'Start with the essentials: reactive text, event handlers, and update() in one place.',
     code: String.raw`
 import 'view-craft';
 
@@ -20,7 +20,7 @@ render(app);
   },
   {
     title: 'Todo list',
-    summary: 'A todo app. You know, the "Hello World" of state management.',
+    summary: 'Manage collections with list(), controlled inputs, and state scoped to your module.',
     code: String.raw`
 import 'view-craft';
 
@@ -55,7 +55,7 @@ render(app);
   },
   {
     title: 'Search filter',
-    summary: 'Real-time search that actually filters things. Revolutionary concept.',
+    summary: 'Connect derived state to the DOM for instant filtering and clear empty states.',
     code: String.raw`
 import 'view-craft';
 

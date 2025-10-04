@@ -12,7 +12,7 @@ export function conceptsSection() {
       }, 'Core Concepts'),
       p({
         className: "mb-8 text-base text-vc-secondary",
-      }, 'Four simple ideas that power the whole thing. No PhD required.'),
+      }, 'Four foundational ideas keep the API approachable while giving you precise control over rendering.'),
       ul(
         {
           className: "space-y-4 list-none pl-0",
@@ -26,7 +26,7 @@ export function conceptsSection() {
           }, '1. Explicit Updates'),
           p({
             className: "text-vc-secondary text-sm mt-2",
-          }, 'Unlike frameworks that auto-detect changes, view-craft doesn\'t watch your every move. You call update() when ready. Mutate freely, then update once like a responsible adult. No proxies, no dependency graphs, no helicopter parents.')
+          }, 'ViewCraft never guesses when to re-render. You mutate your state however you like, then call update() once to commit the changes. No proxies, no dependency graphs, just deliberate rendering.'),
         ),
         li(
           {
@@ -37,7 +37,7 @@ export function conceptsSection() {
           }, '2. Reactive Functions'),
           p({
             className: "text-vc-secondary text-sm mt-2",
-          }, 'Zero-arg functions become reactive. Pass () => `Count: ${count}` and it re-evaluates on every update(). Works for text, attributes, even styles. Revolutionary, we know.')
+          }, 'Zero-argument functions become reactive bindings. Use them for text, attributes, and styles; they re-evaluate on every update() call to keep the DOM aligned with your data.'),
         ),
         li(
           {
@@ -48,7 +48,7 @@ export function conceptsSection() {
           }, '3. Conditional Rendering with when()'),
           p({
             className: "text-vc-secondary text-sm mt-2",
-          }, 'Chain when(...).else(...) blocks to build state machines. First matching condition wins. DOM is preserved if the active branch doesn\'t change. Low-key immortal.')
+          }, 'Chain when(...).else(...) blocks to describe state transitions. The first truthy condition renders, and the associated DOM is preserved for snappy transitions.'),
         ),
         li(
           {
@@ -59,7 +59,7 @@ export function conceptsSection() {
           }, '4. List Synchronization'),
           p({
             className: "text-vc-secondary text-sm mt-2",
-          }, 'Lists use object identity (not keys) to track items. Mutate the array (push, splice, reverse), then call update(). Elements are reused if the item reference is the same. Stop spreading objects like it\'s 2018.')
+          }, 'list() reconciles arrays by object identity rather than keys. Mutate your existing array, call update(), and ViewCraft reuses DOM nodes for stable, efficient lists.')
         )
       )
     )
