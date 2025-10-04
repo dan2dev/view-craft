@@ -26,19 +26,6 @@ export function heroSection(navigate: (path: string) => void) {
           `
         })
       ),
-      span(
-        {
-          className: "border px-5 py-2 text-sm font-semibold",
-          style: `
-            background: var(--vc-grad-accent);
-            color: var(--vc-ink);
-            border-color: var(--vc-accent-teal);
-            border-radius: 999px;
-            box-shadow: var(--vc-shadow-1), var(--vc-inner-hi), var(--vc-inner-sh);
-          `,
-        },
-        "view-craft · DOM-first UI library",
-      ),
       h1(
         { className: "font-semibold tracking-tight", style: "color: var(--text-primary);" },
         "Finally, a framework that ",
