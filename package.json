@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "deploy": "bash scripts/deploy.sh"
+    "deploy": "pnpm run build && git add docs && git commit -m 'Update gh-pages' && git push"
   },
   "devDependencies": {
     "@types/prismjs": "^1.26.5",
