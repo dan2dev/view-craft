@@ -8,51 +8,52 @@ export function debuggingSection() {
         className: "container max-w-4xl",
       },
       h2({
-        className: "mb-8",
-      }, 'Debugging and diagnostics'),
-      ul(
+        className: "mb-4",
+      }, 'Debugging'),
+      p({
+        className: "mb-8 text-base text-vc-secondary",
+      }, 'Debugging view-craft is refreshingly simple. No time-travel debuggers, no DevTools extensions. Just good old-fashioned detective work.'),
+      div(
         {
-          className: "space-y-3 list-none pl-0",
+          className: "space-y-6",
         },
-        li({
-          className: "flex items-start gap-3 p-4 bg-white rounded-vc-card border border-vc-border",
-        },
-          span({
-            className: "text-vc-accent text-lg",
-          }, '🔍'),
-          span({
-            className: "text-vc-secondary text-sm",
-          }, 'Inspect the DOM markers like <!-- list-start --> when debugging list() behaviour.')
+        div(
+          {
+            className: "bg-white rounded-vc-card p-6 border border-vc-border",
+          },
+          h3({
+            className: "text-base font-semibold mb-3",
+          }, 'Inspect Markers'),
+          p({
+            className: "text-sm text-vc-secondary",
+          }, 'Open DevTools and stare at the DOM like it owes you money. You\'ll see comment markers like <!-- when-start-1 --> and <!-- list-start-2 -->. These are your breadcrumbs. Follow them to victory.')
         ),
-        li({
-          className: "flex items-start gap-3 p-4 bg-white rounded-vc-card border border-vc-border",
-        },
-          span({
-            className: "text-vc-accent text-lg",
-          }, '📝'),
-          span({
-            className: "text-vc-secondary text-sm",
-          }, 'Console.log inside reactive functions to confirm when updates execute.')
+        div(
+          {
+            className: "bg-white rounded-vc-card p-6 border border-vc-border",
+          },
+          h3({
+            className: "text-base font-semibold mb-3",
+          }, 'Common Issues'),
+          ul(
+            {
+              className: "list-disc pl-6 space-y-2 text-sm text-vc-secondary",
+            },
+            li('Content not updating? Did you call update()? (Asking because 80% of the time, you didn\'t)'),
+            li('Are your conditions/functions returning what you think they are? console.log() is your friend.'),
+            li('List items not reusing elements? Stop spreading objects. Item references need to be stable.')
+          )
         ),
-        li({
-          className: "flex items-start gap-3 p-4 bg-white rounded-vc-card border border-vc-border",
-        },
-          span({
-            className: "text-vc-accent text-lg",
-          }, '⏸️'),
-          span({
-            className: "text-vc-secondary text-sm",
-          }, 'Keep a breakpoint at update() to freeze-frame the state you are about to paint.')
-        ),
-        li({
-          className: "flex items-start gap-3 p-4 bg-white rounded-vc-card border border-vc-border",
-        },
-          span({
-            className: "text-vc-accent text-lg",
-          }, '⚠️'),
-          span({
-            className: "text-vc-secondary text-sm",
-          }, 'If content is stale, confirm update() actually fires after your mutations.')
+        div(
+          {
+            className: "bg-white rounded-vc-card p-6 border border-vc-border",
+          },
+          h3({
+            className: "text-base font-semibold mb-3",
+          }, 'The One True Debug Strategy'),
+          p({
+            className: "text-sm text-vc-secondary",
+          }, 'Put a breakpoint at update(). That\'s it. That\'s the whole debugging strategy. You now know exactly when state changes get flushed to the DOM.')
         ),
       )
     )

@@ -55,10 +55,10 @@ export function quickExamplesSection() {
       },
       h2({
         className: "mb-4",
-      }, 'Quick examples'),
+      }, 'Quick Examples'),
       p({
         className: "mb-12 text-base text-vc-secondary",
-      }, 'Every snippet keeps state as plain data and schedules a single update() call to reflect changes.'),
+      }, 'State is just plain data. Mutate it freely, call update() when ready. No subscriptions, no observables, no existential dread.'),
       div(
         {
           className: "grid grid-cols-1 lg:grid-cols-12 gap-8",

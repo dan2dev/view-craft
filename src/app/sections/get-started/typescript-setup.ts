@@ -16,7 +16,7 @@ export function typescriptSetupSection() {
         {
           className: "mb-8 text-base text-vc-secondary",
         },
-        "view-craft is TypeScript-first. Get full type safety for all 140+ tags and their attributes.",
+        "view-craft is TypeScript-first. Every tag, every attribute, every event handler is fully typed. Your IDE will autocomplete things you didn't even know existed.",
       ),
 
       h3({
@@ -50,10 +50,10 @@ export function typescriptSetupSection() {
           {
             className: "list-disc pl-6 space-y-2 text-sm text-vc-secondary",
           },
-          li("Full autocomplete for all HTML and SVG tags"),
-          li("Type-safe attributes and event handlers"),
+          li("Full autocomplete for all 140+ HTML and SVG tags"),
+          li("Type-safe attributes and event handlers that yell at you when you mess up"),
           li("IntelliSense for reactive functions and API methods"),
-          li("Compile-time error checking")
+          li("Compile-time error checking so you catch bugs before your users do")
         )
       )
     ),

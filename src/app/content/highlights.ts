@@ -2,19 +2,27 @@ import type { Feature } from '../types/content';
 
 export const highlights: Feature[] = [
   {
-    title: 'Zero magic 🎩',
-    description: 'You call update() when ready. Batch mutations like a responsible adult. No surprise re-renders at 3am.',
+    title: 'Zero magic',
+    description: 'Like a microwave with just one button. You press update(), stuff happens. No surprise re-renders at 3am.',
   },
   {
-    title: 'DOM-first mindset 🧘',
-    description: 'Work with native nodes directly. No virtual DOM middle-manager telling you what you can and can\'t do.',
+    title: 'No virtual DOM',
+    description: 'Why simulate the DOM when you can just... use the DOM? *taps forehead*',
   },
   {
-    title: 'Global API 🌍',
-    description: 'All 140+ HTML and SVG helpers like div(), button(), and yes, even <bdi>. Because someone uses it. Probably.',
+    title: 'Tiny footprint',
+    description: 'Smaller than your average component\'s prop types. Won\'t bloat your bundle like it ate Thanksgiving dinner.',
   },
   {
-    title: 'TypeScript brewed ☕',
-    description: 'Strongly typed everything. Your IDE will autocomplete attributes you didn\'t even know existed.',
+    title: 'Global API',
+    description: 'div() is everywhere, like that one friend who shows up uninvited but makes everything fun.',
+  },
+  {
+    title: 'TypeScript-first',
+    description: 'All 140+ tags typed. Yes, even <bdi>. You\'re welcome.',
+  },
+  {
+    title: 'Real reactivity',
+    description: 'Updates only what changed. Your browser\'s repaint budget will thank you.',
   },
 ];

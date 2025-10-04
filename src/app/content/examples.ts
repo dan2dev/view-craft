@@ -3,7 +3,7 @@ import type { Example } from '../types/content';
 export const quickExamples: Example[] = [
   {
     title: 'Counter',
-    summary: 'Increment and reset with explicit updates.',
+    summary: 'The obligatory counter example. Because it\'s not a real framework without one.',
     code: String.raw`
 import 'view-craft';
 
@@ -20,7 +20,7 @@ render(app);
   },
   {
     title: 'Todo list',
-    summary: 'Mutate arrays and sync the DOM with list().',
+    summary: 'A todo app. You know, the "Hello World" of state management.',
     code: String.raw`
 import 'view-craft';
 
@@ -55,7 +55,7 @@ render(app);
   },
   {
     title: 'Search filter',
-    summary: 'Keep derived data in simple functions and refresh when it changes.',
+    summary: 'Real-time search that actually filters things. Revolutionary concept.',
     code: String.raw`
 import 'view-craft';
 

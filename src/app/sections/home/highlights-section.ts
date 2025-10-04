@@ -20,17 +20,17 @@ export function highlightSection() {
         {
           className: "text-center mb-4",
         },
-        "Features: Why Why ViewCraft?"
+        "Why view-craft?"
       ),
       p(
         {
           className: "text-center text-vc-secondary mb-16 max-w-2xl mx-auto",
         },
-        ""
+        "Build reactive UIs without the magic tricks. Just functions, mutations, and a single update() call when you feel like it."
       ),
       div(
         {
-          className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6",
+          className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6",
         },
         ...highlights.map(({ title, description }, index) =>
           article(

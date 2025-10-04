@@ -12,10 +12,10 @@ export function advancedPatternsSection() {
       },
       h2({
         className: "mb-4",
-      }, 'Advanced patterns'),
+      }, 'Advanced Patterns'),
       p({
         className: "mb-12 text-base text-vc-secondary",
-      }, 'Build richer UIs by composing helpers—no components or memo hoops required.'),
+      }, 'Compose helpers like LEGO blocks. No component lifecycle, no memo hoops, no jumping through flaming optimization rings.'),
       div(
         {
           className: "space-y-6",

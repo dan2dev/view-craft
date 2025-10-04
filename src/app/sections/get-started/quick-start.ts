@@ -16,7 +16,7 @@ export function quickStartSection() {
         {
           className: "mb-8 text-base text-vc-secondary",
         },
-        "Import once to register all global functions, then start building. That's it.",
+        "Import once to register all global functions, then start building reactive UIs. That's literally it. No bootstrapping, no configuration files, no existential dread.",
       ),
       codeBlock(
         "ts",
@@ -39,13 +39,13 @@ render(app);
       }, "How it works"),
       ul(
         {
-          className: "list-disc pl-6 space-y-3 text-vc-secondary",
+          className: "list-disc pl-6 space-y-3 text-vc-secondary text-sm",
         },
-        li("Import 'view-craft' to register 140+ global functions (all HTML/SVG tags)"),
-        li("Build your UI using familiar tag functions like div(), h1(), button()"),
-        li("Use functions for reactive content: () => `Count: ${count}`"),
-        li("Call update() when you're ready to sync changes to the DOM"),
-        li("That's it! No virtual DOM, no magic, just direct DOM manipulation")
+        li("Import 'view-craft' once to register 140+ global functions (all HTML/SVG tags). Yes, even <bdi>."),
+        li("Build your UI using familiar tag functions: div(), h1(), button(). Like the good old days."),
+        li("Use zero-arg functions for reactive content: () => `Count: ${count}`"),
+        li("Call update() when you're ready to sync changes. You're the boss."),
+        li("That's it! No virtual DOM, no proxies, no magic. Just you, the DOM, and a function called update().")
       )
     ),
   );

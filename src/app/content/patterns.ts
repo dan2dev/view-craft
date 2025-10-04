@@ -3,7 +3,7 @@ import type { Pattern } from '../types/content';
 export const advancedPatterns: Pattern[] = [
   {
     title: 'Nested structures',
-    description: 'Compose layouts with when() and list() to keep DOM reuse automatic.',
+    description: 'Combine when() and list() like you\'re building with LEGO blocks. DOM reuse happens automatically.',
     code: String.raw`
 when(() => user.isLoggedIn,
   div(
@@ -20,8 +20,8 @@ when(() => user.isLoggedIn,
 `,
   },
   {
-    title: 'Component helpers',
-    description: 'Extract reusable functions that return nodes—no classes or hooks required.',
+    title: 'Component-like functions',
+    description: 'Just functions that return DOM nodes. No classes, no hooks, no existential crisis.',
     code: String.raw`
 function UserCard(user: User) {
   return div(
@@ -35,8 +35,8 @@ list(() => users, user => UserCard(user));
 `,
   },
   {
-    title: 'Computed helpers',
-    description: 'Derive values with plain functions and re-run them whenever update() fires.',
+    title: 'Computed values',
+    description: 'Plain functions that compute things. They run when update() fires. Mind-blowing stuff.',
     code: String.raw`
 function activeCount() {
   return todos.filter(todo => !todo.done).length;
@@ -48,8 +48,8 @@ div(
 `,
   },
   {
-    title: 'Async flows',
-    description: 'Handle async work explicitly: mark loading, mutate state, call update() when promises settle.',
+    title: 'Loading states & async',
+    description: 'Mark as loading, await your async chaos, update when done. You\'re the orchestrator of this symphony.',
     code: String.raw`
 let state = { status: 'idle', data: [] };
 

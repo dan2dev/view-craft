@@ -27,13 +27,13 @@ export function heroSection(navigate: (path: string) => void) {
         {
           className: "mb-6 text-vc-primary max-w-3xl mx-auto",
         },
-        "The Composability Framework for Next-Gen Web Editors"
+        "A DOM library for people who peaked in the jQuery era and never looked back"
       ),
       p(
         {
           className: "text-lg text-vc-secondary mb-10 max-w-2xl mx-auto",
         },
-        "Stop building headaches, build ViewCraft dev-ship foundation. You trust a platform, high performance, type-safety and it feels just… fun. "
+        "Yes, this is yet another JavaScript library. We're aware. The ecosystem now has more libraries than actual developers. We're sorry. Or you're welcome? We're still figuring it out."
       ),
       div(
         {
@@ -41,11 +41,11 @@ export function heroSection(navigate: (path: string) => void) {
         },
         a(
           {
-            href: "#api",
+            href: "#get-started",
             className: "btn-primary",
           },
-          makeHandler("api"),
-          "Start Building Now",
+          makeHandler("get-started"),
+          "Get Started",
         ),
         a(
           {
@@ -53,14 +53,14 @@ export function heroSection(navigate: (path: string) => void) {
             className: "btn-secondary",
           },
           makeHandler("examples"),
-          "Learn what is great [↗]",
+          "See Examples",
         ),
       ),
       div(
         {
           className: "inline-block bg-vc-primary text-white text-xs px-3 py-1.5 rounded-full font-mono",
         },
-        "import { ViewCraftApp } from './examples/editor'"
+        "npm install view-craft"
       )
     ),
   );

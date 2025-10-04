@@ -11,20 +11,26 @@ export function installationSection() {
       },
       h2({
         className: "mb-4",
-      }, "Install & register globals"),
+      }, "Installation"),
       p(
         {
           className: "mb-8 text-base text-vc-secondary",
         },
         "One import to rule them all. Seriously, just one line and you get 140+ global functions. It's like Christmas morning for your code editor.",
       ),
-      codeBlock("bash", "pnpm add view-craft"),
+      codeBlock("bash", "npm install view-craft"),
       p({
         className: "mt-4 mb-8 text-sm text-vc-muted",
-      }, "Team npm? Team yarn? We don't judge. Swap pnpm for whatever brings you joy."),
+      }, "Team pnpm? Team yarn? Team bun? We don't judge. Swap npm for whatever brings you joy."),
       h3({
         className: "mb-4 mt-12",
-      }, "Bootstrap your app"),
+      }, "Usage"),
+      p(
+        {
+          className: "mb-8 text-base text-vc-secondary",
+        },
+        "Simply import once to register all global functions. Then start using div(), update(), on(), list(), when(), render(), etc. globally. Like they're part of the language. Which they basically are now.",
+      ),
       codeBlock(
         "ts",
         String.raw`
