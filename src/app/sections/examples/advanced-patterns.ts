@@ -23,7 +23,7 @@ export function advancedPatternsSection() {
         ...advancedPatterns.map(({ title, description, code }) =>
           article(
             {
-              className: "bg-white rounded-vc-card p-6 border border-vc-border",
+              className: "bg-vc-bgCard rounded-vc-card p-6 border border-vc-border",
             },
             div(
               {

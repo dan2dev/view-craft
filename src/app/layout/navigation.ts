@@ -4,7 +4,7 @@ import { themeToggle } from "../ui/theme-toggle";
 export function navigation(_getPath: () => string, onNavigate: (path: string) => void) {
   return nav(
     {
-      className: "sticky top-0 z-50 bg-white border-b border-vc-border",
+      className: "sticky top-0 z-50 bg-vc-bgCard border-b border-vc-border",
     },
     div(
       {

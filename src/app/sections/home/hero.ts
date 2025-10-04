@@ -7,7 +7,7 @@ export function heroSection(navigate: (path: string) => void) {
 
   return header(
     {
-      className: "pt-20 pb-24 bg-white",
+      className: "pt-20 pb-24 bg-vc-bgCard",
     },
     div(
       {
@@ -58,7 +58,7 @@ export function heroSection(navigate: (path: string) => void) {
       ),
       div(
         {
-          className: "inline-block bg-vc-primary text-white text-xs px-3 py-1.5 rounded-full font-mono",
+          className: "inline-block bg-vc-primary text-vc-text-inverse text-xs px-3 py-1.5 rounded-full font-mono",
         },
         "npm install view-craft"
       )

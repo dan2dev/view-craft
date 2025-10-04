@@ -19,7 +19,7 @@ export function debuggingSection() {
         },
         div(
           {
-            className: "bg-white rounded-vc-card p-6 border border-vc-border",
+            className: "bg-vc-bgCard rounded-vc-card p-6 border border-vc-border",
           },
           h3({
             className: "text-base font-semibold mb-3",
@@ -30,7 +30,7 @@ export function debuggingSection() {
         ),
         div(
           {
-            className: "bg-white rounded-vc-card p-6 border border-vc-border",
+            className: "bg-vc-bgCard rounded-vc-card p-6 border border-vc-border",
           },
           h3({
             className: "text-base font-semibold mb-3",
@@ -46,7 +46,7 @@ export function debuggingSection() {
         ),
         div(
           {
-            className: "bg-white rounded-vc-card p-6 border border-vc-border",
+            className: "bg-vc-bgCard rounded-vc-card p-6 border border-vc-border",
           },
           h3({
             className: "text-base font-semibold mb-3",

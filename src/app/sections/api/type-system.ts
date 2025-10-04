@@ -3,7 +3,7 @@ import { codeBlock } from '../../ui/code-block';
 export function typeSystemSection() {
   return section(
     {
-      className: "py-20 bg-white border-t border-vc-border",
+      className: "py-20 bg-vc-bgCard border-t border-vc-border",
     },
     div(
       {

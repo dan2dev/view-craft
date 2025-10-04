@@ -33,7 +33,7 @@ export function codeBlock(language: string, snippet: string) {
 
   return pre(
     {
-      className: "bg-vc-primary text-white rounded-vc-card p-5 overflow-x-auto my-6 font-mono text-sm leading-relaxed border border-vc-border",
+      className: "bg-vc-code-bg text-vc-code-text rounded-vc-card p-5 overflow-x-auto my-6 font-mono text-sm leading-relaxed border border-vc-border",
     },
     code(
       {

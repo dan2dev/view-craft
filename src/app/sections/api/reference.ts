@@ -23,7 +23,7 @@ export function apiReferenceSection() {
         ...coreFunctions.map(({ name, signature, description, notes }) =>
           article(
             {
-              className: "bg-white rounded-vc-card p-6 border border-vc-border",
+              className: "bg-vc-bgCard rounded-vc-card p-6 border border-vc-border",
             },
             h3({
               className: "mb-4 text-lg font-semibold",

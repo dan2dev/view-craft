@@ -47,7 +47,7 @@ export function quickExamplesSection() {
 
   return section(
     {
-      className: "py-20 bg-white border-t border-vc-border",
+      className: "py-20 bg-vc-bgCard border-t border-vc-border",
     },
     div(
       {
@@ -85,7 +85,7 @@ export function quickExamplesSection() {
                 style: () => {
                   const isActive = getActiveExampleIndex() === index;
                   return `
-                    background: ${isActive ? `linear-gradient(135deg, ${accentColor}40, ${accentColor}20)` : 'white'};
+                    background: ${isActive ? `linear-gradient(135deg, ${accentColor}40, ${accentColor}20)` : 'var(--vc-bgCard)'};
                     border-color: ${isActive ? accentColor : 'transparent'};
                   `;
                 },

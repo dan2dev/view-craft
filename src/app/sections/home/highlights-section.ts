@@ -35,7 +35,7 @@ export function highlightSection() {
         ...highlights.map(({ title, description }, index) =>
           article(
             {
-              className: "bg-white rounded-vc-card p-6 border border-vc-border hover:shadow-vc-card-hover transition-shadow",
+              className: "bg-vc-bgCard rounded-vc-card p-6 border border-vc-border hover:shadow-vc-card-hover transition-shadow",
             },
             div({
               className: "w-10 h-10 rounded-lg bg-vc-bg flex items-center justify-center text-vc-primary mb-4",
