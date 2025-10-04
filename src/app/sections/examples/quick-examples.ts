@@ -5,10 +5,18 @@ function exampleCard(example = getExamples()[0]) {
   const { title, summary, code } = example;
 
   return article(
-    { className: 'flex w-full flex-col gap-4 rounded-2xl border p-6 shadow-lg transition-all duration-300 hover:shadow-xl', style: 'background-color: var(--section-card-bg); border-color: var(--section-card-border);' },
+    {
+      className: 'flex w-full flex-col gap-4 border-2 p-7 transition-all duration-300',
+      style: `
+        background-color: var(--section-card-bg);
+        border-color: var(--vc-accent-seafoam);
+        border-radius: var(--vc-radius-xl);
+        box-shadow: var(--vc-shadow-1);
+      `
+    },
     div(
       { className: 'space-y-2' },
-      h3({ className: 'text-lg font-semibold', style: 'color: var(--text-primary);' }, title),
+      h3({ className: 'text-xl font-bold', style: 'color: var(--vc-color-primary-strong);' }, title),
       p({ className: 'text-sm leading-relaxed', style: 'color: var(--text-secondary);' }, summary)
     ),
     codeBlock('ts', code)
@@ -18,7 +26,15 @@ function exampleCard(example = getExamples()[0]) {
 function activeExampleView(examples = getExamples()) {
   if (examples.length === 0) {
     return div(
-      { className: 'rounded-2xl border p-6 text-sm', style: 'background-color: var(--section-card-bg); border-color: var(--section-card-border); color: var(--text-secondary);' },
+      {
+        className: 'border p-6 text-sm',
+        style: `
+          background-color: var(--section-card-bg);
+          border-color: var(--section-card-border);
+          color: var(--text-secondary);
+          border-radius: var(--vc-radius-lg);
+        `
+      },
       'Examples coming soon.'
     );
   }
@@ -45,23 +61,44 @@ export function quickExamplesSection() {
     div(
       { className: 'flex flex-col gap-6 lg:flex-row lg:gap-8' },
       div(
-        { className: 'flex shrink-0 flex-col gap-2 rounded-2xl border p-3 shadow-lg lg:w-60', style: 'background-color: var(--section-card-bg); border-color: var(--section-card-border);' },
+        {
+          className: 'flex shrink-0 flex-col gap-3 border-2 p-4 lg:w-64',
+          style: `
+            background: var(--vc-grad-panel);
+            border-color: var(--vc-accent-mint);
+            border-radius: var(--vc-radius-xl);
+            box-shadow: var(--vc-shadow-1);
+          `
+        },
         ...examples.map(({ title }, index) => {
-          const activeStyle = 'background-color: var(--bg-tertiary); color: var(--text-primary);';
-          const idleStyle = 'color: var(--text-secondary);';
+          const buttonColors = [
+            'var(--vc-accent-mint)',
+            'var(--vc-accent-seafoam)',
+            'var(--vc-accent-sky)',
+            'var(--vc-accent-peach)',
+            'var(--vc-accent-coral)',
+            'var(--vc-accent-teal)'
+          ];
+          const accentColor = buttonColors[index % buttonColors.length];
 
           return button(
             {
               type: 'button',
-              className: () => `w-full rounded-xl px-4 py-3 text-left text-sm font-medium transition-all cursor-pointer ${getActiveExampleIndex() === index ? 'ring-2' : 'hover:bg-opacity-50'}`,
+              className: () => `w-full px-4 py-3 text-left text-sm font-semibold transition-all cursor-pointer border-2 ${getActiveExampleIndex() === index ? 'scale-105' : 'hover:scale-102'}`,
               style: () => {
-                const base = getActiveExampleIndex() === index ? activeStyle : idleStyle;
-                return `${base} ${getActiveExampleIndex() === index ? 'ring-color: var(--emerald-border);' : ''}`;
+                const isActive = getActiveExampleIndex() === index;
+                return `
+                  background: ${isActive ? `linear-gradient(135deg, ${accentColor}40, ${accentColor}20)` : 'transparent'};
+                  color: ${isActive ? 'var(--text-primary)' : 'var(--text-secondary)'};
+                  border-color: ${isActive ? accentColor : 'transparent'};
+                  border-radius: var(--vc-radius-md);
+                  ${isActive ? 'box-shadow: var(--vc-shadow-1);' : ''}
+                `;
               },
             },
             on('click', () => selectExample(index)),
             span(
-              { className: 'block text-xs uppercase tracking-wide', style: 'color: var(--text-tertiary);' },
+              { className: 'block text-xs font-bold uppercase tracking-wide', style: `color: ${accentColor};` },
               `0${index + 1}`
             ),
             span({ className: 'mt-1 block text-base' }, title)

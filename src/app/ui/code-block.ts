@@ -32,7 +32,17 @@ export function codeBlock(language: string, snippet: string) {
     : escapeHtml(content);
 
   return pre(
-    { className: 'w-full overflow-x-auto rounded-xl p-4 ring-1 backdrop-blur transition-colors', style: 'background-color: var(--code-bg); border-color: var(--border-color);' },
+    {
+      className: 'w-full overflow-x-auto p-5 ring-2 backdrop-blur transition-all duration-200 hover:ring-opacity-80',
+      style: `
+        background-color: var(--code-bg);
+        border-color: var(--border-color);
+        border-radius: var(--vc-radius-lg);
+        box-shadow: var(--vc-inner-hi), var(--vc-inner-sh);
+        ring-color: var(--vc-accent-mint);
+        ring-opacity: 0.3;
+      `
+    },
     code(
       {
         className: `block w-full text-sm leading-relaxed language-${normalized}`,

@@ -10,7 +10,15 @@ export function advancedPatternsSection() {
       { className: 'flex flex-col gap-8' },
       ...advancedPatterns.map(({ title, description, code }) =>
         article(
-          { className: 'flex flex-col gap-4 rounded-2xl border p-6 shadow-lg transition-all duration-300 hover:shadow-xl', style: 'background-color: var(--section-card-bg); border-color: var(--section-card-border);' },
+          {
+            className: 'flex flex-col gap-4 border p-6 transition-all duration-300',
+            style: `
+              background-color: var(--section-card-bg);
+              border-color: var(--section-card-border);
+              border-radius: var(--vc-radius-lg);
+              box-shadow: var(--vc-shadow-1);
+            `
+          },
           div(
             { className: 'space-y-2' },
             h3({ className: 'text-lg font-semibold', style: 'color: var(--text-primary);' }, title),

@@ -10,7 +10,15 @@ export function apiReferenceSection() {
       { className: 'grid gap-6 md:grid-cols-2' },
       ...coreFunctions.map(({ name, signature, description, notes }) =>
         article(
-          { className: 'space-y-3 rounded-2xl border p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.01]', style: 'background-color: var(--section-card-bg); border-color: var(--section-card-border);' },
+          {
+            className: 'space-y-3 border p-6 transition-all duration-300 hover:scale-[1.01]',
+            style: `
+              background-color: var(--section-card-bg);
+              border-color: var(--section-card-border);
+              border-radius: var(--vc-radius-lg);
+              box-shadow: var(--vc-shadow-1);
+            `
+          },
           h3({ className: 'text-lg font-semibold', style: 'color: var(--text-primary);' }, name),
           codeBlock('ts', signature),
           p({ className: 'text-sm leading-relaxed', style: 'color: var(--text-secondary);' }, description),
