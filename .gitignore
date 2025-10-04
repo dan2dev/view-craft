@@ -27,3 +27,4 @@ coverage/
 CLAUDE.md
 AGENTS.md
 #docs/
+.vite/
